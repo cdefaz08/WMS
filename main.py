@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+import requests
 from pydantic import BaseModel
 from database import database, metadata, engine
 from models import items , users
@@ -9,6 +10,10 @@ app = FastAPI()
 
 # Create database tables
 metadata.create_all(engine)
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str
 
 # Pydantic model for data validation
 class Item(BaseModel):
@@ -85,14 +90,23 @@ async def delete_item(item_id: int):
 
 @app.post("/Users/", response_model=dict)
 async def create_user(user: Users):
+    uppercase_username = user.username.upper()
+
+   # Check if user already exists
+    query = users.select().where(users.c.username == uppercase_username)
+    existing_user = await database.fetch_one(query)
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Username already exists")
+
+    # Hash the password and insert the user
     hash_password = Hash_password(user.password)
     query = users.insert().values(
-        username = user.username,
-        password = hash_password,
-        role = user.role
+        username=uppercase_username,
+        password=hash_password,
+        role=user.role
     )
     await database.execute(query)
-    return {"message": "Item successfully added!"}
+    return {"message": "User successfully registered!"}
 
 @app.get("/Users/")
 async def read_users():
@@ -108,14 +122,14 @@ async def delete_user(user_id: int):
     return {"message": "User successfully deleted!"}
 
 @app.post("/login/")
-async def login(username: str, password: str):
-    query = users.select().where(users.c.username == username)
+async def login(request: LoginRequest):
+    query = users.select().where(users.c.username == request.username)
     db_user = await database.fetch_one(query)
 
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    if not verify_password(password, db_user["password"]):
+    if not verify_password(request.password, db_user["password"]):
         raise HTTPException(status_code=400, detail="Incorrect password")
     
     return {"message": "Login successful!"}

@@ -1,10 +1,11 @@
 from PyQt5 import QtWidgets, uic
+import requests
 import sys
 
 class LoginWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi("UI/layout.ui", self)
+        uic.loadUi("UI/Login_layout.ui", self)
         
         # Reference UI Elements
         self.User_input = self.findChild(QtWidgets.QLineEdit, 'User_input')
@@ -12,22 +13,40 @@ class LoginWindow(QtWidgets.QMainWindow):
         self.btn_Login = self.findChild(QtWidgets.QPushButton, 'btn_Login')
         self.btn_Cancel = self.findChild(QtWidgets.QPushButton, 'btn_Cancel')
 
+        self.User_input.textChanged.connect(self.force_uppercase)
+
       # Connect the Login Button
         self.btn_Login.clicked.connect(self.handle_login)
-        print("User_input:", self.User_input)
-        print("Passw_data:", self.Passw_data)   
+
+    def force_uppercase(self):
+        text = self.User_input.text()
+        self.User_input.setText(text.upper())
 
     def handle_login(self):
         username = self.User_input.text()
         password = self.Passw_data.text()
 
-        # Dummy Login Logic (Connect to FastAPI in future)
-        if username == "admin" and password == "password":
-            QtWidgets.QMessageBox.information(self, "Success", "Login Successful!")
-        else:
-            QtWidgets.QMessageBox.warning(self, "Error", "Invalid Username or Password")
+        #FastAPI enpoint
+        url = "http://localhost:8000/login/"
 
-   
+        #Sta to send to FastAPI
+        data = {
+            "username": username,
+            "password": password
+        }
+        
+        try:
+            response = requests.post(url, json=data)  # Note: Using `params` for query parameters
+            if response.status_code == 200:
+                QtWidgets.QMessageBox.information(self, "Success", "Login Successful!")
+            elif response.status_code == 404:
+                QtWidgets.QMessageBox.warning(self, "Error", "User not found")
+            elif response.status_code == 400:
+                QtWidgets.QMessageBox.warning(self, "Error", "Incorrect password")
+            else:
+                QtWidgets.QMessageBox.warning(self, "Error", "Login failed for unknown reasons")
+        except requests.exceptions.RequestException:
+            QtWidgets.QMessageBox.critical(self, "Error", "Failed to connect to the server")
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
