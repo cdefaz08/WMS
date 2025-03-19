@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 import requests
 from pydantic import BaseModel
-from WMS_System.database import database, metadata, engine
+from database import database, metadata, engine
 from models import items , users
 from utils import Hash_password, verify_password
 

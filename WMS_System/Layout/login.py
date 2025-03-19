@@ -6,7 +6,7 @@ from MainWindow import MainWindow
 class LoginWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi("UI/Login_layout.ui", self)
+        uic.loadUi("WMS_System/UI/Login_layout.ui", self)
         
         # Reference UI Elements
         self.User_input = self.findChild(QtWidgets.QLineEdit, 'User_input')

@@ -4,7 +4,7 @@ import requests
 class ItemSearchWindow(QtWidgets.QDialog):
     def __init__(self):
         super().__init__()
-        uic.loadUi("UI/item_search.ui", self)
+        uic.loadUi("WMS_System/UI/item_search.ui", self)
 
         # Reference UI Elements
         self.tableWidget_Items = self.findChild(QtWidgets.QTableWidget, 'tableWidget_Items')
