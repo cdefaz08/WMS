@@ -136,6 +136,12 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
+ <tabstops>
+  <tabstop>User_input</tabstop>
+  <tabstop>Passw_data</tabstop>
+  <tabstop>btn_Login</tabstop>
+  <tabstop>btn_Cancel</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

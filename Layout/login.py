@@ -16,7 +16,12 @@ class LoginWindow(QtWidgets.QMainWindow):
 
         self.User_input.textChanged.connect(self.force_uppercase)
 
-      # Connect the Login Button
+        # Set Password Field to Show `******`
+        self.Passw_data.setEchoMode(QtWidgets.QLineEdit.Password)
+
+        self.Passw_data.returnPressed.connect(self.handle_login)  # Enter triggers Login
+
+        # Connect the Login Button
         self.btn_Login.clicked.connect(self.handle_login)
 
     def force_uppercase(self):
@@ -39,7 +44,6 @@ class LoginWindow(QtWidgets.QMainWindow):
         try:
             response = requests.post(url, json=data)  # Note: Using `params` for query parameters
             if response.status_code == 200:
-                QtWidgets.QMessageBox.information(self, "Success", "Login Successful!")
                 self.open_main_window()
             elif response.status_code == 404:
                 QtWidgets.QMessageBox.warning(self, "Error", "User not found")
