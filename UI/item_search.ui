@@ -11,14 +11,14 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Item Search Window</string>
   </property>
   <widget class="QTableWidget" name="tableWidget_Items">
    <property name="geometry">
     <rect>
      <x>10</x>
      <y>130</y>
-     <width>731</width>
+     <width>721</width>
      <height>351</height>
     </rect>
    </property>
