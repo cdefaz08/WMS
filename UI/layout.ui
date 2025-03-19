@@ -13,17 +13,20 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
+  <property name="inputMethodHints">
+   <set>Qt::ImhHiddenText</set>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QWidget" name="LoginWindow" native="true">
     <property name="geometry">
      <rect>
-      <x>390</x>
-      <y>120</y>
+      <x>380</x>
+      <y>80</y>
       <width>341</width>
       <height>521</height>
      </rect>
     </property>
-    <widget class="QLabel" name="label_3">
+    <widget class="QLabel" name="lb_Welcome">
      <property name="geometry">
       <rect>
        <x>100</x>
@@ -41,63 +44,83 @@
       <string>WELCOME</string>
      </property>
     </widget>
-    <widget class="QWidget" name="">
+    <widget class="QPushButton" name="btn_Cancel">
      <property name="geometry">
       <rect>
-       <x>70</x>
-       <y>240</y>
-       <width>200</width>
-       <height>54</height>
+       <x>172</x>
+       <y>320</y>
+       <width>78</width>
+       <height>23</height>
       </rect>
      </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Login:        </string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QLineEdit" name="Passw_data_2"/>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="Passw_data"/>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Password:</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
+     <property name="text">
+      <string>Cancel</string>
+     </property>
     </widget>
-    <widget class="QSplitter" name="splitter">
+    <widget class="QPushButton" name="btn_Login">
      <property name="geometry">
       <rect>
        <x>90</x>
        <y>320</y>
-       <width>160</width>
+       <width>78</width>
        <height>23</height>
       </rect>
      </property>
-     <property name="midLineWidth">
-      <number>1</number>
+     <property name="text">
+      <string>Login</string>
      </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+    </widget>
+    <widget class="QLabel" name="lb_User">
+     <property name="geometry">
+      <rect>
+       <x>71</x>
+       <y>241</y>
+       <width>71</width>
+       <height>16</height>
+      </rect>
      </property>
-     <widget class="QPushButton" name="btn_Login">
-      <property name="text">
-       <string>Login</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="btn_Cancel">
-      <property name="text">
-       <string>Cancel</string>
-      </property>
-     </widget>
+     <property name="text">
+      <string>User Name:</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="Passw_data">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>270</y>
+       <width>125</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="inputMethodHints">
+      <set>Qt::ImhSensitiveData</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lb_password">
+     <property name="geometry">
+      <rect>
+       <x>71</x>
+       <y>270</y>
+       <width>61</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Password:</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="User_input">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>240</y>
+       <width>125</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="inputMethodHints">
+      <set>Qt::ImhUppercaseOnly</set>
+     </property>
     </widget>
    </widget>
   </widget>
