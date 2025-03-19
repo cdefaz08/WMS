@@ -13,15 +13,42 @@
   <property name="windowTitle">
    <string>Users Window</string>
   </property>
-  <widget class="QTableWidget" name="table_Users">
+  <widget class="QTableWidget" name="tableWidget_Users">
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>10</y>
+     <y>40</y>
      <width>781</width>
-     <height>571</height>
+     <height>541</height>
     </rect>
    </property>
+  </widget>
+  <widget class="QWidget" name="widget" native="true">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>0</y>
+     <width>781</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <widget class="QToolButton" name="toolButton_Save">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>71</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Save</string>
+    </property>
+    <property name="icon">
+     <iconset theme="Save">
+      <normaloff>.</normaloff>.</iconset>
+    </property>
+   </widget>
   </widget>
  </widget>
  <resources/>

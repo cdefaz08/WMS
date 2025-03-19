@@ -133,3 +133,18 @@ async def login(request: LoginRequest):
         raise HTTPException(status_code=400, detail="Incorrect password")
     
     return {"message": "Login successful!"}
+
+#update Users data
+@app.put("/Users/{user_id}")
+async def update_user(user_id: int, updated_data: dict):
+    # Force uppercase for the username
+    if 'username' in updated_data:
+        updated_data['username'] = updated_data['username'].upper()
+
+    query = users.update().where(users.c.id == user_id).values(updated_data)
+    result = await database.execute(query)
+
+    if result:
+        return {"message": "User updated successfully!"}
+    else:
+        raise HTTPException(status_code=404, detail="Failed to update user")
