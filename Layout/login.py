@@ -1,6 +1,7 @@
 from PyQt5 import QtWidgets, uic
 import requests
 import sys
+from MainWindow import MainWindow
 
 class LoginWindow(QtWidgets.QMainWindow):
     def __init__(self):
@@ -39,6 +40,7 @@ class LoginWindow(QtWidgets.QMainWindow):
             response = requests.post(url, json=data)  # Note: Using `params` for query parameters
             if response.status_code == 200:
                 QtWidgets.QMessageBox.information(self, "Success", "Login Successful!")
+                self.open_main_window()
             elif response.status_code == 404:
                 QtWidgets.QMessageBox.warning(self, "Error", "User not found")
             elif response.status_code == 400:
@@ -47,6 +49,11 @@ class LoginWindow(QtWidgets.QMainWindow):
                 QtWidgets.QMessageBox.warning(self, "Error", "Login failed for unknown reasons")
         except requests.exceptions.RequestException:
             QtWidgets.QMessageBox.critical(self, "Error", "Failed to connect to the server")
+
+    def open_main_window(self):
+        self.main_window = MainWindow()  # Create instance of Main Window
+        self.main_window.show()         # Show the Main Window
+        self.close()
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
