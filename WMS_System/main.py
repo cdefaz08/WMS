@@ -87,7 +87,7 @@ async def delete_item(item_id: int):
         raise HTTPException(status_code=404, detail="Item not found")
     return {"message": "Item successfully deleted!"}
 
-
+# Create User
 @app.post("/Users/", response_model=dict)
 async def create_user(user: Users):
     uppercase_username = user.username.upper()
@@ -109,9 +109,19 @@ async def create_user(user: Users):
     return {"message": "User successfully registered!"}
 
 @app.get("/Users/")
-async def read_users():
+async def get_users():
     query = users.select()
-    return await database.fetch_all(query)
+    result = await database.fetch_all(query)
+
+    # Add 'user_id' key to ensure it's included in the response
+    return [
+        {
+            "user_id": user["id"],  # Ensure the key matches what PyQt expects
+            "username": user["username"],
+            "role": user["role"]
+        }
+        for user in result
+    ]
 
 @app.delete("/Users/{user_id}")
 async def delete_user(user_id: int):
@@ -134,12 +144,16 @@ async def login(request: LoginRequest):
     
     return {"message": "Login successful!"}
 
-#update Users data
+
 @app.put("/Users/{user_id}")
-async def update_user(user_id: int, updated_data: dict):
+async def update_user(user_id: int, updated_data: dict, users: Users):
     # Force uppercase for the username
     if 'username' in updated_data:
         updated_data['username'] = updated_data['username'].upper()
+
+    # Hash the password before updating
+    if 'password' in updated_data and updated_data['password'].strip():
+        updated_data['password'] = Hash_password(updated_data["password"])
 
     query = users.update().where(users.c.id == user_id).values(updated_data)
     result = await database.execute(query)

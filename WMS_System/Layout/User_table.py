@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets, uic
+from PyQt5 import QtWidgets, uic , QtCore
 import requests
 from Create_NewUser import NewUserDialog  # Import the new dialog
 
@@ -40,6 +40,7 @@ class UsersTableWindow(QtWidgets.QDialog):
         """Load all users when the window opens."""
         try:
             response = requests.get("http://localhost:8000/Users/")
+
             if response.status_code == 200:
                 self.populate_table(response.json())
             else:
@@ -48,65 +49,88 @@ class UsersTableWindow(QtWidgets.QDialog):
             QtWidgets.QMessageBox.critical(self, "Error", "Failed to connect to the server")
 
     def populate_table(self, users):
-        """Populate the table with user data."""
+        """Populate the table with user data without displaying user_id."""
         self.tableWidget_Users.setRowCount(len(users))
-        self.tableWidget_Users.setColumnCount(3)
-        self.tableWidget_Users.setHorizontalHeaderLabels(["ID", "Username", "Role"])
+        self.tableWidget_Users.setColumnCount(2)  # Only display Username and Role
+        self.tableWidget_Users.setHorizontalHeaderLabels(["Username", "Role"])
 
         for row, user in enumerate(users):
-            self.tableWidget_Users.setItem(row, 0, QtWidgets.QTableWidgetItem(str(user["id"])))
-            self.tableWidget_Users.setItem(row, 1, QtWidgets.QTableWidgetItem(user["username"].upper()))  # Enforce Uppercase
-            self.tableWidget_Users.setItem(row, 2, QtWidgets.QTableWidgetItem(user["role"]))
+            # Store user_id as "hidden" data using Qt.UserRole
+            user_id_item = QtWidgets.QTableWidgetItem(str(user["username"]))
+            user_id_item.setData(QtCore.Qt.UserRole, user["user_id"])  # Hidden ID tracking
+            self.tableWidget_Users.setItem(row, 0, QtWidgets.QTableWidgetItem(user["username"].upper()))
+            self.tableWidget_Users.setItem(row, 1, QtWidgets.QTableWidgetItem(user["role"]))
+            
+            # Add the user_id data to track changes efficiently
+            self.tableWidget_Users.setItem(row, 0, user_id_item)
+
    
     def track_changes(self, item):
         """Track cell changes and apply uppercase for usernames."""
         row = item.row()
         column = item.column()
 
-        # Force uppercase only on the Username column
-        if column == 1:
+        # Retrieve the hidden user_id stored as Qt.UserRole
+        user_id_item = self.tableWidget_Users.item(row, 0)
+        user_id = user_id_item.data(QtCore.Qt.UserRole)  # Hidden user_id tracking
+
+        # Force uppercase for username
+        if column == 0:
             item.setText(item.text().upper())
 
-        column_name = ["id", "username", "role"][column]  # Column mapping
-        user_id = self.tableWidget_Users.item(row, 0).text()
+        column_name = ["username", "role"][column]  # Column mapping
 
-        # Store changes in a dictionary
+        # Store changes in the dictionary
         if user_id not in self.changes:
             self.changes[user_id] = {}
 
         self.changes[user_id][column_name] = item.text()
 
+
     def save_changes(self):
-        """Send the updated data to FastAPI for saving in the database."""
-        if not self.changes:
-            QtWidgets.QMessageBox.information(self, "No Changes", "No changes to save.")
-            return
+            """Send the updated data to FastAPI for saving in the database."""
+            if not self.changes:
+                QtWidgets.QMessageBox.information(self, "No Changes", "No changes to save.")
+                return
 
-        try:
-            for user_id, updated_data in self.changes.items():
-                if user_id == "NEW":
-                    # Handle new user creation with a POST request
-                    response = requests.post("http://localhost:8000/Users/", json=updated_data)
-                    
-                    if response.status_code == 200:
-                        QtWidgets.QMessageBox.information(self, "Success", "New user created successfully!")
+            try:
+                for user_id, updated_data in self.changes.items():
+                    # Collect required fields for FastAPI endpoint
+                    user_data = {
+                        "user_id": int(user_id) if user_id != "NEW" else None,  # Ensure user_id is an integer
+                        "username": updated_data.get("username", "").upper(),
+                        "password": updated_data.get("password", ""),  # Include password
+                        "role": updated_data.get("role", "")
+                    }
+
+                    # Validation to ensure all required fields are present
+                    if not all([user_data["username"], user_data["password"], user_data["role"]]):
+                        QtWidgets.QMessageBox.warning(self, "Error", f"Missing data for user {user_id}")
+                        continue
+
+                    if user_id == "NEW":
+                        # Handle new user creation with a POST request
+                        response = requests.post("http://localhost:8000/Users/", json=user_data)
+                        
+                        if response.status_code == 200:
+                            QtWidgets.QMessageBox.information(self, "Success", "New user created successfully!")
+                        else:
+                            QtWidgets.QMessageBox.warning(self, "Error", "Failed to create new user")
+
                     else:
-                        QtWidgets.QMessageBox.warning(self, "Error", "Failed to create new user")
+                        # Handle existing user updates with a PUT request
+                        response = requests.put(f"http://localhost:8000/Users/{user_id}", json=user_data)
 
-                else:
-                    # Handle existing user updates with a PUT request
-                    response = requests.put(f"http://localhost:8000/Users/{user_id}", json=updated_data)
+                        if response.status_code == 200:
+                            QtWidgets.QMessageBox.information(self, "Success", f"User {user_id} updated successfully!")
+                        else:
+                            QtWidgets.QMessageBox.warning(self, "Error", f"Failed to update user {user_id}")
 
-                    if response.status_code == 200:
-                        QtWidgets.QMessageBox.information(self, "Success", f"User {user_id} updated successfully!")
-                    else:
-                        QtWidgets.QMessageBox.warning(self, "Error", f"Failed to update user {user_id}")
+                # Clear changes after successful save
+                self.changes.clear()
 
-            # Clear changes after successful save
-            self.changes.clear()
-
-        except requests.exceptions.RequestException:
-            QtWidgets.QMessageBox.critical(self, "Error", "Failed to connect to the server")
+            except requests.exceptions.RequestException:
+                QtWidgets.QMessageBox.critical(self, "Error", "Failed to connect to the server")
 
     def reset_changes(self):
         """Reload the data from the database to discard unsaved changes."""
