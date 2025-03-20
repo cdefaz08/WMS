@@ -118,6 +118,7 @@ async def get_users():
         {
             "user_id": user["id"],  # Ensure the key matches what PyQt expects
             "username": user["username"],
+            "password": user["password"],
             "role": user["role"]
         }
         for user in result
@@ -146,19 +147,35 @@ async def login(request: LoginRequest):
 
 
 @app.put("/Users/{user_id}")
-async def update_user(user_id: int, updated_data: dict, users: Users):
-    # Force uppercase for the username
-    if 'username' in updated_data:
-        updated_data['username'] = updated_data['username'].upper()
+async def update_user(user_id: int, updated_data: dict):
+    # Dictionary to hold only the provided data
 
-    # Hash the password before updating
+    print(f"🚀 Received Data in Endpoint: {updated_data}")
+    
+    data_to_update = {}
+
+    # Add username if provided
+    if 'username' in updated_data and updated_data['username'].strip():
+        data_to_update['username'] = updated_data['username'].upper()
+
+    # Hash the password only if provided
     if 'password' in updated_data and updated_data['password'].strip():
-        updated_data['password'] = Hash_password(updated_data["password"])
+        data_to_update['password'] = Hash_password(updated_data['password'])
 
-    query = users.update().where(users.c.id == user_id).values(updated_data)
+    # Add role if provided
+    if 'role' in updated_data and updated_data['role'].strip():
+        data_to_update['role'] = updated_data['role']
+
+    # If no valid data to update, return an error
+    if not data_to_update:
+        raise HTTPException(status_code=400, detail="No valid fields provided for update")
+
+    # Perform the update only with the provided data
+    query = users.update().where(users.c.id == user_id).values(data_to_update)
     result = await database.execute(query)
 
     if result:
         return {"message": "User updated successfully!"}
     else:
         raise HTTPException(status_code=404, detail="Failed to update user")
+
