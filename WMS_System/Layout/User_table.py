@@ -1,30 +1,40 @@
 from PyQt5 import QtWidgets, uic
 import requests
+from Create_NewUser import NewUserDialog  # Import the new dialog
 
 class UsersTableWindow(QtWidgets.QDialog):
     def __init__(self):
         super().__init__()
-        uic.loadUi("WMS_System/UI/Users.ui", self)  # Verify this path
+        uic.loadUi("WMS_System/UI/Users.ui", self)
 
         # Reference UI Elements
         self.tableWidget_Users = self.findChild(QtWidgets.QTableWidget, 'tableWidget_Users')
-
-        # Debugging Check
-        print("tableWidget_Users:", self.tableWidget_Users)  # Should NOT print 'None'
+        self.toolButton_Save = self.findChild(QtWidgets.QToolButton, 'toolButton_Save')
+        self.toolButton_Reset = self.findChild(QtWidgets.QToolButton, 'toolButton_Reset')
+        self.toolButton_New = self.findChild(QtWidgets.QToolButton, 'toolButton_New')
 
         # Enable editing for the QTableWidget
-        if self.tableWidget_Users:
-            self.tableWidget_Users.setEditTriggers(QtWidgets.QAbstractItemView.AllEditTriggers)
-            self.load_users()
-        else:
-            QtWidgets.QMessageBox.critical(self, "Error", "Users table not found in UI file!")
+        self.tableWidget_Users.setEditTriggers(QtWidgets.QAbstractItemView.AllEditTriggers)
 
-        # Reference Save Button
-        self.toolButton_Save = self.findChild(QtWidgets.QToolButton, 'toolButton_Save')
+        # Load Users on Start
+        self.load_users()
+
+        # Connect Buttons to Functions
         self.toolButton_Save.clicked.connect(self.save_changes)
+        self.toolButton_Reset.clicked.connect(self.reset_changes)
+        self.toolButton_New.clicked.connect(self.open_new_user_dialog)
 
-        self.changes = {}  # Track changes
+        # Track changes
+        self.changes = {}
+
+        # Connect cell change tracking
         self.tableWidget_Users.itemChanged.connect(self.track_changes)
+
+    def open_new_user_dialog(self):
+        """Open the New User Dialog when the 'New' button is clicked."""
+        dialog = NewUserDialog()
+        if dialog.exec_():
+            self.load_users()  # Refresh data if a new user was created
 
     def load_users(self):
         """Load all users when the window opens."""
@@ -40,14 +50,14 @@ class UsersTableWindow(QtWidgets.QDialog):
     def populate_table(self, users):
         """Populate the table with user data."""
         self.tableWidget_Users.setRowCount(len(users))
-        self.tableWidget_Users.setColumnCount(3)  # Assuming columns: ID, Username, Role
+        self.tableWidget_Users.setColumnCount(3)
         self.tableWidget_Users.setHorizontalHeaderLabels(["ID", "Username", "Role"])
 
         for row, user in enumerate(users):
             self.tableWidget_Users.setItem(row, 0, QtWidgets.QTableWidgetItem(str(user["id"])))
-            self.tableWidget_Users.setItem(row, 1, QtWidgets.QTableWidgetItem(user["username"]))
+            self.tableWidget_Users.setItem(row, 1, QtWidgets.QTableWidgetItem(user["username"].upper()))  # Enforce Uppercase
             self.tableWidget_Users.setItem(row, 2, QtWidgets.QTableWidgetItem(user["role"]))
-
+   
     def track_changes(self, item):
         """Track cell changes and apply uppercase for usernames."""
         row = item.row()
@@ -74,15 +84,39 @@ class UsersTableWindow(QtWidgets.QDialog):
 
         try:
             for user_id, updated_data in self.changes.items():
-                response = requests.put(f"http://localhost:8000/Users/{user_id}", json=updated_data)
+                if user_id == "NEW":
+                    # Handle new user creation with a POST request
+                    response = requests.post("http://localhost:8000/Users/", json=updated_data)
+                    
+                    if response.status_code == 200:
+                        QtWidgets.QMessageBox.information(self, "Success", "New user created successfully!")
+                    else:
+                        QtWidgets.QMessageBox.warning(self, "Error", "Failed to create new user")
 
-                if response.status_code == 200:
-                    QtWidgets.QMessageBox.information(self, "Success", f"User {user_id} updated successfully!")
                 else:
-                    QtWidgets.QMessageBox.warning(self, "Error", f"Failed to update user {user_id}")
+                    # Handle existing user updates with a PUT request
+                    response = requests.put(f"http://localhost:8000/Users/{user_id}", json=updated_data)
+
+                    if response.status_code == 200:
+                        QtWidgets.QMessageBox.information(self, "Success", f"User {user_id} updated successfully!")
+                    else:
+                        QtWidgets.QMessageBox.warning(self, "Error", f"Failed to update user {user_id}")
 
             # Clear changes after successful save
             self.changes.clear()
 
         except requests.exceptions.RequestException:
             QtWidgets.QMessageBox.critical(self, "Error", "Failed to connect to the server")
+
+    def reset_changes(self):
+        """Reload the data from the database to discard unsaved changes."""
+        confirm = QtWidgets.QMessageBox.question(
+            self, "Reset", "Are you sure you want to reset all unsaved changes?",
+            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No
+        )
+        
+        if confirm == QtWidgets.QMessageBox.Yes:
+            self.load_users()  # Reload data to reset changes
+            self.changes.clear()
+            QtWidgets.QMessageBox.information(self, "Reset", "All unsaved changes have been discarded.")
+
