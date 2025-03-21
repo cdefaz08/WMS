@@ -77,9 +77,6 @@ class ItemSearchWindow(QtWidgets.QDialog):
         # Capture the new value
         new_value = item.text().strip()
 
-        print(f"Original Value: {original_value}")
-        print(f"New Value: {new_value}")
-
         # Track the modified data only if different from original
         if str(item_id) not in self.changes:
             self.changes[str(item_id)] = {}
@@ -96,7 +93,6 @@ class ItemSearchWindow(QtWidgets.QDialog):
         if str(item_id) in self.changes and not self.changes[str(item_id)]:
             del self.changes[str(item_id)]
 
-        print(f"🟡 Changes Tracked: {self.changes}")
 
 
     # ---------------------------- TABLE POPULATION FUNCTION ---------------------------- #
@@ -125,7 +121,6 @@ class ItemSearchWindow(QtWidgets.QDialog):
                 "is_offer": item.get("is_offer", False)
             }
 
-        print(f"🟡 Original Data Stored (Snapshot): {self.original_data}")
 
     # ---------------------------- SAVE CHANGES FUNCTION ---------------------------- #
     def save_changes(self):
@@ -154,7 +149,6 @@ class ItemSearchWindow(QtWidgets.QDialog):
 
         try:
             for item_id, updated_data in modified_data.items():
-                print(f"🔍 Data Before Sending: {updated_data}")
 
                 response = requests.put(
                     f"http://localhost:8000/items/{item_id}",

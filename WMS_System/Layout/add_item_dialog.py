@@ -3,7 +3,7 @@ from PyQt5 import QtWidgets, uic
 class AddItemDialog(QtWidgets.QDialog):
     def __init__(self):
         super().__init__()
-        uic.loadUi("WMS_System/UI/add_item.ui", self)  # Load your .ui file
+        uic.loadUi("../UI/add_item.ui", self)  # Load your .ui file
 
         # Reference UI Elements
         self.lineEdit_ItemCode = self.findChild(QtWidgets.QLineEdit, 'lineEdit_ItemCode')

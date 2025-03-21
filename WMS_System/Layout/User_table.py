@@ -68,43 +68,34 @@ class UsersTableWindow(QtWidgets.QDialog):
 
    
     def track_changes(self, item):
-        """Track changes when cells are modified."""
         row = item.row()
         column = item.column()
 
-        # Track the item ID
-        item_id = self.tableWidget_Items.item(row, 0).text()
+        user_id_item = self.tableWidget_Users.item(row, 0)
+        user_id = user_id_item.data(QtCore.Qt.UserRole)  # Hidden ID tracking
 
-        # Ensure valid item_id
-        if not item_id:
+        if not user_id:
+            print(f"❗Skipping row {row} - No user_id found")
             return
 
-        # Fetch the original value from the stored data
-        original_value = self.original_data.get(item_id, {}).get(
-            "item_code" if column == 1 else "price", ""
-        )
+        if user_id not in self.changes:
+            self.changes[user_id] = {}
 
-        # Capture the new value
-        new_value = item.text().strip()
+        # Track username
+        if column == 0:
+            self.changes[user_id]['username'] = item.text().strip().upper()
 
-        print(f"Original Value: {original_value}")
-        print(f"New Value: {new_value}")
+        # Track role
+        elif column == 1:
+            self.changes[user_id]['role'] = item.text().strip()
 
-        # Track the modified data only if different from original
-        if item_id not in self.changes:
-            self.changes[item_id] = {}
+        # Track password (if provided)
+        elif column == 2:
+            new_password = item.text().strip()
+            if new_password:  
+                self.changes[user_id]['password'] = new_password
 
-        if column == 1 and new_value != original_value:  # Item Code Column
-            self.changes[item_id]["item_code"] = new_value
-
-        elif column == 2 and new_value != original_value:  # Price Column
-            self.changes[item_id]["price"] = new_value
-
-        # Clean up if no changes remain for this item
-        if not self.changes[item_id]:
-            del self.changes[item_id]
-
-        print(f"🟡 Changes Tracked: {self.changes}")
+        print(f"🟩 Tracking Changes: {self.changes}")
 
 
     def save_changes(self):
@@ -143,6 +134,7 @@ class UsersTableWindow(QtWidgets.QDialog):
                     QtWidgets.QMessageBox.warning(self, "Error", f"Failed to update user {user_id}")
 
             self.changes.clear()
+            self.load_users()
 
         except requests.exceptions.RequestException:
             QtWidgets.QMessageBox.critical(self, "Error", "Failed to connect to the server")
