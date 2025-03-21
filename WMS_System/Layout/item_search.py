@@ -1,12 +1,12 @@
-from PyQt5 import QtWidgets, uic, QtCore
+from PyQt5 import QtWidgets, uic, QtCore 
 from table_toolbar import TableToolbar
 from add_item_dialog import AddItemDialog
 import requests
 
-class ItemSearchWindow(QtWidgets.QDialog):
-    def __init__(self):
-        super().__init__()
-        uic.loadUi("WMS_System/UI/item_search.ui", self)
+class ItemSearchWindow(QtWidgets.QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        uic.loadUi("WMS_System/UI/item_search3.ui", self)
 
         # Ensure there's a layout (add one if missing)
         if not self.layout():
@@ -19,6 +19,7 @@ class ItemSearchWindow(QtWidgets.QDialog):
         self.btn_Search = self.findChild(QtWidgets.QPushButton, 'btn_Search')
 
         self.btn_Search.clicked.connect(self.search_items)
+        self.installEventFilter(self)
 
         # Initialize Toolbar
         self.toolbar = TableToolbar(self)
@@ -43,6 +44,9 @@ class ItemSearchWindow(QtWidgets.QDialog):
 
         self.clear_table()
 
+        # Load initial data automatically
+        self.search_items()
+
     def open_add_item_dialog(self):
         """Open the Add Item Dialog when the 'Add New' button is clicked."""
         dialog = AddItemDialog()
@@ -50,7 +54,6 @@ class ItemSearchWindow(QtWidgets.QDialog):
             item_data = dialog.get_item_data()
             self.add_new_item(item_data)
 
-    # ---------------------------- TRACK CHANGES FUNCTION ---------------------------- #
     def track_changes(self, item):
         """Track changes when cells are modified."""
         row = item.row()
@@ -77,6 +80,9 @@ class ItemSearchWindow(QtWidgets.QDialog):
         # Capture the new value
         new_value = item.text().strip()
 
+        print(f"Original Value: {original_value}")
+        print(f"New Value: {new_value}")
+
         # Track the modified data only if different from original
         if str(item_id) not in self.changes:
             self.changes[str(item_id)] = {}
@@ -93,77 +99,7 @@ class ItemSearchWindow(QtWidgets.QDialog):
         if str(item_id) in self.changes and not self.changes[str(item_id)]:
             del self.changes[str(item_id)]
 
-
-
-    # ---------------------------- TABLE POPULATION FUNCTION ---------------------------- #
-    def populate_table(self, items):
-        """Populate the table with item data and store original values."""
-        self.original_data = {}  # Snapshot for tracking changes
-        self.tableWidget_Items.setRowCount(len(items))
-        self.tableWidget_Items.setColumnCount(3)
-        self.tableWidget_Items.setHorizontalHeaderLabels(["Item ID", "Price", "Active"])
-
-        for row, item in enumerate(items):
-            item_id_item = QtWidgets.QTableWidgetItem(str(item["item_id"]))
-            item_id_item.setData(QtCore.Qt.UserRole, item["id"])  # Hidden ID tracking
-
-            self.tableWidget_Items.setItem(row, 0, item_id_item)
-            self.tableWidget_Items.setItem(row, 1, QtWidgets.QTableWidgetItem(str(item["price"])))
-
-            # Translate is_offer (True/False) to Active (Yes/No) for better UI clarity
-            active_value = "Yes" if item.get("is_offer") else "No"
-            self.tableWidget_Items.setItem(row, 2, QtWidgets.QTableWidgetItem(active_value))
-
-            # Store original data snapshot for future comparison
-            self.original_data[str(item["id"])] = {
-                "item_id": item["item_id"],
-                "price": str(item["price"]),
-                "is_offer": item.get("is_offer", False)
-            }
-
-
-    # ---------------------------- SAVE CHANGES FUNCTION ---------------------------- #
-    def save_changes(self):
-        """Compare current table data with the snapshot and track only modified data."""
-        modified_data = {}
-
-        for row in range(self.tableWidget_Items.rowCount()):
-            item_id = self.tableWidget_Items.item(row, 0).data(QtCore.Qt.UserRole)
-            if not item_id:
-                continue
-
-            # Collect current row data
-            current_data = {
-                "item_id": self.tableWidget_Items.item(row, 0).text().strip(),
-                "price": self.tableWidget_Items.item(row, 1).text().strip(),
-                "is_offer": True if self.tableWidget_Items.item(row, 2).text().strip() == "Yes" else False
-            }
-
-            # Compare current data with the snapshot
-            if current_data != self.original_data.get(str(item_id), {}):
-                modified_data[str(item_id)] = current_data
-
-        if not modified_data:
-            QtWidgets.QMessageBox.information(self, "No Changes", "No changes to save.")
-            return
-
-        try:
-            for item_id, updated_data in modified_data.items():
-
-                response = requests.put(
-                    f"http://localhost:8000/items/{item_id}",
-                    json=updated_data,
-                    headers={"Content-Type": "application/json"}
-                )
-
-                if response.status_code == 200:
-                    QtWidgets.QMessageBox.information(self, "Success", f"Item {item_id} updated successfully!")
-                else:
-                    QtWidgets.QMessageBox.warning(self, "Error", f"Failed to update item {item_id}")
-
-        except requests.exceptions.RequestException:
-            QtWidgets.QMessageBox.critical(self, "Error", "Failed to connect to the server")
-
+        print(f"🟡 Changes Tracked: {self.changes}")
 
     # ---------------------------- SEARCH FUNCTION ---------------------------- #
     def search_items(self):
@@ -186,6 +122,71 @@ class ItemSearchWindow(QtWidgets.QDialog):
         except requests.exceptions.RequestException:
             QtWidgets.QMessageBox.critical(self, "Error", "Failed to connect to the server")
 
+    # ---------------------------- TABLE POPULATION FUNCTION ---------------------------- #
+    def populate_table(self, items):
+        """Populate the table with item data and store original values."""
+        self.original_data = {}
+        self.tableWidget_Items.setRowCount(len(items))
+        self.tableWidget_Items.setColumnCount(3)
+        self.tableWidget_Items.setHorizontalHeaderLabels(["Item ID", "Price", "Active"])
+
+        for row, item in enumerate(items):
+            item_id_item = QtWidgets.QTableWidgetItem(str(item["item_id"]))
+            item_id_item.setData(QtCore.Qt.UserRole, item["id"])
+
+            self.tableWidget_Items.setItem(row, 0, item_id_item)
+            self.tableWidget_Items.setItem(row, 1, QtWidgets.QTableWidgetItem(str(item["price"])))
+
+            active_value = "Yes" if item.get("is_offer") else "No"
+            self.tableWidget_Items.setItem(row, 2, QtWidgets.QTableWidgetItem(active_value))
+
+            self.original_data[str(item["id"])] = {
+                "item_id": item["item_id"],
+                "price": str(item["price"]),
+                "is_offer": item.get("is_offer", False)
+            }
+    def save_changes(self):
+            """Compare current table data with the snapshot and track only modified data."""
+            modified_data = {}
+
+            for row in range(self.tableWidget_Items.rowCount()):
+                item_id = self.tableWidget_Items.item(row, 0).data(QtCore.Qt.UserRole)
+                if not item_id:
+                    continue
+
+                # Collect current row data
+                current_data = {
+                    "item_id": self.tableWidget_Items.item(row, 0).text().strip(),
+                    "price": self.tableWidget_Items.item(row, 1).text().strip(),
+                    "is_offer": True if self.tableWidget_Items.item(row, 2).text().strip() == "Yes" else False
+                }
+
+                # Compare current data with the snapshot
+                if current_data != self.original_data.get(str(item_id), {}):
+                    modified_data[str(item_id)] = current_data
+
+            if not modified_data:
+                QtWidgets.QMessageBox.information(self, "No Changes", "No changes to save.")
+                return
+
+            try:
+                for item_id, updated_data in modified_data.items():
+                    print(f"🔍 Data Before Sending: {updated_data}")
+
+                    response = requests.put(
+                        f"http://localhost:8000/items/{item_id}",
+                        json=updated_data,
+                        headers={"Content-Type": "application/json"}
+                    )
+
+                    if response.status_code == 200:
+                        QtWidgets.QMessageBox.information(self, "Success", f"Item {item_id} updated successfully!")
+                    else:
+                        QtWidgets.QMessageBox.warning(self, "Error", f"Failed to update item {item_id}")
+
+            except requests.exceptions.RequestException:
+                QtWidgets.QMessageBox.critical(self, "Error", "Failed to connect to the server")
+
     # ---------------------------- CLEAR TABLE FUNCTION ---------------------------- #
     def clear_table(self):
         self.tableWidget_Items.setRowCount(0)
@@ -194,7 +195,6 @@ class ItemSearchWindow(QtWidgets.QDialog):
 
     # ---------------------------- RESET CHANGES FUNCTION ---------------------------- #
     def reset_changes(self):
-        """Reload data from the server to discard unsaved changes."""
         confirm = QtWidgets.QMessageBox.question(
             self,
             "Reset",
@@ -205,5 +205,5 @@ class ItemSearchWindow(QtWidgets.QDialog):
         if confirm == QtWidgets.QMessageBox.Yes:
             self.changes.clear()
             self.clear_table()
-            self.search_items()  # Reload data to discard changes
+            self.search_items()  
             QtWidgets.QMessageBox.information(self, "Reset", "All unsaved changes have been discarded.")

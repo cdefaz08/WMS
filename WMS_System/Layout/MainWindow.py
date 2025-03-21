@@ -18,7 +18,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionLogout.triggered.connect(self.logout)
         self.actionItem_Search.triggered.connect(self.open_item_search)
         self.actionUser_table.triggered.connect(self.open_user_table)
-
+        
     def logout(self):
         confirm = QtWidgets.QMessageBox.question(
             self, 
@@ -30,8 +30,15 @@ class MainWindow(QtWidgets.QMainWindow):
             self.close()  # Close the Main Window
 
     def open_item_search(self):
-        self.item_search_window = ItemSearchWindow()
-        self.item_search_window.show()
+        if not hasattr(self, 'item_search_window') or self.item_search_window is None:
+            self.item_search_window = ItemSearchWindow(self)
+
+            # Embed the item search window inside the frame
+            layout = QtWidgets.QVBoxLayout(self.frame_ItemSearch)
+            layout.setContentsMargins(0, 0, 0, 0)
+            layout.addWidget(self.item_search_window)
+            
+        self.item_search_window.show()  
 
     def open_user_table(self):
         self.Users_window = UsersTableWindow()
