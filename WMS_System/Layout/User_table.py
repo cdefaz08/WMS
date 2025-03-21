@@ -68,31 +68,44 @@ class UsersTableWindow(QtWidgets.QDialog):
 
    
     def track_changes(self, item):
+        """Track changes when cells are modified."""
         row = item.row()
         column = item.column()
 
-        user_id_item = self.tableWidget_Users.item(row, 0)
-        user_id = user_id_item.data(QtCore.Qt.UserRole)  # Hidden ID tracking
+        # Track the item ID
+        item_id = self.tableWidget_Items.item(row, 0).text()
 
-        if not user_id:
+        # Ensure valid item_id
+        if not item_id:
             return
 
-        if user_id not in self.changes:
-            self.changes[user_id] = {}
+        # Fetch the original value from the stored data
+        original_value = self.original_data.get(item_id, {}).get(
+            "item_code" if column == 1 else "price", ""
+        )
 
-        # Track username
-        if column == 0:
-            self.changes[user_id]['username'] = item.text().strip().upper()
+        # Capture the new value
+        new_value = item.text().strip()
 
-        # Track role
-        elif column == 1:
-            self.changes[user_id]['role'] = item.text().strip()
+        print(f"Original Value: {original_value}")
+        print(f"New Value: {new_value}")
 
-        # Track password (if provided)
-        elif column == 2:
-            new_password = item.text().strip()
-            if new_password:  
-                self.changes[user_id]['password'] = new_password
+        # Track the modified data only if different from original
+        if item_id not in self.changes:
+            self.changes[item_id] = {}
+
+        if column == 1 and new_value != original_value:  # Item Code Column
+            self.changes[item_id]["item_code"] = new_value
+
+        elif column == 2 and new_value != original_value:  # Price Column
+            self.changes[item_id]["price"] = new_value
+
+        # Clean up if no changes remain for this item
+        if not self.changes[item_id]:
+            del self.changes[item_id]
+
+        print(f"🟡 Changes Tracked: {self.changes}")
+
 
     def save_changes(self):
         if not self.changes:

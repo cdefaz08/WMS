@@ -14,6 +14,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionUser_table = self.findChild(QtWidgets.QAction, 'actionUsers')
 
         # Connect Actions
+        
         self.actionLogout.triggered.connect(self.logout)
         self.actionItem_Search.triggered.connect(self.open_item_search)
         self.actionUser_table.triggered.connect(self.open_user_table)

@@ -17,7 +17,7 @@ class LoginRequest(BaseModel):
 
 # Pydantic model for data validation
 class Item(BaseModel):
-    name: str
+    item_id: str
     price: float
     is_offer: bool = None
 
@@ -43,7 +43,7 @@ async def read_root():
 @app.post("/items/", response_model=dict)
 async def create_item(item: Item):
     query = items.insert().values(
-        name=item.name,
+        item_id=item.item_id,
         price=item.price,
         is_offer=item.is_offer
     )
@@ -67,16 +67,35 @@ async def read_item(item_id: int):
 
 # UPDATE - Update an item by ID
 @app.put("/items/{item_id}")
-async def update_item(item_id: int, item: Item):
-    query = items.update().where(items.c.id == item_id).values(
-        name=item.name,
-        price=item.price,
-        is_offer=item.is_offer
-    )
+async def update_item(item_id: int, updated_data: dict):
+    # Dictionary to hold only the provided data
+    data_to_update = {}
+
+    # Add item_code if provided
+    if 'item_id' in updated_data and updated_data['item_id'].strip():
+        data_to_update['item_id'] = updated_data['item_id']
+
+    # Add price if provided
+    if 'price' in updated_data and updated_data['price'].strip():
+        data_to_update['price'] = float(updated_data['price'])
+
+    # Add active status if provided
+    if 'is_offer' in updated_data:
+        data_to_update['is_offer'] = updated_data['is_offer']
+
+    # If no valid data to update, return an error
+    if not data_to_update:
+        raise HTTPException(status_code=400, detail="No valid fields provided for update")
+
+    # Perform the update only with the provided data
+    query = items.update().where(items.c.id == item_id).values(data_to_update)
     result = await database.execute(query)
-    if not result:
-        raise HTTPException(status_code=404, detail="Item not found")
-    return {"message": "Item successfully updated!"}
+
+    if result:
+        return {"message": "Item updated successfully!"}
+    else:
+        raise HTTPException(status_code=404, detail="Failed to update item")
+
 
 # DELETE - Delete an item by ID
 @app.delete("/items/{item_id}")
