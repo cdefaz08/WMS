@@ -52,8 +52,8 @@ class UsersTableWindow(QtWidgets.QDialog):
     def populate_table(self, users):
         """Populate the table with user data without displaying user_id."""
         self.tableWidget_Users.setRowCount(len(users))
-        self.tableWidget_Users.setColumnCount(2)  # Only display Username and Role
-        self.tableWidget_Users.setHorizontalHeaderLabels(["Username", "Role"])
+        self.tableWidget_Users.setColumnCount(3)  # Only display Username and Role, Password
+        self.tableWidget_Users.setHorizontalHeaderLabels(["Username", "Role","Password"])
 
         for row, user in enumerate(users):
             # Store user_id as "hidden" data using Qt.UserRole
@@ -61,6 +61,7 @@ class UsersTableWindow(QtWidgets.QDialog):
             user_id_item.setData(QtCore.Qt.UserRole, user["user_id"])  # Hidden ID tracking
             self.tableWidget_Users.setItem(row, 0, QtWidgets.QTableWidgetItem(user["username"].upper()))
             self.tableWidget_Users.setItem(row, 1, QtWidgets.QTableWidgetItem(user["role"]))
+            self.tableWidget_Users.setItem(row, 2, QtWidgets.QTableWidgetItem(""))  
             
             # Add the user_id data to track changes efficiently
             self.tableWidget_Users.setItem(row, 0, user_id_item)
@@ -74,7 +75,6 @@ class UsersTableWindow(QtWidgets.QDialog):
         user_id = user_id_item.data(QtCore.Qt.UserRole)  # Hidden ID tracking
 
         if not user_id:
-            print(f"❗Skipping row {row} - No user_id found")
             return
 
         if user_id not in self.changes:
@@ -93,10 +93,6 @@ class UsersTableWindow(QtWidgets.QDialog):
             new_password = item.text().strip()
             if new_password:  
                 self.changes[user_id]['password'] = new_password
-
-        print(f"🟩 Tracking Changes: {self.changes}")
-
-
 
     def save_changes(self):
         if not self.changes:

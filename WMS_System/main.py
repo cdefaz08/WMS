@@ -149,8 +149,6 @@ async def login(request: LoginRequest):
 @app.put("/Users/{user_id}")
 async def update_user(user_id: int, updated_data: dict):
     # Dictionary to hold only the provided data
-
-    print(f"🚀 Received Data in Endpoint: {updated_data}")
     
     data_to_update = {}
 
