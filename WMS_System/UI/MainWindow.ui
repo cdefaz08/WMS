@@ -14,20 +14,14 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QFrame" name="frame_ItemSearch">
+   <widget class="QMdiArea" name="mdiArea">
     <property name="geometry">
      <rect>
       <x>0</x>
       <y>0</y>
       <width>1111</width>
-      <height>771</height>
+      <height>781</height>
      </rect>
-    </property>
-    <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
-    </property>
-    <property name="frameShadow">
-     <enum>QFrame::Raised</enum>
     </property>
    </widget>
   </widget>

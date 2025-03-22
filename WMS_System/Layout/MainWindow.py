@@ -6,7 +6,7 @@ from User_table import UsersTableWindow
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi("WMS_System/UI/MainWindow.ui", self)
+        uic.loadUi("UI/MainWindow.ui", self)
 
         # Reference Actions
         self.actionLogout = self.findChild(QtWidgets.QAction, 'actionLogout')

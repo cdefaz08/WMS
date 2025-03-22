@@ -6,7 +6,7 @@ import requests
 class ItemSearchWindow(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        uic.loadUi("WMS_System/UI/item_search3.ui", self)
+        uic.loadUi("UI/item_search3.ui", self)
 
         # Ensure there's a layout (add one if missing)
         if not self.layout():
