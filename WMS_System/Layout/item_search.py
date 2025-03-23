@@ -1,12 +1,11 @@
 from PyQt5 import QtWidgets, uic, QtCore 
-from table_toolbar import TableToolbar
 from add_item_dialog import AddItemDialog
 import requests
 
-class ItemSearchWindow(QtWidgets.QWidget):
+class ItemSearchWindow(QtWidgets.QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        uic.loadUi("UI/item_search3.ui", self)
+        uic.loadUi("WMS_System/UI/item_search1.ui", self)
 
         # Ensure there's a layout (add one if missing)
         if not self.layout():
@@ -17,18 +16,11 @@ class ItemSearchWindow(QtWidgets.QWidget):
         self.tableWidget_Items = self.findChild(QtWidgets.QTableWidget, 'tableWidget_Items')
         self.lineEdit_Search = self.findChild(QtWidgets.QLineEdit, 'lineEdit_Search')
         self.btn_Search = self.findChild(QtWidgets.QPushButton, 'btn_Search')
+        self.actionNew = self.findChild(QtWidgets.QAction, 'actionNew') 
 
         self.btn_Search.clicked.connect(self.search_items)
         self.installEventFilter(self)
 
-        # Initialize Toolbar
-        self.toolbar = TableToolbar(self)
-        self.toolbar.set_table(self.tableWidget_Items)
-        self.toolbar.set_callbacks(self.save_changes, self.reset_changes)
-        self.toolbar.action_add.triggered.connect(self.open_add_item_dialog)
-
-        # Add Toolbar at the Top (Row 0)
-        self.layout().addWidget(self.toolbar, 0, 0, 1, 3)
 
         # Add Search Bar and Button (Row 1)
         self.layout().addWidget(self.lineEdit_Search, 1, 0, 1, 2)
@@ -44,8 +36,6 @@ class ItemSearchWindow(QtWidgets.QWidget):
 
         self.clear_table()
 
-        # Load initial data automatically
-        self.search_items()
 
     def open_add_item_dialog(self):
         """Open the Add Item Dialog when the 'Add New' button is clicked."""
@@ -80,8 +70,6 @@ class ItemSearchWindow(QtWidgets.QWidget):
         # Capture the new value
         new_value = item.text().strip()
 
-        print(f"Original Value: {original_value}")
-        print(f"New Value: {new_value}")
 
         # Track the modified data only if different from original
         if str(item_id) not in self.changes:

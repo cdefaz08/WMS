@@ -1,4 +1,5 @@
 from PyQt5 import QtWidgets, uic
+from PyQt5.QtCore import Qt 
 import sys
 from item_search import ItemSearchWindow  # Import the new sub-window
 from User_table import UsersTableWindow
@@ -6,7 +7,9 @@ from User_table import UsersTableWindow
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi("UI/MainWindow.ui", self)
+        uic.loadUi("WMS_System/UI/MainWindow.ui", self)
+
+        self.mdiArea = self.findChild(QtWidgets.QMdiArea, 'mdiArea')
 
         # Reference Actions
         self.actionLogout = self.findChild(QtWidgets.QAction, 'actionLogout')
@@ -18,6 +21,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionLogout.triggered.connect(self.logout)
         self.actionItem_Search.triggered.connect(self.open_item_search)
         self.actionUser_table.triggered.connect(self.open_user_table)
+
+        #toolbar Actions
         
     def logout(self):
         confirm = QtWidgets.QMessageBox.question(
@@ -30,15 +35,24 @@ class MainWindow(QtWidgets.QMainWindow):
             self.close()  # Close the Main Window
 
     def open_item_search(self):
-        if not hasattr(self, 'item_search_window') or self.item_search_window is None:
-            self.item_search_window = ItemSearchWindow(self)
+        # Check if the window is already open to avoid duplicates
+        for sub_window in self.mdiArea.subWindowList():
+            if isinstance(sub_window.widget(), ItemSearchWindow):
+                sub_window.show()
+                sub_window.setFocus()
+                return  
 
-            # Embed the item search window inside the frame
-            layout = QtWidgets.QVBoxLayout(self.frame_ItemSearch)
-            layout.setContentsMargins(0, 0, 0, 0)
-            layout.addWidget(self.item_search_window)
-            
-        self.item_search_window.show()  
+        # Create a new QMdiSubWindow
+        item_search_subwindow = QtWidgets.QMdiSubWindow()
+        self.item_search_window = ItemSearchWindow(self)
+        item_search_subwindow.setWidget(self.item_search_window)
+        item_search_subwindow.setWindowTitle("Item Search")
+
+        # Ensure the subwindow is deleted when closed
+        item_search_subwindow.setAttribute(Qt.WA_DeleteOnClose)
+
+        self.mdiArea.addSubWindow(item_search_subwindow)
+        item_search_subwindow.show()
 
     def open_user_table(self):
         self.Users_window = UsersTableWindow()
