@@ -87,7 +87,6 @@ class ItemSearchWindow(QtWidgets.QDialog):
         if str(item_id) in self.changes and not self.changes[str(item_id)]:
             del self.changes[str(item_id)]
 
-        print(f"🟡 Changes Tracked: {self.changes}")
 
     # ---------------------------- SEARCH FUNCTION ---------------------------- #
     def search_items(self):
@@ -159,8 +158,7 @@ class ItemSearchWindow(QtWidgets.QDialog):
 
             try:
                 for item_id, updated_data in modified_data.items():
-                    print(f"🔍 Data Before Sending: {updated_data}")
-
+                    
                     response = requests.put(
                         f"http://localhost:8000/items/{item_id}",
                         json=updated_data,
