@@ -7,6 +7,7 @@ items = Table(
     metadata,
     Column("id", Integer, primary_key=True, autoincrement=True),
     Column("item_id", String(50)),
+    Column("description", String(60)),
     Column("price", Float),
     Column("is_offer", Boolean)
 )

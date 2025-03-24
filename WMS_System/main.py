@@ -18,6 +18,7 @@ class LoginRequest(BaseModel):
 # Pydantic model for data validation
 class Item(BaseModel):
     item_id: str
+    description: str
     price: float
     is_offer: bool = None
 
@@ -44,6 +45,7 @@ async def read_root():
 async def create_item(item: Item):
     query = items.insert().values(
         item_id=item.item_id,
+        description=item.description,
         price=item.price,
         is_offer=item.is_offer
     )
@@ -74,6 +76,9 @@ async def update_item(item_id: int, updated_data: dict):
     # Add item_code if provided
     if 'item_id' in updated_data and updated_data['item_id'].strip():
         data_to_update['item_id'] = updated_data['item_id']
+
+    if 'description' in updated_data and updated_data['description'].strip():
+        data_to_update['description'] = updated_data['description']
 
     # Add price if provided
     if 'price' in updated_data and updated_data['price'].strip():

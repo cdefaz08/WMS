@@ -9,6 +9,7 @@ class AddItemDialog(QtWidgets.QDialog):
         self.lineEdit_ItemCode = self.findChild(QtWidgets.QLineEdit, 'lineEdit_ItemCode')
         self.lineEdit_Price = self.findChild(QtWidgets.QLineEdit, 'lineEdit_Price')
         self.lineEdit_Active = self.findChild(QtWidgets.QLineEdit, 'lineEdit_Active')
+        self.lineEdit_description = self.findChild(QtWidgets.QLineEdit, 'lineEdit_description')
         self.buttonBox = self.findChild(QtWidgets.QDialogButtonBox, 'buttonBox')
 
         # Connect the buttons
@@ -18,6 +19,7 @@ class AddItemDialog(QtWidgets.QDialog):
     def submit_item(self):
         """Submit new item data."""
         item_code = self.lineEdit_ItemCode.text().strip()
+        description = self.lineEdit_description.text().strip()
         price = self.lineEdit_Price.text().strip()
         active_status = self.lineEdit_Active.text().strip()
 
@@ -27,6 +29,7 @@ class AddItemDialog(QtWidgets.QDialog):
 
         self.item_data = {
             "item_id": item_code,
+            "description": description,
             "price": price,
             "active": active_status if active_status else "1"  # Default to active
         }

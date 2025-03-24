@@ -77,9 +77,11 @@ class ItemSearchWindow(QtWidgets.QDialog):
         original_value = None
         if column == 0:  # Item ID Column
             original_value = self.original_data[str(item_id)]["item_id"]
-        elif column == 1:  # Price Column
+        elif column == 1:
+            original_value = self.original_data[str(item_id)]["description"]
+        elif column == 2:  # Price Column
             original_value = str(self.original_data[str(item_id)]["price"])
-        elif column == 2:  # Active Column
+        elif column == 3:  # Active Column
             original_value = "Yes" if self.original_data[str(item_id)]["is_offer"] else "No"
 
         # Capture the new value
@@ -93,8 +95,10 @@ class ItemSearchWindow(QtWidgets.QDialog):
         if column == 0 and new_value != original_value:
             self.changes[str(item_id)]["item_id"] = new_value
         elif column == 1 and new_value != original_value:
-            self.changes[str(item_id)]["price"] = new_value
+            self.changes[str(item_id)]["description"] = new_value
         elif column == 2 and new_value != original_value:
+            self.changes[str(item_id)]["price"] = new_value
+        elif column == 3 and new_value != original_value:
             self.changes[str(item_id)]["is_offer"] = True if new_value == "Yes" else False
 
         # ✅ Ensure empty entries are properly removed
@@ -132,21 +136,23 @@ class ItemSearchWindow(QtWidgets.QDialog):
         """Populate the table with item data and store original values."""
         self.original_data = {}
         self.tableWidget_Items.setRowCount(len(items))
-        self.tableWidget_Items.setColumnCount(3)
-        self.tableWidget_Items.setHorizontalHeaderLabels(["Item ID", "Price", "Active"])
+        self.tableWidget_Items.setColumnCount(4)
+        self.tableWidget_Items.setHorizontalHeaderLabels(["Item ID","Description", "Price", "Active"])
 
         for row, item in enumerate(items):
             item_id_item = QtWidgets.QTableWidgetItem(str(item["item_id"]))
             item_id_item.setData(QtCore.Qt.UserRole, item["id"])
 
             self.tableWidget_Items.setItem(row, 0, item_id_item)
-            self.tableWidget_Items.setItem(row, 1, QtWidgets.QTableWidgetItem(str(item["price"])))
+            self.tableWidget_Items.setItem(row, 1, QtWidgets.QTableWidgetItem(str(item["description"])))
+            self.tableWidget_Items.setItem(row, 2, QtWidgets.QTableWidgetItem(str(item["price"])))
 
             active_value = "Yes" if item.get("is_offer") else "No"
-            self.tableWidget_Items.setItem(row, 2, QtWidgets.QTableWidgetItem(active_value))
+            self.tableWidget_Items.setItem(row, 3, QtWidgets.QTableWidgetItem(active_value))
 
             self.original_data[str(item["id"])] = {
                 "item_id": item["item_id"],
+                "description": item["description"],
                 "price": str(item["price"]),
                 "is_offer": item.get("is_offer", False)
             }
@@ -182,11 +188,18 @@ class ItemSearchWindow(QtWidgets.QDialog):
     # ---------------------------- CLEAR TABLE FUNCTION ---------------------------- #
     def clear_table(self):
         self.tableWidget_Items.setRowCount(0)
-        self.tableWidget_Items.setColumnCount(3)
-        self.tableWidget_Items.setHorizontalHeaderLabels(["ID", "Item ID", "Price"])
+        self.tableWidget_Items.setColumnCount(4)
+        self.tableWidget_Items.setHorizontalHeaderLabels(["Item ID","Description", "Price","Active"])
 
     # ---------------------------- RESET CHANGES FUNCTION ---------------------------- #
     def discard_changes(self):
+        """Check if there are changes before asking for confirmation."""
+        if not self.changes:
+            self.search_items()
+            QtWidgets.QMessageBox.information(self, "Info", "No unsaved changes to discard.")
+            return  # Exit early since no changes exist
+
+        # Ask for confirmation only if there are changes
         confirm = QtWidgets.QMessageBox.question(
             self,
             "Reset",
@@ -197,5 +210,6 @@ class ItemSearchWindow(QtWidgets.QDialog):
         if confirm == QtWidgets.QMessageBox.Yes:
             self.changes.clear()
             self.clear_table()
-            self.search_items()  
+            self.search_items()
             QtWidgets.QMessageBox.information(self, "Reset", "All unsaved changes have been discarded.")
+
