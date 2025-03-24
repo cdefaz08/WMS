@@ -66,46 +66,49 @@ class ItemSearchWindow(QtWidgets.QDialog):
 
         # Retrieve the item ID from the hidden data
         item_id = self.tableWidget_Items.item(row, 0).data(QtCore.Qt.UserRole)
-
-        # Ensure valid item_id
         if not item_id:
             return
 
-        # Initialize 'original_value' to avoid undefined errors
-        original_value = ""
+        # Ensure the item ID is properly initialized
+        if str(item_id) not in self.original_data:
+            return  # Ignore entries that were not originally loaded
 
-        # Correctly retrieve the original value from stored data
+        # Initialize the original value properly
+        original_value = None
         if column == 0:  # Item ID Column
-            original_value = self.original_data.get(str(item_id), {}).get("item_id", "")
+            original_value = self.original_data[str(item_id)]["item_id"]
         elif column == 1:  # Price Column
-            original_value = self.original_data.get(str(item_id), {}).get("price", "")
-        elif column == 2:  # Active (is_offer) Column
-            original_value = "Yes" if self.original_data.get(str(item_id), {}).get("is_offer", False) else "No"
+            original_value = str(self.original_data[str(item_id)]["price"])
+        elif column == 2:  # Active Column
+            original_value = "Yes" if self.original_data[str(item_id)]["is_offer"] else "No"
 
         # Capture the new value
         new_value = item.text().strip()
-
 
         # Track the modified data only if different from original
         if str(item_id) not in self.changes:
             self.changes[str(item_id)] = {}
 
-        # ✅ Only add data to `self.changes` if there’s an actual change
-        if column == 0 and new_value != original_value:  # Item ID Column
+        # Correctly track individual fields
+        if column == 0 and new_value != original_value:
             self.changes[str(item_id)]["item_id"] = new_value
-        elif column == 1 and new_value != original_value:  # Price Column
+        elif column == 1 and new_value != original_value:
             self.changes[str(item_id)]["price"] = new_value
-        elif column == 2 and new_value != original_value:  # Active Column
+        elif column == 2 and new_value != original_value:
             self.changes[str(item_id)]["is_offer"] = True if new_value == "Yes" else False
 
-        # ✅ Remove entry if no changes remain for this item
-        if str(item_id) in self.changes and not self.changes[str(item_id)]:
+        # ✅ Ensure empty entries are properly removed
+        if not self.changes[str(item_id)]:
             del self.changes[str(item_id)]
+
+        print("print changes:", self.changes)
+
 
 
     # ---------------------------- SEARCH FUNCTION ---------------------------- #
     def search_items(self):
         search_term = self.lineEdit_Search.text().strip()
+        self.changes.clear()
 
         try:
             response = requests.get("http://localhost:8000/items/")
@@ -151,45 +154,30 @@ class ItemSearchWindow(QtWidgets.QDialog):
 
 
     def save_changes(self):
-            """Compare current table data with the snapshot and track only modified data."""
-            modified_data = {}
+        """Send only the tracked changes to the API."""
+        if not self.changes:
+            QtWidgets.QMessageBox.information(self, "No Changes", "No changes to save.")
+            return
 
-            for row in range(self.tableWidget_Items.rowCount()):
-                item_id = self.tableWidget_Items.item(row, 0).data(QtCore.Qt.UserRole)
-                if not item_id:
-                    continue
+        try:
+            for item_id, updated_data in self.changes.items():
+                response = requests.put(
+                    f"http://localhost:8000/items/{item_id}",
+                    json=updated_data,
+                    headers={"Content-Type": "application/json"}
+                )
 
-                # Collect current row data
-                current_data = {
-                    "item_id": self.tableWidget_Items.item(row, 0).text().strip(),
-                    "price": self.tableWidget_Items.item(row, 1).text().strip(),
-                    "is_offer": True if self.tableWidget_Items.item(row, 2).text().strip() == "Yes" else False
-                }
+                if response.status_code == 200:
+                    QtWidgets.QMessageBox.information(self, "Success", f"Item {item_id} updated successfully!")
+                else:
+                    QtWidgets.QMessageBox.warning(self, "Error", f"Failed to update item {item_id}")
 
-                # Compare current data with the snapshot
-                if current_data != self.original_data.get(str(item_id), {}):
-                    modified_data[str(item_id)] = current_data
+            # Clear changes only after a successful save
+            self.changes.clear()
 
-            if not modified_data:
-                QtWidgets.QMessageBox.information(self, "No Changes", "No changes to save.")
-                return
+        except requests.exceptions.RequestException:
+            QtWidgets.QMessageBox.critical(self, "Error", "Failed to connect to the server")
 
-            try:
-                for item_id, updated_data in modified_data.items():
-                    
-                    response = requests.put(
-                        f"http://localhost:8000/items/{item_id}",
-                        json=updated_data,
-                        headers={"Content-Type": "application/json"}
-                    )
-
-                    if response.status_code == 200:
-                        QtWidgets.QMessageBox.information(self, "Success", f"Item {item_id} updated successfully!")
-                    else:
-                        QtWidgets.QMessageBox.warning(self, "Error", f"Failed to update item {item_id}")
-
-            except requests.exceptions.RequestException:
-                QtWidgets.QMessageBox.critical(self, "Error", "Failed to connect to the server")
 
     # ---------------------------- CLEAR TABLE FUNCTION ---------------------------- #
     def clear_table(self):
