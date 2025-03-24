@@ -31,15 +31,25 @@
    </property>
    <widget class="QMenu" name="menuItems">
     <property name="title">
-     <string>Items</string>
+     <string>Inquiry</string>
     </property>
+    <addaction name="actionLocation_Search"/>
+    <addaction name="separator"/>
     <addaction name="actionItem_Search"/>
    </widget>
    <widget class="QMenu" name="menuConfigurations">
     <property name="title">
      <string>Configurations</string>
     </property>
+    <widget class="QMenu" name="menuLocations">
+     <property name="title">
+      <string>Locations</string>
+     </property>
+     <addaction name="actionLocation"/>
+     <addaction name="actionLocation_Types_2"/>
+    </widget>
     <addaction name="actionUsers"/>
+    <addaction name="menuLocations"/>
    </widget>
    <widget class="QMenu" name="menuFiles">
     <property name="title">
@@ -47,9 +57,18 @@
     </property>
     <addaction name="actionLogout"/>
    </widget>
+   <widget class="QMenu" name="menuActivities">
+    <property name="title">
+     <string>Activities</string>
+    </property>
+    <addaction name="actionOrders"/>
+    <addaction name="actionReceiving"/>
+    <addaction name="actionLabels"/>
+   </widget>
+   <addaction name="menuFiles"/>
+   <addaction name="menuActivities"/>
    <addaction name="menuItems"/>
    <addaction name="menuConfigurations"/>
-   <addaction name="menuFiles"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
@@ -65,6 +84,7 @@
    <addaction name="actionNew"/>
    <addaction name="actionSave"/>
    <addaction name="actionDiscard"/>
+   <addaction name="actionRefresh"/>
   </widget>
   <action name="actionItem_Search">
    <property name="text">
@@ -93,7 +113,53 @@
   </action>
   <action name="actionDiscard">
    <property name="text">
-    <string>discard</string>
+    <string>Discard</string>
+   </property>
+   <property name="toolTip">
+    <string>Discard</string>
+   </property>
+  </action>
+  <action name="actionRefresh">
+   <property name="text">
+    <string>Refresh</string>
+   </property>
+   <property name="toolTip">
+    <string>Refresh</string>
+   </property>
+  </action>
+  <action name="actionOrders">
+   <property name="text">
+    <string>Orders</string>
+   </property>
+  </action>
+  <action name="actionReceiving">
+   <property name="text">
+    <string>Receiving</string>
+   </property>
+  </action>
+  <action name="actionLabels">
+   <property name="text">
+    <string>Labels</string>
+   </property>
+  </action>
+  <action name="actionLocation_Search">
+   <property name="text">
+    <string>Location Search</string>
+   </property>
+  </action>
+  <action name="actionLocation_Types">
+   <property name="text">
+    <string>Location Types</string>
+   </property>
+  </action>
+  <action name="actionLocation">
+   <property name="text">
+    <string>Location</string>
+   </property>
+  </action>
+  <action name="actionLocation_Types_2">
+   <property name="text">
+    <string>Location Types</string>
    </property>
   </action>
  </widget>
