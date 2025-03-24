@@ -148,15 +148,6 @@ class ItemSearchWindow(QtWidgets.QDialog):
                 "is_offer": item.get("is_offer", False)
             }
 
-    def refresh_table(self):
-        try:
-            response = requests.get("http://localhost:8000/items/")
-            if response.status_code == 200:
-                items = response.json()
-                self.populate_table(items)
-
-        except requests.exceptions.RequestException:
-            QtWidgets.QMessageBox.critical(self, "Error", "Failed to connect to the server")
 
 
     def save_changes(self):

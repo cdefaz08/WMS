@@ -56,7 +56,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.new_button.triggered.connect(self.toolbar_new)
         self.save_button.triggered.connect(self.toolbar_save)
         self.discard_button.triggered.connect(self.toolbar_discard)
-        self.refresh_button.triggered.connect(self.toolbar_refresh)
     #----------------------------Tolbar New Window-----------------------------------
     def toolbar_new(self):
         active_window = self.get_active_window()
@@ -90,18 +89,6 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.discard_users()  # Example function in UsersTableWindow
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
-    #----------------------------Toolbar Refresh Triger-----------------------------------
-
-    def toolbar_refresh(self):
-        active_window = self.get_active_window()
-
-        if isinstance(active_window,ItemSearchWindow):
-            active_window.refresh_table()
-        elif isinstance(active_window,UsersTableWindow):
-            QtWidgets.QMessageBox.warning(self, "Can't Refresh this Window","Please select a diferent")
-        else:
-            QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
-
 
     #----------------------------Open Item Search Table----------------------------------- 
     def open_item_search(self):

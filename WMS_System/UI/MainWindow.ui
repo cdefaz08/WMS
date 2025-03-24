@@ -84,7 +84,6 @@
    <addaction name="actionNew"/>
    <addaction name="actionSave"/>
    <addaction name="actionDiscard"/>
-   <addaction name="actionRefresh"/>
   </widget>
   <action name="actionItem_Search">
    <property name="text">
@@ -102,29 +101,33 @@
    </property>
   </action>
   <action name="actionNew">
+   <property name="icon">
+    <iconset>
+     <normaloff>../icons/icons8-new-file-24.png</normaloff>../icons/icons8-new-file-24.png</iconset>
+   </property>
    <property name="text">
     <string>New</string>
    </property>
   </action>
   <action name="actionSave">
+   <property name="icon">
+    <iconset>
+     <normaloff>../icons/icons8-save-50.png</normaloff>../icons/icons8-save-50.png</iconset>
+   </property>
    <property name="text">
     <string>Save</string>
    </property>
   </action>
   <action name="actionDiscard">
+   <property name="icon">
+    <iconset>
+     <normaloff>../icons/icons8-reload-24.png</normaloff>../icons/icons8-reload-24.png</iconset>
+   </property>
    <property name="text">
     <string>Discard</string>
    </property>
    <property name="toolTip">
     <string>Discard</string>
-   </property>
-  </action>
-  <action name="actionRefresh">
-   <property name="text">
-    <string>Refresh</string>
-   </property>
-   <property name="toolTip">
-    <string>Refresh</string>
    </property>
   </action>
   <action name="actionOrders">
