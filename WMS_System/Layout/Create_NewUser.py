@@ -4,7 +4,7 @@ import requests
 class NewUserDialog(QtWidgets.QDialog):
     def __init__(self):
         super().__init__()
-        uic.loadUi("WMS_System/UI/CreateNewUser.ui", self)
+        uic.loadUi("UI/CreateNewUser.ui", self)
 
         # Reference UI Elements
         self.user_input = self.findChild(QtWidgets.QLineEdit, 'User_Input')

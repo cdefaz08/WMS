@@ -6,7 +6,7 @@ import json
 class UsersTableWindow(QtWidgets.QDialog):
     def __init__(self):
         super().__init__()
-        uic.loadUi("WMS_System/UI/Users.ui", self)
+        uic.loadUi("UI/Users.ui", self)
 
         # Reference UI Elements
         self.tableWidget_Users = self.findChild(QtWidgets.QTableWidget, 'tableWidget_Users')
@@ -30,17 +30,7 @@ class UsersTableWindow(QtWidgets.QDialog):
         if dialog.exec_():
             self.load_users()  # Refresh data if a new user was created
 
-    def load_users(self):
-        """Load all users when the window opens."""
-        try:
-            response = requests.get("http://localhost:8000/Users/")
 
-            if response.status_code == 200:
-                self.populate_table(response.json())
-            else:
-                QtWidgets.QMessageBox.warning(self, "Error", "Failed to load users")
-        except requests.exceptions.RequestException:
-            QtWidgets.QMessageBox.critical(self, "Error", "Failed to connect to the server")
 
     def populate_table(self, users):
         """Populate the table with user data without displaying user_id."""
@@ -156,7 +146,17 @@ class UsersTableWindow(QtWidgets.QDialog):
         except requests.exceptions.RequestException:
             QtWidgets.QMessageBox.critical(self, "Error", "Failed to connect to the server")
 
+    def load_users(self):
+        """Load all users when the window opens."""
+        try:
+            response = requests.get("http://localhost:8000/Users/")
 
+            if response.status_code == 200:
+                self.populate_table(response.json())
+            else:
+                QtWidgets.QMessageBox.warning(self, "Error", "Failed to load users")
+        except requests.exceptions.RequestException:
+            QtWidgets.QMessageBox.critical(self, "Error", "Failed to connect to the server")
 
 
     def discard_users(self):

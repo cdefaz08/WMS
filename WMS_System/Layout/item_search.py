@@ -5,7 +5,7 @@ import requests
 class ItemSearchWindow(QtWidgets.QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        uic.loadUi("WMS_System/UI/item_search1.ui", self)
+        uic.loadUi("UI/item_search1.ui", self)
 
         # Ensure there's a layout (add one if missing)
         if not self.layout():
@@ -18,6 +18,7 @@ class ItemSearchWindow(QtWidgets.QDialog):
         self.btn_Search = self.findChild(QtWidgets.QPushButton, 'btn_Search')
         self.actionNew = self.findChild(QtWidgets.QAction, 'actionNew') 
 
+        self.lineEdit_Search.returnPressed.connect(self.search_items)
         self.btn_Search.clicked.connect(self.search_items)
         self.installEventFilter(self)
 
@@ -115,7 +116,7 @@ class ItemSearchWindow(QtWidgets.QDialog):
                     self.populate_table(items)
                 else:
                     filtered_items = [
-                        item for item in items if search_term.lower() in item['item_id'].upper()
+                        item for item in items if search_term.lower() in item['item_id'].lower()
                     ]
                     self.populate_table(filtered_items)
             else:
@@ -146,6 +147,18 @@ class ItemSearchWindow(QtWidgets.QDialog):
                 "price": str(item["price"]),
                 "is_offer": item.get("is_offer", False)
             }
+
+    def refresh_table(self):
+        try:
+            response = requests.get("http://localhost:8000/items/")
+            if response.status_code == 200:
+                items = response.json()
+                self.populate_table(items)
+
+        except requests.exceptions.RequestException:
+            QtWidgets.QMessageBox.critical(self, "Error", "Failed to connect to the server")
+
+
     def save_changes(self):
             """Compare current table data with the snapshot and track only modified data."""
             modified_data = {}

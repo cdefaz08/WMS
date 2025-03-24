@@ -3,12 +3,11 @@ from PyQt5.QtCore import Qt
 import sys
 from item_search import ItemSearchWindow  # Import the new sub-window
 from User_table import UsersTableWindow
-from Create_NewUser import NewUserDialog 
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi("WMS_System/UI/MainWindow.ui", self)
+        uic.loadUi("UI/MainWindow.ui", self)
 
         #connect Tollbar
         self.connect_toolbar()
@@ -47,37 +46,17 @@ class MainWindow(QtWidgets.QMainWindow):
         if confirm == QtWidgets.QMessageBox.Yes:
             self.close()  # Close the Main Window
 
-    def open_item_search(self):
-        # Check if the window is already open to avoid duplicates
-        for sub_window in self.mdiArea.subWindowList():
-            if isinstance(sub_window.widget(), ItemSearchWindow):
-                sub_window.show()
-                sub_window.setFocus()
-                return  
-
-        # Create a new QMdiSubWindow
-        item_search_subwindow = QtWidgets.QMdiSubWindow()
-        self.item_search_window = ItemSearchWindow(self)
-        item_search_subwindow.setWidget(self.item_search_window)
-        item_search_subwindow.setWindowTitle("Item Search")
-
-        # Ensure the subwindow is deleted when closed
-        item_search_subwindow.setAttribute(Qt.WA_DeleteOnClose)
-
-        item_search_subwindow.resize(600,400)
-
-        self.mdiArea.addSubWindow(item_search_subwindow)
-        item_search_subwindow.show()
-
     #----------------------------Connect the Toolbar-----------------------------------
     def connect_toolbar(self):
         self.new_button = self.findChild(QtWidgets.QAction, 'actionNew')
         self.save_button = self.findChild(QtWidgets.QAction, 'actionSave')
         self.discard_button = self.findChild(QtWidgets.QAction, 'actionDiscard')
+        self.refresh_button = self.findChild(QtWidgets.QAction, 'actionRefresh')
 
         self.new_button.triggered.connect(self.toolbar_new)
         self.save_button.triggered.connect(self.toolbar_save)
         self.discard_button.triggered.connect(self.toolbar_discard)
+        self.refresh_button.triggered.connect(self.toolbar_refresh)
     #----------------------------Tolbar New Window-----------------------------------
     def toolbar_new(self):
         active_window = self.get_active_window()
@@ -111,7 +90,43 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.discard_users()  # Example function in UsersTableWindow
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
+    #----------------------------Toolbar Refresh Triger-----------------------------------
 
+    def toolbar_refresh(self):
+        active_window = self.get_active_window()
+
+        if isinstance(active_window,ItemSearchWindow):
+            active_window.refresh_table()
+        elif isinstance(active_window,UsersTableWindow):
+            QtWidgets.QMessageBox.warning(self, "Can't Refresh this Window","Please select a diferent")
+        else:
+            QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
+
+
+    #----------------------------Open Item Search Table----------------------------------- 
+    def open_item_search(self):
+        # Check if the window is already open to avoid duplicates
+        for sub_window in self.mdiArea.subWindowList():
+            if isinstance(sub_window.widget(), ItemSearchWindow):
+                sub_window.show()
+                sub_window.setFocus()
+                return  
+
+        # Create a new QMdiSubWindow
+        item_search_subwindow = QtWidgets.QMdiSubWindow()
+        self.item_search_window = ItemSearchWindow(self)
+        item_search_subwindow.setWidget(self.item_search_window)
+        item_search_subwindow.setWindowTitle("Item Search")
+
+        # Ensure the subwindow is deleted when closed
+        item_search_subwindow.setAttribute(Qt.WA_DeleteOnClose)
+
+        item_search_subwindow.resize(600,400)
+
+        self.mdiArea.addSubWindow(item_search_subwindow)
+        item_search_subwindow.show()
+
+    #----------------------------Open User Table----------------------------------- 
     def open_user_table(self):
         for sub_window in self.mdiArea.subWindowList():
             if isinstance(sub_window.widget(), UsersTableWindow):
@@ -131,6 +146,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.mdiArea.addSubWindow(user_search_subwindow)
         user_search_subwindow.show()
+    
+    
 
 
 if __name__ == "__main__":
