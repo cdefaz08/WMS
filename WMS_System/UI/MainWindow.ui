@@ -64,7 +64,7 @@
    </attribute>
    <addaction name="actionNew"/>
    <addaction name="actionSave"/>
-   <addaction name="actiondiscard"/>
+   <addaction name="actionDiscard"/>
   </widget>
   <action name="actionItem_Search">
    <property name="text">
@@ -91,7 +91,7 @@
     <string>Save</string>
    </property>
   </action>
-  <action name="actiondiscard">
+  <action name="actionDiscard">
    <property name="text">
     <string>discard</string>
    </property>

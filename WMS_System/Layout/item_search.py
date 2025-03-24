@@ -42,7 +42,21 @@ class ItemSearchWindow(QtWidgets.QDialog):
         dialog = AddItemDialog()
         if dialog.exec_():  # If accepted
             item_data = dialog.get_item_data()
-            self.add_new_item(item_data)
+            self.createItem(item_data)  # ✅ Separate method to handle data insertion
+
+
+    def createItem(self, item_data):
+        """Send the new item to FastAPI and refresh the table."""
+        try:
+            response = requests.post("http://localhost:8000/items/", json=item_data)
+            if response.status_code == 200:
+                QtWidgets.QMessageBox.information(self, "Success", "New item added successfully!")
+                self.search_items()  # Refresh the table
+            else:
+                QtWidgets.QMessageBox.warning(self, "Error", "Failed to add item.")
+        except requests.exceptions.RequestException:
+            QtWidgets.QMessageBox.critical(self, "Error", "Failed to connect to the server.")
+            
 
     def track_changes(self, item):
         """Track changes when cells are modified."""
@@ -180,7 +194,7 @@ class ItemSearchWindow(QtWidgets.QDialog):
         self.tableWidget_Items.setHorizontalHeaderLabels(["ID", "Item ID", "Price"])
 
     # ---------------------------- RESET CHANGES FUNCTION ---------------------------- #
-    def reset_changes(self):
+    def discard_changes(self):
         confirm = QtWidgets.QMessageBox.question(
             self,
             "Reset",

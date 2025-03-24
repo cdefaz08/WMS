@@ -10,9 +10,6 @@ class UsersTableWindow(QtWidgets.QDialog):
 
         # Reference UI Elements
         self.tableWidget_Users = self.findChild(QtWidgets.QTableWidget, 'tableWidget_Users')
-        self.toolButton_Save = self.findChild(QtWidgets.QToolButton, 'toolButton_Save')
-        self.toolButton_Reset = self.findChild(QtWidgets.QToolButton, 'toolButton_Reset')
-        self.toolButton_New = self.findChild(QtWidgets.QToolButton, 'toolButton_New')
 
         # Enable editing for the QTableWidget
         self.tableWidget_Users.setEditTriggers(QtWidgets.QAbstractItemView.AllEditTriggers)
@@ -20,10 +17,6 @@ class UsersTableWindow(QtWidgets.QDialog):
         # Load Users on Start
         self.load_users()
 
-        # Connect Buttons to Functions
-        self.toolButton_Save.clicked.connect(self.save_changes)
-        self.toolButton_Reset.clicked.connect(self.reset_changes)
-        self.toolButton_New.clicked.connect(self.open_new_user_dialog)
 
         # Track changes
         self.changes = {}
@@ -31,7 +24,7 @@ class UsersTableWindow(QtWidgets.QDialog):
         # Connect cell change tracking
         self.tableWidget_Users.itemChanged.connect(self.track_changes)
 
-    def open_new_user_dialog(self):
+    def add_new_user(self):
         """Open the New User Dialog when the 'New' button is clicked."""
         dialog = NewUserDialog()
         if dialog.exec_():
@@ -51,51 +44,75 @@ class UsersTableWindow(QtWidgets.QDialog):
 
     def populate_table(self, users):
         """Populate the table with user data without displaying user_id."""
+        self.tableWidget_Users.blockSignals(True)  # 🚨 Block signals before loading data
+
         self.tableWidget_Users.setRowCount(len(users))
-        self.tableWidget_Users.setColumnCount(3)  # Only display Username and Role, Password
-        self.tableWidget_Users.setHorizontalHeaderLabels(["Username", "Role","Password"])
+        self.tableWidget_Users.setColumnCount(3)  
+        self.tableWidget_Users.setHorizontalHeaderLabels(["Username", "Role", "Password"])
+
+        self.original_data = {}  # Snapshot for tracking original data
 
         for row, user in enumerate(users):
-            # Store user_id as "hidden" data using Qt.UserRole
             user_id_item = QtWidgets.QTableWidgetItem(str(user["username"]))
             user_id_item.setData(QtCore.Qt.UserRole, user["user_id"])  # Hidden ID tracking
-            self.tableWidget_Users.setItem(row, 0, QtWidgets.QTableWidgetItem(user["username"].upper()))
-            self.tableWidget_Users.setItem(row, 1, QtWidgets.QTableWidgetItem(user["role"]))
-            self.tableWidget_Users.setItem(row, 2, QtWidgets.QTableWidgetItem(""))  
-            
-            # Add the user_id data to track changes efficiently
+
             self.tableWidget_Users.setItem(row, 0, user_id_item)
+            self.tableWidget_Users.setItem(row, 1, QtWidgets.QTableWidgetItem(user["role"]))
+            self.tableWidget_Users.setItem(row, 2, QtWidgets.QTableWidgetItem(""))
+
+            self.original_data[user["user_id"]] = {
+                "username": user["username"].upper(),
+                "role": user["role"],
+                "password": ""
+            }
+
+        print(f"🟡 Original Data Snapshot: {self.original_data}")
+        
+        self.tableWidget_Users.blockSignals(False)  # ✅ Enable signals back after loading
+
 
    
     def track_changes(self, item):
+        """Track changes when cells are modified."""
         row = item.row()
         column = item.column()
 
+        # Retrieve user_id for change tracking
         user_id_item = self.tableWidget_Users.item(row, 0)
-        user_id = user_id_item.data(QtCore.Qt.UserRole)  # Hidden ID tracking
+        user_id = user_id_item.data(QtCore.Qt.UserRole)
 
         if not user_id:
             print(f"❗Skipping row {row} - No user_id found")
             return
 
+        # Reference original data
+        original_values = self.original_data.get(user_id, {})
+
+        # Capture the new value
+        new_value = item.text().strip()
+
+        # Track changes only if new value differs from original
         if user_id not in self.changes:
             self.changes[user_id] = {}
 
         # Track username
-        if column == 0:
-            self.changes[user_id]['username'] = item.text().strip().upper()
+        if column == 0 and new_value != original_values.get("username", ""):
+            self.changes[user_id]['username'] = new_value
 
         # Track role
-        elif column == 1:
-            self.changes[user_id]['role'] = item.text().strip()
+        elif column == 1 and new_value != original_values.get("role", ""):
+            self.changes[user_id]['role'] = new_value
 
         # Track password (if provided)
-        elif column == 2:
-            new_password = item.text().strip()
-            if new_password:  
-                self.changes[user_id]['password'] = new_password
+        elif column == 2 and new_value:
+            self.changes[user_id]['password'] = new_value
+
+        # Clean up if no changes remain
+        if user_id in self.changes and not self.changes[user_id]:
+            del self.changes[user_id]
 
         print(f"🟩 Tracking Changes: {self.changes}")
+
 
 
     def save_changes(self):
@@ -116,7 +133,6 @@ class UsersTableWindow(QtWidgets.QDialog):
                     "role": updated_data.get("role", "")
                 }
 
-                # Add password if provided
                 if "password" in updated_data and updated_data["password"].strip():
                     user_data["password"] = updated_data["password"]
 
@@ -133,6 +149,7 @@ class UsersTableWindow(QtWidgets.QDialog):
                 else:
                     QtWidgets.QMessageBox.warning(self, "Error", f"Failed to update user {user_id}")
 
+            # ✅ Reload table after successful updates
             self.changes.clear()
             self.load_users()
 
@@ -141,7 +158,8 @@ class UsersTableWindow(QtWidgets.QDialog):
 
 
 
-    def reset_changes(self):
+
+    def discard_users(self):
         """Reload the data from the database to discard unsaved changes."""
         confirm = QtWidgets.QMessageBox.question(
             self, "Reset", "Are you sure you want to reset all unsaved changes?",
