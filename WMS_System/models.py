@@ -11,7 +11,7 @@ items = Table(
     Column("color", String),
     Column("size",String),
     Column("price", Float),
-    Column("upc", Float,nullable=False),
+    Column("upc", int ,nullable=False),
     Column("item_class", String(50), nullable =True ,default="STND"),
     Column("is_offer", Boolean),
     Column("default_cfg", String(10)),

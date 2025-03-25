@@ -95,8 +95,10 @@ async def create_item(item: Item):
     # ✅ Solo agregar item_class si está presente
     if item.item_class.strip():
         data["item_class"] = item.item_class
+    else:
+        data["item_class"] = 'STND'
         # ✅ If default_cfg is not provided or is blank, set it to None
-        
+
     if item.default_cfg and item.default_cfg.strip():
         data["default_cfg"] = item.default_cfg
     else:
