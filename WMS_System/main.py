@@ -19,12 +19,29 @@ class LoginRequest(BaseModel):
 class Item(BaseModel):
     item_id: str
     description: str
+    color: str
+    size: str
     price: float
+    upc:float
+    item_class:str
     is_offer: bool = None
+    default_cfg: str
+    custum1:str
+    custum2:str
+    custum3:str
+    custum4:str
+    custum5:str
+    custum6:str
+
 
 class Users(BaseModel):
     username: str
     password: str
+    full_name: str
+    max_logins: str
+    email_addr: str
+    pall_cap: float
+    comments: str
     role : str
 
 # Start & stop database connection
@@ -43,14 +60,54 @@ async def read_root():
 # CREATE - Add a new item
 @app.post("/items/", response_model=dict)
 async def create_item(item: Item):
-    query = items.insert().values(
-        item_id=item.item_id,
-        description=item.description,
-        price=item.price,
-        is_offer=item.is_offer
-    )
+    if not item.item_id.strip():
+        raise HTTPException(status_code=400, detail="item_id cannot be empty or null")
+    
+    if not item.description.strip():
+        raise HTTPException(status_code=400, detail="description cannot be empty or null")        
+
+    data = {
+        "item_id": item.item_id,
+        "description": item.description,
+        "color": item.color,
+        "size": item.size,
+        "price": item.price,
+        "upc": item.upc,
+        "is_offer": item.is_offer,
+        
+    }
+
+    
+
+    if item.custum1.strip():
+        data["custum1"] = item.custum1
+    if item.custum2.strip():
+        data["custum1"] = item.custum2
+    if item.custum3.strip():
+        data["custum1"] = item.custum3
+    if item.custum4.strip():
+        data["custum1"] = item.custum4
+    if item.custum5.strip():
+        data["custum1"] = item.custum5
+    if item.custum6.strip():
+        data["custum1"] = item.custum6
+
+    # ✅ Solo agregar item_class si está presente
+    if item.item_class.strip():
+        data["item_class"] = item.item_class
+        # ✅ If default_cfg is not provided or is blank, set it to None
+        
+    if item.default_cfg and item.default_cfg.strip():
+        data["default_cfg"] = item.default_cfg
+    else:
+        data["default_cfg"] = None  # Will insert NULL into the database
+
+    # ✅ Ahora puedes insertar el diccionario en la consulta
+    query = items.insert().values(**data)
+
     await database.execute(query)
     return {"message": "Item successfully added!"}
+
 
 # READ - Get all items
 @app.get("/items/")
