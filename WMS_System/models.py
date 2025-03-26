@@ -12,9 +12,14 @@ items = Table(
     Column("size",String),
     Column("price", Float),
     Column("upc", Integer ,nullable=False),
+    Column("alt_item_id1", Integer),
+    Column("alt_item_id2", Integer),
     Column("item_class", String(50), nullable =True ,default="STND"),
+    Column("description2", String(50)),
     Column("is_offer", Boolean),
     Column("default_cfg", String(10)),
+    Column("brand",String(30)),
+    Column("style",String(30)),
     Column("custum1",String(30)),
     Column("custum2",String(30)),
     Column("custum3",String(30)),
@@ -36,4 +41,13 @@ users = Table(
     Column("pall_cap",String, nullable=False),
     Column("comments",String),
     Column("role", String(30), nullable=False)
+)
+
+
+item_class = Table(
+    "item_class",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("item_class_id", String, nullable=False),
+    Column("description", String(20))
 )

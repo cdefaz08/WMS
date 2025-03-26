@@ -1,4 +1,6 @@
 from PyQt5 import QtWidgets, uic
+import json
+import requests
 
 class AddItemDialog(QtWidgets.QDialog):
     def __init__(self):
@@ -8,20 +10,76 @@ class AddItemDialog(QtWidgets.QDialog):
         # Reference UI Elements
         self.lineEdit_ItemCode = self.findChild(QtWidgets.QLineEdit, 'lineEdit_ItemCode')
         self.lineEdit_Price = self.findChild(QtWidgets.QLineEdit, 'lineEdit_Price')
-        self.lineEdit_Active = self.findChild(QtWidgets.QLineEdit, 'lineEdit_Active')
+        self.comboBox_active = self.findChild(QtWidgets.QComboBox, 'comboBox_active')
         self.lineEdit_description = self.findChild(QtWidgets.QLineEdit, 'lineEdit_description')
         self.buttonBox = self.findChild(QtWidgets.QDialogButtonBox, 'buttonBox')
+        self.comboBox_item_class = self.findChild(QtWidgets.QComboBox,'comboBox_item_class')
+        self.lineEdit_UPC = self.findChild(QtWidgets.QLineEdit,'lineEdit_UPC')
+        self.lineEdit_alt_item_id_1 = self.findChild(QtWidgets.QLineEdit,'lineEdit_alt_item_id_1')
+        self.lineEdit_alt_item_id_2 = self.findChild(QtWidgets.QLineEdit,'lineEdit_alt_item_id_2')
+        self.lineEdit_Color = self.findChild(QtWidgets.QLineEdit,'lineEdit_Color')
+        self.lineEdit_Size = self.findChild(QtWidgets.QLineEdit,'lineEdit_Size')
+        self.lineEdit_Description2 = self.findChild(QtWidgets.QLineEdit,'lineEdit_Description2')
+        self.lineEdit_Brand = self.findChild(QtWidgets.QLineEdit,'lineEdit_Brand')
+        self.lineEdit_Style = self.findChild(QtWidgets.QLineEdit,'lineEdit_Style')
+        self.lineEdit_Custom1 = self.findChild(QtWidgets.QLineEdit,'lineEdit_Custom1')
+        self.lineEdit_Custom2 = self.findChild(QtWidgets.QLineEdit,'lineEdit_Custom2')
+        self.lineEdit_Custom3 = self.findChild(QtWidgets.QLineEdit,'lineEdit_Custom3')
+        self.lineEdit_Custom4 = self.findChild(QtWidgets.QLineEdit,'lineEdit_Custom4')
+        self.lineEdit_Custom5 = self.findChild(QtWidgets.QLineEdit,'lineEdit_Custom5')
+        self.lineEdit_Custom6 = self.findChild(QtWidgets.QLineEdit,'lineEdit_Custom6')
+        self.lineEdit_default_cfg = self.findChild(QtWidgets.QLineEdit,'lineEdit_default_cfg')
+
+        self.comboBox_active.addItems(["True","False"])
 
         # Connect the buttons
         self.buttonBox.accepted.connect(self.submit_item)
         self.buttonBox.rejected.connect(self.reject)
+        self.populate_item_classes()
+
+
+
+
+    def populate_item_classes(self):
+        try:
+            response = requests.get("http://127.0.0.1:8000/item-classes/")
+            if response.status_code == 200:
+                item_classes = response.json()
+                self.comboBox_item_class.clear()
+
+                for ic in item_classes:
+                    name = ic["item_class"]           # visible name (item_class_id)
+                    item_id = ic["id"]                # internal id
+                    self.comboBox_item_class.addItem(name, item_id)
+
+            else:
+                QtWidgets.QMessageBox.warning(self, "Error", "Failed to load item classes.")
+        except Exception as e:
+            QtWidgets.QMessageBox.critical(self, "Error", f"API Error:\n{e}")
+
 
     def submit_item(self):
         """Submit new item data."""
         item_code = self.lineEdit_ItemCode.text().strip()
         description = self.lineEdit_description.text().strip()
         price = self.lineEdit_Price.text().strip()
-        active_status = self.lineEdit_Active.text().strip()
+        active_status = self.comboBox_active.currentText
+        color = self.lineEdit_Color.text().strip()
+        size = self.lineEdit_Size.text().strip()
+        upc = self.lineEdit_UPC.text().strip()
+        item_class = self.comboBox_item_class.currentText()
+        default_cfg = self.lineEdit_default_cfg.text().strip()
+        alt_itemid1 = self.lineEdit_alt_item_id_1.text().strip()
+        alt_itemid2 = self.lineEdit_alt_item_id_2.text().strip()
+        brand = self.lineEdit_Brand.text().strip()
+        style = self.lineEdit_Style.text().strip()
+        description2 = self.lineEdit_Description2.text().strip()
+        custum1 = self.lineEdit_Custom1.text().strip()
+        custum2 = self.lineEdit_Custom2.text().strip()
+        custum3 = self.lineEdit_Custom3.text().strip()
+        custum4 = self.lineEdit_Custom4.text().strip()
+        custum5 = self.lineEdit_Custom5.text().strip()
+        custum6 = self.lineEdit_Custom6.text().strip()
 
         if not item_code or not price:
             QtWidgets.QMessageBox.warning(self, "Error", "Item Code and Price are required!")
@@ -30,9 +88,27 @@ class AddItemDialog(QtWidgets.QDialog):
         self.item_data = {
             "item_id": item_code,
             "description": description,
-            "price": price,
-            "active": active_status if active_status else "1"  # Default to active
+            "color": color,
+            "size": size,
+            "price": float(price) if price else 0.0,
+            "upc": int(upc) if upc else 0,
+            "item_class": item_class,
+            "is_offer": active_status.strip().lower() == "yes", # Default to active
+            "default_cfg": default_cfg,
+            "alt_item_id1": int(alt_itemid1) if alt_itemid1 else None,
+            "alt_item_id2": int(alt_itemid2) if alt_itemid2 else None,
+            "brand": brand,
+            "style": style,
+            "description2": description2,
+            "custum1": custum1,
+            "custum2": custum2,
+            "custum3": custum3,
+            "custum4": custum4,
+            "custum5": custum5,
+            "custum6": custum6
         }
+
+        print(json.dumps(self.item_data, indent=2))
 
         self.accept()  # Close the dialog and return data
 

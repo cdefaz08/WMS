@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>CreateNewUser</class>
- <widget class="QDialog" name="CreateNewUser">
+ <class>UpdateItemCode</class>
+ <widget class="QDialog" name="UpdateItemCode">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Create New Item Code</string>
+   <string>Item Code Maintanance</string>
   </property>
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
@@ -330,7 +330,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>CreateNewUser</receiver>
+   <receiver>UpdateItemCode</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -346,7 +346,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>CreateNewUser</receiver>
+   <receiver>UpdateItemCode</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

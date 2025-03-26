@@ -1,15 +1,22 @@
 from fastapi import FastAPI, HTTPException
-import requests
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+from fastapi import Request
 from pydantic import BaseModel
 from database import database, metadata, engine
-from models import items , users
+from models import items , users, item_class
 from utils import Hash_password, verify_password
+from typing import Optional
 
 # Initialize FastAPI
 app = FastAPI()
 
 # Create database tables
 metadata.create_all(engine)
+
+class ItemClassCreate(BaseModel):
+    item_class_id: str
+    description: str
 
 class LoginRequest(BaseModel):
     username: str
@@ -19,19 +26,24 @@ class LoginRequest(BaseModel):
 class Item(BaseModel):
     item_id: str
     description: str
-    color: str
-    size: str
+    color: Optional[str] = None
+    size: Optional[str] = None
     price: float
-    upc:int
-    item_class:str
-    is_offer: bool = None
-    default_cfg: str
-    custum1:str
-    custum2:str
-    custum3:str
-    custum4:str
-    custum5:str
-    custum6:str
+    upc: int
+    item_class: Optional[str] = None
+    alt_item_id1: Optional[int] = None
+    alt_item_id2: Optional[int] = None
+    description2: Optional[str] = None
+    brand: Optional[str] = None
+    style: Optional[str] = None
+    is_offer: Optional[bool] = None
+    default_cfg: Optional[str] = None
+    custum1: Optional[str] = None
+    custum2: Optional[str] = None
+    custum3: Optional[str] = None
+    custum4: Optional[str] = None
+    custum5: Optional[str] = None
+    custum6: Optional[str] = None
 
 
 class Users(BaseModel):
@@ -43,6 +55,13 @@ class Users(BaseModel):
     pall_cap: float
     comments: str
     role : str
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(
+        status_code=422,
+        content={"detail": exc.errors(), "body": await request.json()},
+    )
 
 # Start & stop database connection
 @app.on_event("startup")
@@ -77,20 +96,32 @@ async def create_item(item: Item):
         
     }
 
-    
+    if item.description2.strip():
+        data["description2"]= item.description2
+
+    if item.alt_item_id1:
+        data["alt_item_id1"] = item.alt_item_id1
+
+    if item.alt_item_id2:
+        data["alt_item_id2"] = item.alt_item_id2
+
+    if item.brand.strip():
+        data["brand"]= item.brand
+    if item.style.strip():
+        data["style"] = item.style
 
     if item.custum1.strip():
         data["custum1"] = item.custum1
     if item.custum2.strip():
-        data["custum1"] = item.custum2
+        data["custum2"] = item.custum2
     if item.custum3.strip():
-        data["custum1"] = item.custum3
+        data["custum3"] = item.custum3
     if item.custum4.strip():
-        data["custum1"] = item.custum4
+        data["custum4"] = item.custum4
     if item.custum5.strip():
-        data["custum1"] = item.custum5
+        data["custum5"] = item.custum5
     if item.custum6.strip():
-        data["custum1"] = item.custum6
+        data["custum6"] = item.custum6
 
     # ✅ Solo agregar item_class si está presente
     if item.item_class.strip():
@@ -259,4 +290,28 @@ async def update_user(user_id: int, updated_data: dict):
         return {"message": "User updated successfully!"}
     else:
         raise HTTPException(status_code=404, detail="Failed to update user")
+    
+
+@app.post("/item-classes/", response_model=dict)
+async def create_item_class(new_class: ItemClassCreate):
+    # Verificar si ya existe
+    query = item_class.select().where(item_class.c.item_class_id == new_class.item_class_id)
+    existing = await database.fetch_one(query)
+    if existing:
+        raise HTTPException(status_code=400, detail="Item class already exists.")
+
+    insert_query = item_class.insert().values(
+        item_class_id=new_class.item_class_id,
+        description = new_class.description
+        )
+    await database.execute(insert_query)
+    return {"message": "Item class created successfully."}
+
+
+@app.get("/item-classes/")
+async def get_item_classes():
+    query = item_class.select()
+    result = await database.fetch_all(query)
+    return [{"id": row["id"], "item_class": row["item_class_id"], "description": row["description"]} for row in result]
+
 

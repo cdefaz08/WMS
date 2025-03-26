@@ -84,6 +84,8 @@
    <addaction name="actionNew"/>
    <addaction name="actionSave"/>
    <addaction name="actionDiscard"/>
+   <addaction name="separator"/>
+   <addaction name="actionItemMaintance"/>
   </widget>
   <action name="actionItem_Search">
    <property name="text">
@@ -163,6 +165,14 @@
   <action name="actionLocation_Types_2">
    <property name="text">
     <string>Location Types</string>
+   </property>
+  </action>
+  <action name="actionItemMaintance">
+   <property name="text">
+    <string>Item Maintance</string>
+   </property>
+   <property name="toolTip">
+    <string>ItemMaintance</string>
    </property>
   </action>
  </widget>
