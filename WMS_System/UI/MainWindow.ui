@@ -168,6 +168,10 @@
    </property>
   </action>
   <action name="actionItemMaintance">
+   <property name="icon">
+    <iconset>
+     <normaloff>../icons/icons8-wrench-24.png</normaloff>../icons/icons8-wrench-24.png</iconset>
+   </property>
    <property name="text">
     <string>Item Maintance</string>
    </property>

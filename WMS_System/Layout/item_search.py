@@ -134,13 +134,20 @@ class ItemSearchWindow(QtWidgets.QDialog):
             QtWidgets.QMessageBox.critical(self, "Error", "Failed to connect to the server.")
 
     def get_selected_item_id(self):
-        indexes = self.tableViewItemSearch.selectionModel().selectedIndexes()
+        if not self.tableViewItemSearch:
+            return None
+
+        selection_model = self.tableViewItemSearch.selectionModel()
+        if not selection_model:
+            return None
+
+        indexes = selection_model.selectedIndexes()
         if not indexes:
             return None
 
         model = self.tableViewItemSearch.model()
         row = indexes[0].row()
-        return model.index(row, 0).data(QtCore.Qt.UserRole)
 
+        return model.index(row, 0).data(QtCore.Qt.UserRole)
 
 
