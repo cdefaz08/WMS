@@ -1,10 +1,12 @@
-from PyQt5 import QtWidgets, uic
+from PyQt5 import QtWidgets, uic, QtCore
 from PyQt5.QtCore import Qt 
 import requests
 import sys
 from item_search import ItemSearchWindow  # Import the new sub-window
 from User_table import UsersTableWindow
 from itemMaintanceDialog import ItemMaintanceDialog
+from add_item_dialog import AddItemDialog
+
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
@@ -78,8 +80,21 @@ class MainWindow(QtWidgets.QMainWindow):
                     response = requests.get(f"http://localhost:8000/items/{item_id}")
                     if response.status_code == 200:
                         item_data = response.json()
-                        dialog = ItemMaintanceDialog(item_data=item_data, parent=self)
-                        dialog.exec_()
+
+                        # Crear subventana MDI
+                        subwindow = QtWidgets.QMdiSubWindow()
+                        item_dialog = ItemMaintanceDialog(item_data=item_data, parent=self)
+                        item_dialog.subwindow = subwindow
+                        item_dialog.item_updated.connect(active_window.search_items)
+                        
+                        subwindow.setWidget(item_dialog)
+                        subwindow.setWindowTitle("Item Code Maintanance")
+
+                        subwindow.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+                        subwindow.resize(700, 600)
+
+                        self.mdiArea.addSubWindow(subwindow)
+                        subwindow.show()
                     else:
                         QtWidgets.QMessageBox.warning(self, "Error", "Could not load item from server.")
                 except requests.exceptions.RequestException:
@@ -91,12 +106,29 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
 
+
     #----------------------------Tolbar New Window-----------------------------------
     def toolbar_new(self):
         active_window = self.get_active_window()
 
         if isinstance(active_window, ItemSearchWindow):
-            active_window.open_add_item_dialog()  # Example function in ItemSearchWindow
+            for sub_window in self.mdiArea.subWindowList():
+                if isinstance(sub_window.widget(), AddItemDialog):
+                    sub_window.show()
+                    sub_window.setFocus()
+                    return 
+            add_dialog = AddItemDialog(parent=self)
+
+            # Create and show as MDI subwindow
+            subwindow = QtWidgets.QMdiSubWindow()
+            subwindow.setWidget(add_dialog)
+            subwindow.setWindowTitle("Add New Item")
+            subwindow.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+            subwindow.resize(805,569)
+
+            self.mdiArea.addSubWindow(subwindow)
+            subwindow.show()
+            
         elif isinstance(active_window, UsersTableWindow):
             active_window.add_new_user()  # Example function in UsersTableWindow
         else:
@@ -108,6 +140,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         if isinstance(active_window, UsersTableWindow):
             active_window.save_changes()  # Example function in UsersTableWindow
+        elif isinstance(active_window,ItemMaintanceDialog):
+            active_window.save_changes()
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
 

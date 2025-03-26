@@ -158,31 +158,23 @@ async def read_item(item_id: int):
     return item
 
 # UPDATE - Update an item by ID
-@app.put("/items/{item_id}")
+@app.put("/items/{item_id}", response_model=dict)
 async def update_item(item_id: int, updated_data: dict):
-    # Dictionary to hold only the provided data
     data_to_update = {}
 
-    # Add item_code if provided
-    if 'item_id' in updated_data and updated_data['item_id'].strip():
-        data_to_update['item_id'] = updated_data['item_id']
+    for key, value in updated_data.items():
+        # Convert string prices to float
+        if key == "price":
+            try:
+                data_to_update[key] = float(value)
+            except ValueError:
+                raise HTTPException(status_code=400, detail="Price must be a number")
+        else:
+            data_to_update[key] = value
 
-    if 'description' in updated_data and updated_data['description'].strip():
-        data_to_update['description'] = updated_data['description']
-
-    # Add price if provided
-    if 'price' in updated_data and updated_data['price'].strip():
-        data_to_update['price'] = float(updated_data['price'])
-
-    # Add active status if provided
-    if 'is_offer' in updated_data:
-        data_to_update['is_offer'] = updated_data['is_offer']
-
-    # If no valid data to update, return an error
     if not data_to_update:
         raise HTTPException(status_code=400, detail="No valid fields provided for update")
 
-    # Perform the update only with the provided data
     query = items.update().where(items.c.id == item_id).values(data_to_update)
     result = await database.execute(query)
 
@@ -190,6 +182,7 @@ async def update_item(item_id: int, updated_data: dict):
         return {"message": "Item updated successfully!"}
     else:
         raise HTTPException(status_code=404, detail="Failed to update item")
+
 
 
 # DELETE - Delete an item by ID

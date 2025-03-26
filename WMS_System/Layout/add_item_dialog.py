@@ -3,7 +3,7 @@ import json
 import requests
 
 class AddItemDialog(QtWidgets.QDialog):
-    def __init__(self):
+    def __init__(self, parent= None):
         super().__init__()
         uic.loadUi("UI/add_item.ui", self)  # Load your .ui file
 
@@ -30,7 +30,7 @@ class AddItemDialog(QtWidgets.QDialog):
         self.lineEdit_Custom6 = self.findChild(QtWidgets.QLineEdit,'lineEdit_Custom6')
         self.lineEdit_default_cfg = self.findChild(QtWidgets.QLineEdit,'lineEdit_default_cfg')
 
-        self.comboBox_active.addItems(["True","False"])
+        self.comboBox_active.addItems(["Yes","No"])
 
         # Connect the buttons
         self.buttonBox.accepted.connect(self.submit_item)
@@ -63,7 +63,7 @@ class AddItemDialog(QtWidgets.QDialog):
         item_code = self.lineEdit_ItemCode.text().strip()
         description = self.lineEdit_description.text().strip()
         price = self.lineEdit_Price.text().strip()
-        active_status = self.comboBox_active.currentText
+        active_status = self.comboBox_active.currentText()
         color = self.lineEdit_Color.text().strip()
         size = self.lineEdit_Size.text().strip()
         upc = self.lineEdit_UPC.text().strip()
