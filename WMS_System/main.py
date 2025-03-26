@@ -22,7 +22,7 @@ class Item(BaseModel):
     color: str
     size: str
     price: float
-    upc:float
+    upc:int
     item_class:str
     is_offer: bool = None
     default_cfg: str
