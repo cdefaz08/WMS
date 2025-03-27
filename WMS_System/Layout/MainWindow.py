@@ -141,7 +141,7 @@ class MainWindow(QtWidgets.QMainWindow):
         active_window = self.get_active_window()
 
         if isinstance(active_window, UsersTableWindow):
-            active_window.save_changes()  # Example function in UsersTableWindow
+            active_window.save_changes() 
         elif isinstance(active_window,ItemMaintanceDialog):
             active_window.save_changes()
         elif isinstance(active_window,AddItemDialog):
@@ -176,6 +176,8 @@ class MainWindow(QtWidgets.QMainWindow):
         item_search_subwindow.setWidget(self.item_search_window)
         item_search_subwindow.setWindowTitle("Item Search")
 
+        self.mdiArea.subWindowActivated.connect(self.handle_subwindow_focus_change)
+
         self.actionItemMaintance.setVisible(True)
 
         self.item_search_window.destroyed.connect(self.hide_item_toolbar_action)
@@ -183,13 +185,26 @@ class MainWindow(QtWidgets.QMainWindow):
         # Ensure the subwindow is deleted when closed
         item_search_subwindow.setAttribute(Qt.WA_DeleteOnClose)
 
-        item_search_subwindow.resize(600,400)
+        item_search_subwindow.resize(1089,766)
 
         self.mdiArea.addSubWindow(item_search_subwindow)
         item_search_subwindow.show()
     
     def hide_item_toolbar_action(self):
         self.actionItemMaintance.setVisible(False)
+    
+    def handle_subwindow_focus_change(self, active_window):
+        if active_window is None:
+            # No subwindow active, hide the toolbar button
+            self.actionItemMaintance.setVisible(False)
+            return
+
+        widget = active_window.widget()
+        
+        if isinstance(widget, ItemSearchWindow):
+            self.actionItemMaintance.setVisible(True)
+        else:
+            self.actionItemMaintance.setVisible(False)
 
     #----------------------------Open User Table----------------------------------- 
     def open_user_table(self):

@@ -37,24 +37,36 @@ class UsersTableWindow(QtWidgets.QDialog):
         self.tableWidget_Users.blockSignals(True)  # 🚨 Block signals before loading data
 
         self.tableWidget_Users.setRowCount(len(users))
-        self.tableWidget_Users.setColumnCount(3)  
-        self.tableWidget_Users.setHorizontalHeaderLabels(["Username", "Role", "Password"])
+        self.tableWidget_Users.setColumnCount(7)
+        self.tableWidget_Users.setHorizontalHeaderLabels([
+            "Username", "Role", "Password", "Full Name", "Email", "Max Logins", "Pallet Cap"
+        ])
+
 
         self.original_data = {}  # Snapshot for tracking original data
 
         for row, user in enumerate(users):
             user_id_item = QtWidgets.QTableWidgetItem(str(user["username"]))
-            user_id_item.setData(QtCore.Qt.UserRole, user["user_id"])  # Hidden ID tracking
+            user_id_item.setData(QtCore.Qt.UserRole, user["id"])  # Cambia a "id" si ese es el nombre real
 
             self.tableWidget_Users.setItem(row, 0, user_id_item)
             self.tableWidget_Users.setItem(row, 1, QtWidgets.QTableWidgetItem(user["role"]))
-            self.tableWidget_Users.setItem(row, 2, QtWidgets.QTableWidgetItem(""))
+            self.tableWidget_Users.setItem(row, 2, QtWidgets.QTableWidgetItem(""))  # Empty password
+            self.tableWidget_Users.setItem(row, 3, QtWidgets.QTableWidgetItem(user.get("full_name", "")))
+            self.tableWidget_Users.setItem(row, 4, QtWidgets.QTableWidgetItem(user.get("email_addr", "")))
+            self.tableWidget_Users.setItem(row, 5, QtWidgets.QTableWidgetItem(str(user.get("max_logins", ""))))
+            self.tableWidget_Users.setItem(row, 6, QtWidgets.QTableWidgetItem(str(user.get("pall_cap", ""))))
 
-            self.original_data[user["user_id"]] = {
+            self.original_data[user["id"]] = {
                 "username": user["username"].upper(),
                 "role": user["role"],
-                "password": ""
-            }
+                "password": "",
+                "full_name": user.get("full_name", ""),
+                "email_addr": user.get("email_addr", ""),
+                "max_logins": str(user.get("max_logins", "")),
+                "pall_cap": str(user.get("pall_cap", ""))
+    }
+
 
         print(f"🟡 Original Data Snapshot: {self.original_data}")
         
@@ -85,21 +97,34 @@ class UsersTableWindow(QtWidgets.QDialog):
         if user_id not in self.changes:
             self.changes[user_id] = {}
 
-        # Track username
+        # Username
         if column == 0 and new_value != original_values.get("username", ""):
             self.changes[user_id]['username'] = new_value
 
-        # Track role
+        # Role
         elif column == 1 and new_value != original_values.get("role", ""):
             self.changes[user_id]['role'] = new_value
 
-        # Track password (if provided)
+        # Password
         elif column == 2 and new_value:
             self.changes[user_id]['password'] = new_value
 
-        # Clean up if no changes remain
-        if user_id in self.changes and not self.changes[user_id]:
-            del self.changes[user_id]
+        # Full Name
+        elif column == 3 and new_value != original_values.get("full_name", ""):
+            self.changes[user_id]['full_name'] = new_value
+
+        # Email
+        elif column == 4 and new_value != original_values.get("email_addr", ""):
+            self.changes[user_id]['email_addr'] = new_value
+
+        # Max Logins
+        elif column == 5 and new_value != original_values.get("max_logins", ""):
+            self.changes[user_id]['max_logins'] = new_value
+
+        # Pallet Cap
+        elif column == 6 and new_value != original_values.get("pall_cap", ""):
+            self.changes[user_id]['pall_cap'] = new_value
+
 
         print(f"🟩 Tracking Changes: {self.changes}")
 
@@ -118,14 +143,40 @@ class UsersTableWindow(QtWidgets.QDialog):
                     QtWidgets.QMessageBox.warning(self, "Error", "Cannot create new users in this view.")
                     continue
 
-                user_data = {
-                    "username": updated_data.get("username", "").upper(),
-                    "role": updated_data.get("role", "")
-                }
+                user_data = {}
+
+                if "username" in updated_data:
+                    user_data["username"] = updated_data["username"].upper()
+
+                if "role" in updated_data:
+                    user_data["role"] = updated_data["role"]
+
+                if "full_name" in updated_data:
+                    user_data["full_name"] = updated_data["full_name"]
+
+                if "email_addr" in updated_data:
+                    user_data["email_addr"] = updated_data["email_addr"]
+
+                if "max_logins" in updated_data:
+                    try:
+                        user_data["max_logins"] = int(updated_data["max_logins"])
+                    except ValueError:
+                        user_data["max_logins"] = 0  # O manejar de otra forma
+
+                if "pall_cap" in updated_data:
+                    try:
+                        user_data["pall_cap"] = int(updated_data["pall_cap"])
+                    except ValueError:
+                        user_data["pall_cap"] = 0
 
                 if "password" in updated_data and updated_data["password"].strip():
                     user_data["password"] = updated_data["password"]
 
+
+                if "password" in updated_data and updated_data["password"].strip():
+                    user_data["password"] = updated_data["password"]
+                    
+                print(f"🧩 Updating User ID: {user_id}")
                 print(f"✅ Final Data Sent to API: {user_data}")
 
                 response = requests.put(

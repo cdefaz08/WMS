@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>399</width>
+    <height>451</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,8 +18,8 @@
     <rect>
      <x>280</x>
      <y>20</y>
-     <width>81</width>
-     <height>241</height>
+     <width>101</width>
+     <height>301</height>
     </rect>
    </property>
    <property name="orientation">
@@ -29,76 +29,152 @@
     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
    </property>
   </widget>
-  <widget class="QLabel" name="lb_Username">
+  <widget class="QFrame" name="frame">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>50</y>
-     <width>91</width>
-     <height>16</height>
+     <x>0</x>
+     <y>10</y>
+     <width>261</width>
+     <height>321</height>
     </rect>
    </property>
-   <property name="text">
-    <string>User Name:</string>
+   <property name="frameShape">
+    <enum>QFrame::NoFrame</enum>
    </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="7" column="1">
+     <widget class="QLineEdit" name="PallCap">
+      <property name="inputMethodHints">
+       <set>Qt::ImhPreferNumbers</set>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="0">
+     <widget class="QLabel" name="lb_Username">
+      <property name="text">
+       <string>User Name:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QLineEdit" name="UserName"/>
+    </item>
+    <item row="6" column="0">
+     <widget class="QLabel" name="lb_Role_4">
+      <property name="text">
+       <string>Email Addres:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="1">
+     <widget class="QLineEdit" name="EmailAddres"/>
+    </item>
+    <item row="5" column="0">
+     <widget class="QLabel" name="lb_Role_3">
+      <property name="text">
+       <string>Max Logins:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="1">
+     <widget class="QLineEdit" name="Role"/>
+    </item>
+    <item row="4" column="0">
+     <widget class="QLabel" name="lb_Role_2">
+      <property name="text">
+       <string>Role:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0">
+     <widget class="QLabel" name="lb_Password">
+      <property name="text">
+       <string>Password:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="1">
+     <widget class="QLineEdit" name="MaxLogins">
+      <property name="inputMethodHints">
+       <set>Qt::ImhPreferNumbers</set>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="QLineEdit" name="Password_Input"/>
+    </item>
+    <item row="7" column="0">
+     <widget class="QLabel" name="lb_Role_5">
+      <property name="text">
+       <string>Pall Cap:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QLineEdit" name="FullName"/>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="lb_Role">
+      <property name="text">
+       <string>Full Name:</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
   </widget>
-  <widget class="QLabel" name="lb_Password">
+  <widget class="QFrame" name="frame_2">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>110</y>
-     <width>91</width>
-     <height>16</height>
+     <x>0</x>
+     <y>330</y>
+     <width>381</width>
+     <height>101</height>
     </rect>
    </property>
-   <property name="text">
-    <string>Password:</string>
+   <property name="frameShape">
+    <enum>QFrame::NoFrame</enum>
    </property>
-  </widget>
-  <widget class="QLabel" name="lb_Role">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>170</y>
-     <width>91</width>
-     <height>16</height>
-    </rect>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
    </property>
-   <property name="text">
-    <string>Role:</string>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="User_Input">
-   <property name="geometry">
-    <rect>
-     <x>100</x>
-     <y>50</y>
-     <width>113</width>
-     <height>23</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="Password_Input">
-   <property name="geometry">
-    <rect>
-     <x>100</x>
-     <y>110</y>
-     <width>113</width>
-     <height>23</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="Role_Input">
-   <property name="geometry">
-    <rect>
-     <x>100</x>
-     <y>170</y>
-     <width>113</width>
-     <height>23</height>
-    </rect>
-   </property>
+   <widget class="QLabel" name="lb_Role_6">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>10</y>
+      <width>83</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Comments:</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="Comments">
+    <property name="geometry">
+     <rect>
+      <x>80</x>
+      <y>10</y>
+      <width>281</width>
+      <height>71</height>
+     </rect>
+    </property>
+   </widget>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>UserName</tabstop>
+  <tabstop>FullName</tabstop>
+  <tabstop>Password_Input</tabstop>
+  <tabstop>Role</tabstop>
+  <tabstop>MaxLogins</tabstop>
+  <tabstop>EmailAddres</tabstop>
+  <tabstop>PallCap</tabstop>
+  <tabstop>Comments</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

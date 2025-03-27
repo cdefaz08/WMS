@@ -18,6 +18,7 @@ class ItemSearchWindow(QtWidgets.QDialog):
         self.lineEdit_Brand = self.findChild(QtWidgets.QLineEdit,"lineEdit_Brand")
         self.pushButton_Search = self.findChild(QtWidgets.QPushButton, 'pushButton_Search')
         self.tableViewItemSearch = self.findChild(QtWidgets.QTableView,"tableViewItemSearch")
+        self.Records = self.findChild(QtWidgets.QLabel,"Records")
 
         # Connect ENTER key (returnPressed) from all search fields
         self.lineEdit_itemCode.returnPressed.connect(self.search_items)
@@ -112,6 +113,7 @@ class ItemSearchWindow(QtWidgets.QDialog):
             model.appendRow(row)
 
         self.tableViewItemSearch.setModel(model)
+        self.Records.setText(f"Records found: <b>{len(items)}</b>")
 
     def clear_filters(self):
         # Limpiar todos los lineEdits
