@@ -1,363 +1,310 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>CreateNewUser</class>
- <widget class="QDialog" name="CreateNewUser">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>805</width>
-    <height>569</height>
+    <width>807</width>
+    <height>545</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Create New Item Code</string>
+   <string>Form</string>
   </property>
-  <widget class="QDialogButtonBox" name="buttonBox">
-   <property name="geometry">
-    <rect>
-     <x>700</x>
-     <y>10</y>
-     <width>81</width>
-     <height>81</height>
-    </rect>
-   </property>
-   <property name="orientation">
-    <enum>Qt::Vertical</enum>
-   </property>
-   <property name="standardButtons">
-    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-   </property>
-  </widget>
-  <widget class="QFrame" name="frame">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>10</y>
-     <width>331</width>
-     <height>181</height>
-    </rect>
-   </property>
-   <property name="frameShape">
-    <enum>QFrame::NoFrame</enum>
-   </property>
-   <property name="frameShadow">
-    <enum>QFrame::Raised</enum>
-   </property>
-   <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
-     <widget class="QLabel" name="lb_ItemID">
-      <property name="text">
-       <string>Item Code:</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="1">
-     <widget class="QLineEdit" name="lineEdit_ItemCode"/>
-    </item>
-    <item row="1" column="0">
-     <widget class="QLabel" name="lb_ItemID_2">
-      <property name="text">
-       <string>Description:</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="1">
-     <widget class="QLineEdit" name="lineEdit_description"/>
-    </item>
-    <item row="2" column="0">
-     <widget class="QLabel" name="lb_Price">
-      <property name="text">
-       <string>Price</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="1">
-     <widget class="QLineEdit" name="lineEdit_Price"/>
-    </item>
-    <item row="3" column="0">
-     <widget class="QLabel" name="lb_ItemClass">
-      <property name="text">
-       <string>Item Class:</string>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="0">
-     <widget class="QLabel" name="lb_Role">
-      <property name="text">
-       <string>Active:</string>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="1">
-     <widget class="QComboBox" name="comboBox_item_class"/>
-    </item>
-    <item row="4" column="1">
-     <widget class="QComboBox" name="comboBox_active"/>
-    </item>
-   </layout>
-  </widget>
-  <widget class="QFrame" name="frame_2">
-   <property name="geometry">
-    <rect>
-     <x>350</x>
-     <y>10</y>
-     <width>276</width>
-     <height>151</height>
-    </rect>
-   </property>
-   <property name="frameShape">
-    <enum>QFrame::NoFrame</enum>
-   </property>
-   <property name="frameShadow">
-    <enum>QFrame::Raised</enum>
-   </property>
-   <layout class="QGridLayout" name="gridLayout_4">
-    <item row="0" column="0">
-     <widget class="QLabel" name="lb_UPC">
-      <property name="text">
-       <string>UPC:</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="1">
-     <widget class="QLineEdit" name="lineEdit_UPC"/>
-    </item>
-    <item row="1" column="0">
-     <widget class="QLabel" name="lb_alt_item_id1">
-      <property name="text">
-       <string>Alt item id 1:</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="1">
-     <widget class="QLineEdit" name="lineEdit_alt_item_id_1"/>
-    </item>
-    <item row="2" column="0">
-     <widget class="QLabel" name="lb_Price_2">
-      <property name="text">
-       <string>Alt item id 2:</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="1">
-     <widget class="QLineEdit" name="lineEdit_alt_item_id_2"/>
-    </item>
-    <item row="3" column="0">
-     <widget class="QLabel" name="lb_Price_3">
-      <property name="text">
-       <string>Default CFG</string>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="1">
-     <widget class="QLineEdit" name="lineEdit_default_cfg"/>
-    </item>
-   </layout>
-  </widget>
-  <widget class="QTabWidget" name="tabWidget_Items">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>220</y>
-     <width>791</width>
-     <height>341</height>
-    </rect>
-   </property>
-   <property name="currentIndex">
-    <number>0</number>
-   </property>
-   <widget class="QWidget" name="General">
-    <attribute name="title">
-     <string>General</string>
-    </attribute>
-    <widget class="QFrame" name="frame_4">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>421</width>
-       <height>181</height>
-      </rect>
-     </property>
+  <layout class="QGridLayout" name="gridLayout_6">
+   <item row="0" column="0">
+    <widget class="QFrame" name="frame_5">
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
      </property>
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
      </property>
-     <layout class="QGridLayout" name="gridLayout_3">
+     <layout class="QGridLayout" name="gridLayout_5">
       <item row="0" column="0">
-       <widget class="QLabel" name="lb_ItemID_5">
-        <property name="text">
-         <string>Color:</string>
+       <widget class="QFrame" name="frame">
+        <property name="frameShape">
+         <enum>QFrame::NoFrame</enum>
         </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="lineEdit_ItemCode"/>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="lineEdit_Price"/>
+         </item>
+         <item row="4" column="1">
+          <widget class="QComboBox" name="comboBox_active"/>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="lb_ItemID">
+           <property name="text">
+            <string>Item Code:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="lb_ItemClass">
+           <property name="text">
+            <string>Item Class:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="lineEdit_description"/>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="lb_Price">
+           <property name="text">
+            <string>Price</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="lb_ItemID_2">
+           <property name="text">
+            <string>Description:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QComboBox" name="comboBox_item_class"/>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="lb_Role">
+           <property name="text">
+            <string>Active:</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QLineEdit" name="lineEdit_Color"/>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="lb_ItemID_7">
-        <property name="text">
-         <string>Size:</string>
+       <widget class="QFrame" name="frame_2">
+        <property name="frameShape">
+         <enum>QFrame::NoFrame</enum>
         </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="lineEdit_Size"/>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="lb_Description2">
-        <property name="text">
-         <string>Description2:</string>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
         </property>
+        <layout class="QGridLayout" name="gridLayout_4">
+         <item row="0" column="0">
+          <widget class="QLabel" name="lb_UPC">
+           <property name="text">
+            <string>UPC:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="lineEdit_UPC"/>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="lb_alt_item_id1">
+           <property name="text">
+            <string>Alt item id 1:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="lineEdit_alt_item_id_1"/>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="lb_Price_2">
+           <property name="text">
+            <string>Alt item id 2:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="lineEdit_alt_item_id_2"/>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="lb_Price_3">
+           <property name="text">
+            <string>Default CFG</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLineEdit" name="lineEdit_default_cfg"/>
+         </item>
+        </layout>
        </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QLineEdit" name="lineEdit_Description2"/>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="lb_ItemID_8">
-        <property name="text">
-         <string>Brand:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QLineEdit" name="lineEdit_Brand"/>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="lb_ItemID_9">
-        <property name="text">
-         <string>Style:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <widget class="QLineEdit" name="lineEdit_Style"/>
       </item>
      </layout>
     </widget>
-   </widget>
-   <widget class="QWidget" name="Custom">
-    <attribute name="title">
-     <string>Custom</string>
-    </attribute>
-    <widget class="QFrame" name="frame_3">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>311</width>
-       <height>211</height>
-      </rect>
+   </item>
+   <item row="1" column="0">
+    <widget class="QTabWidget" name="tabWidget_Items">
+     <property name="currentIndex">
+      <number>0</number>
      </property>
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_2">
-      <item row="3" column="1">
-       <widget class="QLineEdit" name="lineEdit_Custom4"/>
-      </item>
-      <item row="4" column="1">
-       <widget class="QLineEdit" name="lineEdit_Custom5"/>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="lb_Custom3">
-        <property name="text">
-         <string>Custom 3:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="lb_Custom5">
-        <property name="text">
-         <string>Custom 5:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="lb_Custom2">
-        <property name="text">
-         <string>Custom 2:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QLineEdit" name="lineEdit_Custom1"/>
-      </item>
-      <item row="2" column="1">
-       <widget class="QLineEdit" name="lineEdit_Custom3"/>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="lb_Custom1">
-        <property name="text">
-         <string>Custom 1:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="lineEdit_Custom2"/>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="lb_Custom4">
-        <property name="text">
-         <string>Custom 4:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0">
-       <widget class="QLabel" name="lb_Custom6">
-        <property name="text">
-         <string>Custom 6:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="1">
-       <widget class="QLineEdit" name="lineEdit_Custom6"/>
-      </item>
-     </layout>
+     <widget class="QWidget" name="General">
+      <attribute name="title">
+       <string>General</string>
+      </attribute>
+      <widget class="QFrame" name="frame_4">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>421</width>
+         <height>181</height>
+        </rect>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_3">
+        <item row="0" column="0">
+         <widget class="QLabel" name="lb_ItemID_5">
+          <property name="text">
+           <string>Color:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="lineEdit_Color"/>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="lb_ItemID_7">
+          <property name="text">
+           <string>Size:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="lineEdit_Size"/>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="lb_Description2">
+          <property name="text">
+           <string>Description2:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLineEdit" name="lineEdit_Description2"/>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="lb_ItemID_8">
+          <property name="text">
+           <string>Brand:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QLineEdit" name="lineEdit_Brand"/>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="lb_ItemID_9">
+          <property name="text">
+           <string>Style:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="QLineEdit" name="lineEdit_Style"/>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="Custom">
+      <attribute name="title">
+       <string>Custom</string>
+      </attribute>
+      <widget class="QFrame" name="frame_3">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>311</width>
+         <height>211</height>
+        </rect>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="3" column="1">
+         <widget class="QLineEdit" name="lineEdit_Custom4"/>
+        </item>
+        <item row="4" column="1">
+         <widget class="QLineEdit" name="lineEdit_Custom5"/>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="lb_Custom3">
+          <property name="text">
+           <string>Custom 3:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="lb_Custom5">
+          <property name="text">
+           <string>Custom 5:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="lb_Custom2">
+          <property name="text">
+           <string>Custom 2:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="lineEdit_Custom1"/>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLineEdit" name="lineEdit_Custom3"/>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="lb_Custom1">
+          <property name="text">
+           <string>Custom 1:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="lineEdit_Custom2"/>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="lb_Custom4">
+          <property name="text">
+           <string>Custom 4:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="QLabel" name="lb_Custom6">
+          <property name="text">
+           <string>Custom 6:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1">
+         <widget class="QLineEdit" name="lineEdit_Custom6"/>
+        </item>
+       </layout>
+      </widget>
+     </widget>
     </widget>
-   </widget>
-  </widget>
+   </item>
+  </layout>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>CreateNewUser</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>CreateNewUser</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>286</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

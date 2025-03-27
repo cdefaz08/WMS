@@ -36,9 +36,9 @@ users = Table(
     Column("username", String(50), nullable=False),
     Column("password", String(50), nullable=False),
     Column("full_name",String(30)),
-    Column("max_logins",Float),
+    Column("max_logins",Integer,nullable=False ,default="0"),
     Column("email_addr",String),
-    Column("pall_cap",String, nullable=False),
+    Column("pall_cap",Integer, nullable=False, default="0"),
     Column("comments",String),
     Column("role", String(30), nullable=False)
 )

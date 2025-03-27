@@ -210,6 +210,11 @@ async def create_user(user: Users):
     query = users.insert().values(
         username=uppercase_username,
         password=hash_password,
+        full_name= user.full_name,
+        max_logins = user.max_logins,
+        email_addr = user.email_addr,
+        comments = user.comments,
+        pall_cap = user.pall_cap,
         role=user.role
     )
     await database.execute(query)

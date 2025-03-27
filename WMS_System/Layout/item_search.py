@@ -113,25 +113,16 @@ class ItemSearchWindow(QtWidgets.QDialog):
 
         self.tableViewItemSearch.setModel(model)
 
-
-    def open_add_item_dialog(self):
-        """Open the Add Item Dialog when the 'Add New' button is clicked."""
-        dialog = AddItemDialog()
-        if dialog.exec_():  # If accepted
-            item_data = dialog.get_item_data()
-            self.createItem(item_data)  # ✅ Separate method to handle data insertion
-
-
-    def createItem(self, item_data):
-        """Send the new item to FastAPI and refresh the table."""
-        try:
-            response = requests.post("http://localhost:8000/items/", json=item_data)
-            if response.status_code == 200:
-                QtWidgets.QMessageBox.information(self, "Success", "New item added successfully!")
-            else:
-                QtWidgets.QMessageBox.warning(self, "Error", "Failed to add item.")
-        except requests.exceptions.RequestException:
-            QtWidgets.QMessageBox.critical(self, "Error", "Failed to connect to the server.")
+    def clear_filters(self):
+        # Limpiar todos los lineEdits
+        self.lineEdit_itemCode.clear()
+        self.lineEdit_UPC.clear()
+        self.lineEdit_alt_item_id1.clear()
+        self.lineEdit_alt_item_id2.clear()
+        self.lineEdit_item_class.clear()
+        self.lineEdit_Color.clear()
+        self.lineEdit_size.clear()
+        self.lineEdit_Brand.clear()
 
     def get_selected_item_id(self):
         if not self.tableViewItemSearch:

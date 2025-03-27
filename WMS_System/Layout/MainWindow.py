@@ -118,6 +118,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     sub_window.setFocus()
                     return 
             add_dialog = AddItemDialog(parent=self)
+            
 
             # Create and show as MDI subwindow
             subwindow = QtWidgets.QMdiSubWindow()
@@ -125,6 +126,7 @@ class MainWindow(QtWidgets.QMainWindow):
             subwindow.setWindowTitle("Add New Item")
             subwindow.setAttribute(QtCore.Qt.WA_DeleteOnClose)
             subwindow.resize(805,569)
+            add_dialog.parent_subwindow = subwindow
 
             self.mdiArea.addSubWindow(subwindow)
             subwindow.show()
@@ -142,6 +144,8 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.save_changes()  # Example function in UsersTableWindow
         elif isinstance(active_window,ItemMaintanceDialog):
             active_window.save_changes()
+        elif isinstance(active_window,AddItemDialog):
+            active_window.createItem()
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
 
@@ -152,6 +156,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         if isinstance(active_window, UsersTableWindow):
             active_window.discard_users()  # Example function in UsersTableWindow
+        elif isinstance(active_window,ItemSearchWindow):
+            active_window.clear_filters()
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
 

@@ -1,11 +1,12 @@
 from PyQt5 import QtWidgets, uic
-import json
 import requests
 
-class AddItemDialog(QtWidgets.QDialog):
+class AddItemDialog(QtWidgets.QWidget):
     def __init__(self, parent= None):
         super().__init__()
         uic.loadUi("UI/add_item.ui", self)  # Load your .ui file
+        
+        self.item_data = None
 
         # Reference UI Elements
         self.lineEdit_ItemCode = self.findChild(QtWidgets.QLineEdit, 'lineEdit_ItemCode')
@@ -32,9 +33,7 @@ class AddItemDialog(QtWidgets.QDialog):
 
         self.comboBox_active.addItems(["Yes","No"])
 
-        # Connect the buttons
-        self.buttonBox.accepted.connect(self.submit_item)
-        self.buttonBox.rejected.connect(self.reject)
+        
         self.populate_item_classes()
 
 
@@ -56,6 +55,7 @@ class AddItemDialog(QtWidgets.QDialog):
                 QtWidgets.QMessageBox.warning(self, "Error", "Failed to load item classes.")
         except Exception as e:
             QtWidgets.QMessageBox.critical(self, "Error", f"API Error:\n{e}")
+
 
 
     def submit_item(self):
@@ -108,10 +108,26 @@ class AddItemDialog(QtWidgets.QDialog):
             "custum6": custum6
         }
 
-        print(json.dumps(self.item_data, indent=2))
+    def createItem(self):
+        self.submit_item()
+        if self.item_data:
+            try:
+                response = requests.post("http://localhost:8000/items/", json=self.item_data)
+                if response.status_code == 200:
+                    QtWidgets.QMessageBox.information(self, "Success", "New item added successfully!")
+                    # Intenta cerrar el subwindow si existe
+                    if hasattr(self, "parent_subwindow"):
+                        self.parent_subwindow.close()
+                    else:
+                        self.close()
+                else:
+                    QtWidgets.QMessageBox.warning(self, "Error", f"Failed to add item.\n{response.text}")
+            except requests.exceptions.RequestException:
+                QtWidgets.QMessageBox.critical(self, "Error", "Failed to connect to the server.")
 
-        self.accept()  # Close the dialog and return data
+
 
     def get_item_data(self):
         """Return the item data collected from the dialog."""
         return self.item_data
+    
