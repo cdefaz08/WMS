@@ -1,12 +1,12 @@
 from PyQt5 import QtWidgets, uic, QtCore 
-from add_item_dialog import AddItemDialog
 import requests
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
+from UI_PY.item_search_ui import Ui_ItemSearch
 
-class ItemSearchWindow(QtWidgets.QDialog):
+class ItemSearchWindow(QtWidgets.QDialog, Ui_ItemSearch):
     def __init__(self, parent=None):
         super().__init__(parent)
-        uic.loadUi("UI/item_searchV2.ui", self)
+        self.setupUi(self)
 
         self.lineEdit_itemCode = self.findChild(QtWidgets.QLineEdit,"lineEdit_itemCode")
         self.lineEdit_UPC = self.findChild(QtWidgets.QLineEdit,"lineEdit_UPC")
