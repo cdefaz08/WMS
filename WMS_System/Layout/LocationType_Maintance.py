@@ -102,6 +102,7 @@ class LocationType_Maintance(QtWidgets.QWidget):
 
             if response.status_code == 200:
                 QtWidgets.QMessageBox.information(self, "Success", "Location type updated successfully!")
+                updated_data.clear()
             else:
                 QtWidgets.QMessageBox.critical(self, "Error", f"Failed to update.\n{response.text}")
         except Exception as e:

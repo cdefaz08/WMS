@@ -115,7 +115,7 @@ class MainWindow(QtWidgets.QMainWindow):
                         subwindow.setWindowTitle("Location Type Maintance")
 
                         subwindow.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-                        subwindow.resize(700, 600)
+                        subwindow.resize(902, 384)
                         self.mdiArea.addSubWindow(subwindow)
                         subwindow.show()
                     else:
