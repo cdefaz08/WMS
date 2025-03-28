@@ -1,43 +1,15 @@
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtCore import pyqtSignal
 import requests
+from UI_PY.ItemMaintance import Ui_UpdateItemCode
 
-class ItemMaintanceDialog(QtWidgets.QDialog):
+class ItemMaintanceDialog(QtWidgets.QDialog,Ui_UpdateItemCode):
     item_updated = pyqtSignal()
     def __init__(self, item_data = None, parent=None):
         super().__init__(parent)
-        uic.loadUi("UI/ItemMaintance.ui", self)
+        self.setupUi(self)
 
-
-        self.lineEdit_ItemCode = self.findChild(QtWidgets.QLineEdit, 'lineEdit_ItemCode')
-        self.lineEdit_Price = self.findChild(QtWidgets.QLineEdit, 'lineEdit_Price')
-        self.comboBox_active = self.findChild(QtWidgets.QComboBox, 'comboBox_active')
-        self.lineEdit_description = self.findChild(QtWidgets.QLineEdit, 'lineEdit_description')
-        self.buttonBox = self.findChild(QtWidgets.QDialogButtonBox, 'buttonBox')
-        self.comboBox_item_class = self.findChild(QtWidgets.QComboBox,'comboBox_item_class')
-        self.lineEdit_UPC = self.findChild(QtWidgets.QLineEdit,'lineEdit_UPC')
-        self.lineEdit_alt_item_id_1 = self.findChild(QtWidgets.QLineEdit,'lineEdit_alt_item_id_1')
-        self.lineEdit_alt_item_id_2 = self.findChild(QtWidgets.QLineEdit,'lineEdit_alt_item_id_2')
-        self.lineEdit_Color = self.findChild(QtWidgets.QLineEdit,'lineEdit_Color')
-        self.lineEdit_Size = self.findChild(QtWidgets.QLineEdit,'lineEdit_Size')
-        self.lineEdit_Description2 = self.findChild(QtWidgets.QLineEdit,'lineEdit_Description2')
-        self.lineEdit_Brand = self.findChild(QtWidgets.QLineEdit,'lineEdit_Brand')
-        self.lineEdit_Style = self.findChild(QtWidgets.QLineEdit,'lineEdit_Style')
-        self.lineEdit_Custom1 = self.findChild(QtWidgets.QLineEdit,'lineEdit_Custom1')
-        self.lineEdit_Custom2 = self.findChild(QtWidgets.QLineEdit,'lineEdit_Custom2')
-        self.lineEdit_Custom3 = self.findChild(QtWidgets.QLineEdit,'lineEdit_Custom3')
-        self.lineEdit_Custom4 = self.findChild(QtWidgets.QLineEdit,'lineEdit_Custom4')
-        self.lineEdit_Custom5 = self.findChild(QtWidgets.QLineEdit,'lineEdit_Custom5')
-        self.lineEdit_Custom6 = self.findChild(QtWidgets.QLineEdit,'lineEdit_Custom6')
-        self.lineEdit_default_cfg = self.findChild(QtWidgets.QLineEdit,'lineEdit_default_cfg')
-
-        self.comboBox_active = self.findChild(QtWidgets.QComboBox, 'comboBox_active')
         self.comboBox_active.addItems(["Yes", "No"])
-
-
-        self.comboBox_item_class = self.findChild(QtWidgets.QComboBox,'comboBox_item_class')
-        
-
 
         if item_data:
             self.load_item_class_dropdown()

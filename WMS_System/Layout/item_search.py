@@ -8,17 +8,7 @@ class ItemSearchWindow(QtWidgets.QDialog, Ui_ItemSearch):
         super().__init__(parent)
         self.setupUi(self)
 
-        self.lineEdit_itemCode = self.findChild(QtWidgets.QLineEdit,"lineEdit_itemCode")
-        self.lineEdit_UPC = self.findChild(QtWidgets.QLineEdit,"lineEdit_UPC")
-        self.lineEdit_alt_item_id1 = self.findChild(QtWidgets.QLineEdit,"lineEdit_alt_item_id1")
-        self.lineEdit_alt_item_id2 = self.findChild(QtWidgets.QLineEdit,"lineEdit_alt_item_id2")
-        self.lineEdit_item_class = self.findChild(QtWidgets.QLineEdit,"lineEdit_item_class")
-        self.lineEdit_Color = self.findChild(QtWidgets.QLineEdit,"lineEdit_Color")
-        self.lineEdit_size = self.findChild(QtWidgets.QLineEdit,"lineEdit_size")
-        self.lineEdit_Brand = self.findChild(QtWidgets.QLineEdit,"lineEdit_Brand")
-        self.pushButton_Search = self.findChild(QtWidgets.QPushButton, 'pushButton_Search')
-        self.tableViewItemSearch = self.findChild(QtWidgets.QTableView,"tableViewItemSearch")
-        self.Records = self.findChild(QtWidgets.QLabel,"Records")
+
 
         # Connect ENTER key (returnPressed) from all search fields
         self.lineEdit_itemCode.returnPressed.connect(self.search_items)

@@ -46,7 +46,7 @@
       <string>Locations</string>
      </property>
      <addaction name="actionLocation"/>
-     <addaction name="actionLocation_Types_2"/>
+     <addaction name="actionLocation_Types"/>
     </widget>
     <addaction name="actionUsers"/>
     <addaction name="menuLocations"/>
@@ -152,17 +152,12 @@
     <string>Location Search</string>
    </property>
   </action>
-  <action name="actionLocation_Types">
-   <property name="text">
-    <string>Location Types</string>
-   </property>
-  </action>
   <action name="actionLocation">
    <property name="text">
     <string>Location</string>
    </property>
   </action>
-  <action name="actionLocation_Types_2">
+  <action name="actionLocation_Types">
    <property name="text">
     <string>Location Types</string>
    </property>

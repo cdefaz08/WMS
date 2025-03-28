@@ -1,7 +1,6 @@
 from PyQt5 import QtWidgets, uic , QtCore
 import requests
 from Create_NewUser import NewUserDialog  # Import the new dialog
-import json
 
 class UsersTableWindow(QtWidgets.QDialog):
     def __init__(self):
@@ -29,8 +28,6 @@ class UsersTableWindow(QtWidgets.QDialog):
         dialog = NewUserDialog()
         if dialog.exec_():
             self.load_users()  # Refresh data if a new user was created
-
-
 
     def populate_table(self, users):
         """Populate the table with user data without displaying user_id."""
@@ -72,8 +69,6 @@ class UsersTableWindow(QtWidgets.QDialog):
         
         self.tableWidget_Users.blockSignals(False)  # ✅ Enable signals back after loading
 
-
-   
     def track_changes(self, item):
         """Track changes when cells are modified."""
         row = item.row()
@@ -127,8 +122,6 @@ class UsersTableWindow(QtWidgets.QDialog):
 
 
         print(f"🟩 Tracking Changes: {self.changes}")
-
-
 
     def save_changes(self):
         if not self.changes:
@@ -208,7 +201,6 @@ class UsersTableWindow(QtWidgets.QDialog):
                 QtWidgets.QMessageBox.warning(self, "Error", "Failed to load users")
         except requests.exceptions.RequestException:
             QtWidgets.QMessageBox.critical(self, "Error", "Failed to connect to the server")
-
 
     def discard_users(self):
         """Reload the data from the database to discard unsaved changes."""

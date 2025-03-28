@@ -1,0 +1,122 @@
+from database import database
+from models import items
+from schemas.Items import Item
+from fastapi import HTTPException
+
+#Create Item
+async def create_item(item: Item):
+    if not item.item_id.strip():
+        raise HTTPException(status_code=400, detail="item_id cannot be empty or null")
+    
+    if not item.description.strip():
+        raise HTTPException(status_code=400, detail="description cannot be empty or null")        
+
+    data = {
+        "item_id": item.item_id,
+        "description": item.description,
+        "price": item.price,
+        "upc": item.upc,
+        "is_offer": item.is_offer,
+        
+    }
+
+    if item.upc:
+        data["upc"] = item.upc
+
+    if item.color.strip():
+        data["color"] = item.color
+    
+    if item.size.strip():
+        data["size"] = item.size
+
+    if item.description2.strip():
+        data["description2"]= item.description2
+
+    if item.alt_item_id1:
+        data["alt_item_id1"] = item.alt_item_id1
+
+    if item.alt_item_id2:
+        data["alt_item_id2"] = item.alt_item_id2
+
+    if item.brand.strip():
+        data["brand"]= item.brand
+    if item.style.strip():
+        data["style"] = item.style
+
+    if item.custum1.strip():
+        data["custum1"] = item.custum1
+    if item.custum2.strip():
+        data["custum2"] = item.custum2
+    if item.custum3.strip():
+        data["custum3"] = item.custum3
+    if item.custum4.strip():
+        data["custum4"] = item.custum4
+    if item.custum5.strip():
+        data["custum5"] = item.custum5
+    if item.custum6.strip():
+        data["custum6"] = item.custum6
+
+    # ✅ Solo agregar item_class si está presente
+    if item.item_class.strip():
+        data["item_class"] = item.item_class
+    else:
+        data["item_class"] = 'STND'
+        # ✅ If default_cfg is not provided or is blank, set it to None
+
+    if item.default_cfg and item.default_cfg.strip():
+        data["default_cfg"] = item.default_cfg
+    else:
+        data["default_cfg"] = None  # Will insert NULL into the database
+
+    # ✅ Ahora puedes insertar el diccionario en la consulta
+    query = items.insert().values(**data)
+
+    await database.execute(query)
+    return {"message": "Item successfully added!"}
+
+# Read all Items
+async def read_items():
+    query = items.select()
+    return await database.fetch_all(query)
+
+#Read selecte Item
+async def read_item(item_id: int):
+    query = items.select().where(items.c.id == item_id)
+    item = await database.fetch_one(query)
+    if item is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return item
+
+#update Item by Item id
+async def update_item(item_id: int, updated_data: dict):
+    data_to_update = {}
+
+    for key, value in updated_data.items():
+        # Convert string prices to float
+        if key == "price":
+            try:
+                data_to_update[key] = float(value)
+            except ValueError:
+                raise HTTPException(status_code=400, detail="Price must be a number")
+        else:
+            data_to_update[key] = value
+
+    if not data_to_update:
+        raise HTTPException(status_code=400, detail="No valid fields provided for update")
+
+    query = items.update().where(items.c.id == item_id).values(data_to_update)
+    result = await database.execute(query)
+
+    if result:
+        return {"message": "Item updated successfully!"}
+    else:
+        raise HTTPException(status_code=404, detail="Failed to update item")
+    
+#Delete Item by Item id
+async def delete_item(item_id: int):
+    query = items.delete().where(items.c.id == item_id)
+    result = await database.execute(query)
+    if not result:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return {"message": "Item successfully deleted!"}
+    
