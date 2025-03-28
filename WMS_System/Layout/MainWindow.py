@@ -7,6 +7,7 @@ from User_table import UsersTableWindow
 from itemMaintanceDialog import ItemMaintanceDialog
 from add_item_dialog import AddItemDialog
 from LocationType_Win import LocationTypes
+from LocationType_Maintance import LocationType_Maintance
 
 
 
@@ -63,9 +64,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.new_button.triggered.connect(self.toolbar_new)
         self.save_button.triggered.connect(self.toolbar_save)
         self.discard_button.triggered.connect(self.toolbar_discard)
-        self.actionItemMaintance.triggered.connect(self.open_item_maintance_window)
+        self.actionItemMaintance.triggered.connect(self.open_maintance_window)
 
-    def open_item_maintance_window(self):
+    def open_maintance_window(self):
         active_window = self.get_active_window()
 
         if isinstance(active_window, ItemSearchWindow):
@@ -97,8 +98,32 @@ class MainWindow(QtWidgets.QMainWindow):
                     QtWidgets.QMessageBox.critical(self, "Error", "Could not connect to the server.")
             else:
                 QtWidgets.QMessageBox.warning(self, "No Selection", "Please select an item from the table.")
-        else:
-            QtWidgets.QMessageBox.warning(self, "Not Available", "This function is only available in Item Search.")
+        elif isinstance(active_window , LocationTypes):
+            Locationtype = active_window.get_selected_item_id()
+
+            if Locationtype:
+                try: 
+                    response = requests.get(f"http://localhost:8000/location-types/{Locationtype}")
+                    if response.status_code == 200:
+                        locationTypeData = response.json()
+                        # Need to create the subwindow and mapp the correct data into the screnn
+                        subwindow = QtWidgets.QMdiSubWindow()
+                        loc_type_subwin = LocationType_Maintance(locationTypeData = locationTypeData, parent = self)
+                        loc_type_subwin.subwindow = subwindow
+
+                        subwindow.setWidget(loc_type_subwin)
+                        subwindow.setWindowTitle("Location Type Maintance")
+
+                        subwindow.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+                        subwindow.resize(700, 600)
+                        self.mdiArea.addSubWindow(subwindow)
+                        subwindow.show()
+                    else:
+                        QtWidgets.QMessageBox.warning(self, "Error", "Could not load item from server.")
+                except requests.exceptions.RequestException:
+                    QtWidgets.QMessageBox.critical(self, "Error", "Could not connect to the server.")
+            else:
+                QtWidgets.QMessageBox.warning(self, "No Selection", "Please select an item from the table.")
 
     #----------------------------Tolbar New Window-----------------------------------
     def toolbar_new(self):
@@ -139,6 +164,8 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.save_changes()
         elif isinstance(active_window,AddItemDialog):
             active_window.createItem()
+        elif isinstance(active_window,LocationType_Maintance):
+            active_window.save_changes()
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
 

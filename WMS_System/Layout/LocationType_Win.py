@@ -7,7 +7,53 @@ class LocationTypes(QtWidgets.QWidget):
         super().__init__(parent)
         uic.loadUi("UI/locationTypes.ui", self)
 
+        self.tableViewLocationTypes = self.findChild(QtWidgets.QTableView , "tableViewLocationTypes")
 
+        self.tableViewLocationTypes = self.findChild(QtWidgets.QTableView , "tableViewLocationTypes")
+
+        self.tableViewLocationTypes.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectItems)
+        self.tableViewLocationTypes.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
+    
+
+        self.load_location_types()
+
+    def load_location_types(self):
+        try:
+            response = requests.get("http://127.0.0.1:8000/location-types")
+            if response.status_code == 200:
+                data = response.json()
+
+                model = QStandardItemModel()
+                model.setHorizontalHeaderLabels(["Location Type", "Description"])
+
+                for item in data:
+                    location_type = QStandardItem(item.get("location_type", ""))
+                    description = QStandardItem(item.get("description", ""))
+                    model.appendRow([location_type, description])
+
+                self.tableViewLocationTypes.setModel(model)
+                self.tableViewLocationTypes.resizeColumnsToContents()
+            else:
+                QtWidgets.QMessageBox.critical(self, "Error", "API response failed")
+        except Exception as e:
+            QtWidgets.QMessageBox.critical(self, "Error", str(e))
+
+    def get_selected_item_id(self):
+        if not self.tableViewLocationTypes:
+            return None
+
+        selection_model = self.tableViewLocationTypes.selectionModel()
+        if not selection_model:
+            return None
+
+        indexes = selection_model.selectedIndexes()
+        if not indexes:
+            return None
+
+        model = self.tableViewLocationTypes.model()
+        row = indexes[0].row()
+
+        return model.index(row, 0).data(QtCore.Qt.DisplayRole)
 
 
     
