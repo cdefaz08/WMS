@@ -1,5 +1,5 @@
-from fastapi import APIRouter
-from schemas.user import Users
+from fastapi import APIRouter, Body
+from schemas.user import Users, UserUpdate
 from crud import users as crud_users
 
 router = APIRouter()
@@ -13,6 +13,9 @@ async def get_users():
     return await crud_users.get_users()
 
 @router.put("/{user_id}")
-async def update_user():
-    return await crud_users.update_user()
+async def update_user(
+    user_id: int,
+    updated_data: UserUpdate = Body(...)
+):
+    return await crud_users.update_user(user_id,updated_data)
 
