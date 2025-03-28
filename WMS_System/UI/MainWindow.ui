@@ -83,6 +83,8 @@
    </attribute>
    <addaction name="actionNew"/>
    <addaction name="actionSave"/>
+   <addaction name="actionDelete"/>
+   <addaction name="actionRefresh"/>
    <addaction name="actionDiscard"/>
    <addaction name="separator"/>
    <addaction name="actionItemMaintance"/>
@@ -120,16 +122,16 @@
     <string>Save</string>
    </property>
   </action>
-  <action name="actionDiscard">
+  <action name="actionRefresh">
    <property name="icon">
     <iconset>
      <normaloff>../icons/icons8-reload-24.png</normaloff>../icons/icons8-reload-24.png</iconset>
    </property>
    <property name="text">
-    <string>Discard</string>
+    <string>Refresh</string>
    </property>
    <property name="toolTip">
-    <string>Discard</string>
+    <string>Refresh</string>
    </property>
   </action>
   <action name="actionOrders">
@@ -172,6 +174,30 @@
    </property>
    <property name="toolTip">
     <string>ItemMaintance</string>
+   </property>
+  </action>
+  <action name="actionDiscard">
+   <property name="icon">
+    <iconset>
+     <normaloff>../icons/icons8-cancel-24.png</normaloff>../icons/icons8-cancel-24.png</iconset>
+   </property>
+   <property name="text">
+    <string>Discard</string>
+   </property>
+   <property name="toolTip">
+    <string>actionDiscard</string>
+   </property>
+  </action>
+  <action name="actionDelete">
+   <property name="icon">
+    <iconset>
+     <normaloff>../icons/icons8-delete-24.png</normaloff>../icons/icons8-delete-24.png</iconset>
+   </property>
+   <property name="text">
+    <string>Delete</string>
+   </property>
+   <property name="toolTip">
+    <string>Delete</string>
    </property>
   </action>
  </widget>

@@ -8,6 +8,7 @@ from itemMaintanceDialog import ItemMaintanceDialog
 from add_item_dialog import AddItemDialog
 from LocationType_Win import LocationTypes
 from LocationType_Maintance import LocationType_Maintance
+from AddLocationType import AddLocationType
 
 
 
@@ -63,6 +64,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionItemMaintance.setVisible(False)
         self.new_button.triggered.connect(self.toolbar_new)
         self.save_button.triggered.connect(self.toolbar_save)
+        self.refresh_button.triggered.connect(self.toolbar_refresh)
         self.discard_button.triggered.connect(self.toolbar_discard)
         self.actionItemMaintance.triggered.connect(self.open_maintance_window)
 
@@ -148,6 +150,26 @@ class MainWindow(QtWidgets.QMainWindow):
 
             self.mdiArea.addSubWindow(subwindow)
             subwindow.show()
+        
+        elif isinstance( active_window , LocationTypes):
+            for sub_window in self.mdiArea.subWindowList():
+                if isinstance(sub_window.widget(),AddLocationType):
+                    sub_window.show()
+                    sub_window.setFocus()
+                    return
+            add_dialog = AddLocationType(parent=self)
+
+            # Create and show as MDI subwindow
+            subwindow = QtWidgets.QMdiSubWindow()
+            subwindow.setWidget(add_dialog)
+            subwindow.setWindowTitle("Add New Item")
+            subwindow.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+            subwindow.resize(902,384)
+            add_dialog.parent_subwindow = subwindow
+
+            self.mdiArea.addSubWindow(subwindow)
+            subwindow.show()
+
             
         elif isinstance(active_window, UsersTableWindow):
             active_window.add_new_user()  # Example function in UsersTableWindow
@@ -166,6 +188,8 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.createItem()
         elif isinstance(active_window,LocationType_Maintance):
             active_window.save_changes()
+        elif isinstance(active_window,AddLocationType):
+            active_window.save_changes()
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
 
@@ -181,7 +205,11 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
 
-
+    def toolbar_refresh(self):
+        active_window = self.get_active_window()
+        
+        if isinstance(active_window,LocationTypes):
+            active_window.load_location_types()
     #----------------------------Open location Type Window----------------------------------- 
     def open_locationType_win(self):
         for sub_window in self.mdiArea.subWindowList():
