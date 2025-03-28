@@ -23,9 +23,10 @@ async def get_item(item_id: int):
 @router.put("/{item_id}")
 async def update_item(
     item_id: int,
-    updated_data: ItemUpdate = Body(...)
+    updated_data: ItemUpdate
 ):
     return await crud_items.update_item(item_id, updated_data.dict(exclude_unset=True))
+
 
 
 
