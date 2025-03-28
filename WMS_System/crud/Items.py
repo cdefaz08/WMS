@@ -1,10 +1,10 @@
 from database import database
 from models import items
-from schemas.Items import Item
+from schemas.Items import ItemCreate
 from fastapi import HTTPException
 
 #Create Item
-async def create_item(item: Item):
+async def create_item(item: ItemCreate):
     if not item.item_id.strip():
         raise HTTPException(status_code=400, detail="item_id cannot be empty or null")
     

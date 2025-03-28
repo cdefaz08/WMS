@@ -68,18 +68,30 @@ class ItemMaintanceDialog(QtWidgets.QDialog,Ui_UpdateItemCode):
     def get_updated_fields(self):
         updated = {}
 
-        def check(field_name, widget, convert=str):
-            current_value = convert(widget.text()).strip()
-            original_value = str(self.original_data.get(field_name, "")).strip()
-            if current_value != original_value:
-                updated[field_name] = current_value
+        def check(field_name, widget, target_type=str):
+            text = widget.text().strip()
+            original = str(self.original_data.get(field_name, "")).strip()
+
+            if text != original:
+                if not text:  # No enviar strings vacíos
+                    return
+                try:
+                    if target_type == int:
+                        updated[field_name] = int(text)
+                    elif target_type == float:
+                        updated[field_name] = float(text)
+                    else:
+                        updated[field_name] = text
+                except ValueError:
+                    QtWidgets.QMessageBox.warning(self, "Invalid input", f"{field_name} must be a {target_type.__name__}")
+                    return
 
         check("item_id", self.lineEdit_ItemCode)
         check("description", self.lineEdit_description)
-        check("upc", self.lineEdit_UPC)
-        check("price", self.lineEdit_Price)
-        check("alt_item_id1", self.lineEdit_alt_item_id_1)
-        check("alt_item_id2", self.lineEdit_alt_item_id_2)
+        check("upc", self.lineEdit_UPC, int)
+        check("price", self.lineEdit_Price, float)
+        check("alt_item_id1", self.lineEdit_alt_item_id_1, int)
+        check("alt_item_id2", self.lineEdit_alt_item_id_2, int)
         check("default_cfg", self.lineEdit_default_cfg)
         check("color", self.lineEdit_Color)
         check("size", self.lineEdit_Size)
@@ -106,6 +118,7 @@ class ItemMaintanceDialog(QtWidgets.QDialog,Ui_UpdateItemCode):
 
         return updated
 
+
     def save_changes(self):
         updated_fields = self.get_updated_fields()
         if not updated_fields:
@@ -126,5 +139,7 @@ class ItemMaintanceDialog(QtWidgets.QDialog,Ui_UpdateItemCode):
                 QtWidgets.QMessageBox.warning(self, "Error", f"Failed to update item: {response.text}")
         except requests.exceptions.RequestException:
             QtWidgets.QMessageBox.critical(self, "Error", "Failed to connect to server")
+        
+        print(f"Final data to update:,Item:ID: {item_id}, {updated_fields}")
 
 
