@@ -70,6 +70,169 @@ class MainWindow(QtWidgets.QMainWindow):
         self.discard_button.triggered.connect(self.toolbar_discard)
         self.actionItemMaintance.triggered.connect(self.open_maintance_window)
 
+
+#------------------------------------ToolBar Config-----------------------------------------------------
+    #----------------------------Tolbar New Window-----------------------
+    def toolbar_new(self):
+        active_window = self.get_active_window()
+
+        if isinstance(active_window, ItemSearchWindow):
+            for sub_window in self.mdiArea.subWindowList():
+                if isinstance(sub_window.widget(), AddItemDialog):
+                    sub_window.show()
+                    sub_window.setFocus()
+                    return 
+            add_dialog = AddItemDialog(parent=self)
+            
+
+            # Create and show as MDI subwindow
+            subwindow = QtWidgets.QMdiSubWindow()
+            subwindow.setWidget(add_dialog)
+            subwindow.setWindowTitle("Add New Item")
+            subwindow.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+            subwindow.resize(805,569)
+            add_dialog.parent_subwindow = subwindow
+
+            self.mdiArea.addSubWindow(subwindow)
+            subwindow.show()
+        
+        elif isinstance( active_window , LocationTypes):
+            for sub_window in self.mdiArea.subWindowList():
+                if isinstance(sub_window.widget(),AddLocationType):
+                    sub_window.show()
+                    sub_window.setFocus()
+                    return
+            add_dialog = AddLocationType(parent=self)
+
+            # Create and show as MDI subwindow
+            subwindow = QtWidgets.QMdiSubWindow()
+            subwindow.setWidget(add_dialog)
+            subwindow.setWindowTitle("Add New Item")
+            subwindow.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+            subwindow.resize(902,384)
+            add_dialog.parent_subwindow = subwindow
+
+            self.mdiArea.addSubWindow(subwindow)
+            subwindow.show()
+
+            
+        elif isinstance(active_window, UsersTableWindow):
+            active_window.add_new_user()  # Example function in UsersTableWindow
+        else:
+            QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
+
+    #----------------------------Toolbar Save Triger---------------------
+    def toolbar_save(self):
+        active_window = self.get_active_window()
+
+        if isinstance(active_window, UsersTableWindow):
+            active_window.save_changes() 
+        elif isinstance(active_window,ItemMaintanceDialog):
+            active_window.save_changes()
+        elif isinstance(active_window,AddItemDialog):
+            active_window.createItem()
+        elif isinstance(active_window,LocationType_Maintance):
+            active_window.save_changes()
+        elif isinstance(active_window,AddLocationType):
+            active_window.save_changes()
+        else:
+            QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
+
+    #----------------------------Toolbar Delete Triger-------------------
+    def toolbar_delete(self):
+        active_window = self.get_active_window()
+        
+        if isinstance(active_window,UsersTableWindow):
+            active_window.delete_selection()
+        else:
+            QtWidgets.QMessageBox.warning(self,"No Active Window", "Please select a window First")
+            
+    #----------------------------Toolbar Discard Triger------------------
+    
+    def toolbar_discard(self):
+        active_window = self.get_active_window()
+
+        if isinstance(active_window, UsersTableWindow):
+            active_window.discard_users()  # Example function in UsersTableWindow
+        elif isinstance(active_window,ItemSearchWindow):
+            active_window.clear_filters()
+        else:
+            QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
+
+    def toolbar_refresh(self):
+        active_window = self.get_active_window()
+        
+        if isinstance(active_window,LocationTypes):
+            active_window.load_location_types()
+    
+    def hide_item_toolbar_action(self):
+        self.actionItemMaintance.setVisible(False)
+
+#------------------------------------Open Subwindows-----------------------------------------------------
+
+    #----------------------------Open User Table-----------------------
+    def open_user_table(self):
+        for sub_window in self.mdiArea.subWindowList():
+            if isinstance(sub_window.widget(), UsersTableWindow):
+                sub_window.show()
+                sub_window.setFocus()
+                return
+        
+        user_search_subwindow = QtWidgets. QMdiSubWindow()
+        self.user_search_window = UsersTableWindow()
+        user_search_subwindow.setWidget(self.user_search_window)
+        user_search_subwindow.setWindowTitle ("User Search")
+
+        #Ensure the subwindow is deleted when closed
+        user_search_subwindow.setAttribute(Qt.WA_DeleteOnClose)
+
+        user_search_subwindow.resize(600, 400)
+
+        self.mdiArea.addSubWindow(user_search_subwindow)
+        user_search_subwindow.show()   
+    #----------------------------Open location Type Window--------------
+    def open_locationType_win(self):
+        for sub_window in self.mdiArea.subWindowList():
+            if isinstance(sub_window.widget(),LocationTypes):
+                sub_window.show()
+                sub_window.setFocus()
+                return
+            
+        locationType_subwindow = QtWidgets.QMdiSubWindow()
+        self.locationType_subwindow = LocationTypes(self)
+        locationType_subwindow.setWidget(self.locationType_subwindow)
+        locationType_subwindow.setWindowTitle("Location Types")
+        self.mdiArea.subWindowActivated.connect(self.handle_subwindow_focus_change)
+        self.actionItemMaintance.setVisible(True)
+        self.locationType_subwindow.destroyed.connect(self.hide_item_toolbar_action)
+        locationType_subwindow.setAttribute(Qt.WA_DeleteOnClose) # Ensure the subwindow is deleted when closed
+        locationType_subwindow.resize(500,600)
+        self.mdiArea.addSubWindow(locationType_subwindow)
+        locationType_subwindow.show()
+
+    #----------------------------Open Item Search Table-----------------
+    def open_item_search(self):
+        # Check if the window is already open to avoid duplicates
+        for sub_window in self.mdiArea.subWindowList():
+            if isinstance(sub_window.widget(), ItemSearchWindow):
+                sub_window.show()
+                sub_window.setFocus()
+                return  
+
+        # Create a new QMdiSubWindow
+        item_search_subwindow = QtWidgets.QMdiSubWindow()
+        self.item_search_window = ItemSearchWindow(self)
+        item_search_subwindow.setWidget(self.item_search_window)
+        item_search_subwindow.setWindowTitle("Item Search")
+        self.mdiArea.subWindowActivated.connect(self.handle_subwindow_focus_change)
+        self.actionItemMaintance.setVisible(True)
+        self.item_search_window.destroyed.connect(self.hide_item_toolbar_action)
+        item_search_subwindow.setAttribute(Qt.WA_DeleteOnClose) # Ensure the subwindow is deleted when closed
+        item_search_subwindow.resize(1089,766)
+        self.mdiArea.addSubWindow(item_search_subwindow)
+        item_search_subwindow.show()
+    
+    #----------------------------Open Maintance Window-----------------
     def open_maintance_window(self):
         active_window = self.get_active_window()
 
@@ -129,143 +292,7 @@ class MainWindow(QtWidgets.QMainWindow):
             else:
                 QtWidgets.QMessageBox.warning(self, "No Selection", "Please select an item from the table.")
 
-    #----------------------------Tolbar New Window-----------------------------------
-    def toolbar_new(self):
-        active_window = self.get_active_window()
-
-        if isinstance(active_window, ItemSearchWindow):
-            for sub_window in self.mdiArea.subWindowList():
-                if isinstance(sub_window.widget(), AddItemDialog):
-                    sub_window.show()
-                    sub_window.setFocus()
-                    return 
-            add_dialog = AddItemDialog(parent=self)
-            
-
-            # Create and show as MDI subwindow
-            subwindow = QtWidgets.QMdiSubWindow()
-            subwindow.setWidget(add_dialog)
-            subwindow.setWindowTitle("Add New Item")
-            subwindow.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-            subwindow.resize(805,569)
-            add_dialog.parent_subwindow = subwindow
-
-            self.mdiArea.addSubWindow(subwindow)
-            subwindow.show()
-        
-        elif isinstance( active_window , LocationTypes):
-            for sub_window in self.mdiArea.subWindowList():
-                if isinstance(sub_window.widget(),AddLocationType):
-                    sub_window.show()
-                    sub_window.setFocus()
-                    return
-            add_dialog = AddLocationType(parent=self)
-
-            # Create and show as MDI subwindow
-            subwindow = QtWidgets.QMdiSubWindow()
-            subwindow.setWidget(add_dialog)
-            subwindow.setWindowTitle("Add New Item")
-            subwindow.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-            subwindow.resize(902,384)
-            add_dialog.parent_subwindow = subwindow
-
-            self.mdiArea.addSubWindow(subwindow)
-            subwindow.show()
-
-            
-        elif isinstance(active_window, UsersTableWindow):
-            active_window.add_new_user()  # Example function in UsersTableWindow
-        else:
-            QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
-
-    #----------------------------Toolbar Save Triger-----------------------------------
-    def toolbar_save(self):
-        active_window = self.get_active_window()
-
-        if isinstance(active_window, UsersTableWindow):
-            active_window.save_changes() 
-        elif isinstance(active_window,ItemMaintanceDialog):
-            active_window.save_changes()
-        elif isinstance(active_window,AddItemDialog):
-            active_window.createItem()
-        elif isinstance(active_window,LocationType_Maintance):
-            active_window.save_changes()
-        elif isinstance(active_window,AddLocationType):
-            active_window.save_changes()
-        else:
-            QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
-
-    #----------------------------Toolbar Delete Triger----------------------------------
-    def toolbar_delete(self):
-        active_window = self.get_active_window()
-        
-        if isinstance(active_window,UsersTableWindow):
-            active_window.delete_selection()
-        else:
-            QtWidgets.QMessageBox.warning(self,"No Active Window", "Please select a window First")
-            
-    #----------------------------Toolbar Discard Triger-----------------------------------
-    
-    def toolbar_discard(self):
-        active_window = self.get_active_window()
-
-        if isinstance(active_window, UsersTableWindow):
-            active_window.discard_users()  # Example function in UsersTableWindow
-        elif isinstance(active_window,ItemSearchWindow):
-            active_window.clear_filters()
-        else:
-            QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
-
-    def toolbar_refresh(self):
-        active_window = self.get_active_window()
-        
-        if isinstance(active_window,LocationTypes):
-            active_window.load_location_types()
-    #----------------------------Open location Type Window----------------------------------- 
-    def open_locationType_win(self):
-        for sub_window in self.mdiArea.subWindowList():
-            if isinstance(sub_window.widget(),LocationTypes):
-                sub_window.show()
-                sub_window.setFocus()
-                return
-            
-        locationType_subwindow = QtWidgets.QMdiSubWindow()
-        self.locationType_subwindow = LocationTypes(self)
-        locationType_subwindow.setWidget(self.locationType_subwindow)
-        locationType_subwindow.setWindowTitle("Location Types")
-        self.mdiArea.subWindowActivated.connect(self.handle_subwindow_focus_change)
-        self.actionItemMaintance.setVisible(True)
-        self.locationType_subwindow.destroyed.connect(self.hide_item_toolbar_action)
-        locationType_subwindow.setAttribute(Qt.WA_DeleteOnClose) # Ensure the subwindow is deleted when closed
-        locationType_subwindow.resize(500,600)
-        self.mdiArea.addSubWindow(locationType_subwindow)
-        locationType_subwindow.show()
-
-    #----------------------------Open Item Search Table----------------------------------- 
-    def open_item_search(self):
-        # Check if the window is already open to avoid duplicates
-        for sub_window in self.mdiArea.subWindowList():
-            if isinstance(sub_window.widget(), ItemSearchWindow):
-                sub_window.show()
-                sub_window.setFocus()
-                return  
-
-        # Create a new QMdiSubWindow
-        item_search_subwindow = QtWidgets.QMdiSubWindow()
-        self.item_search_window = ItemSearchWindow(self)
-        item_search_subwindow.setWidget(self.item_search_window)
-        item_search_subwindow.setWindowTitle("Item Search")
-        self.mdiArea.subWindowActivated.connect(self.handle_subwindow_focus_change)
-        self.actionItemMaintance.setVisible(True)
-        self.item_search_window.destroyed.connect(self.hide_item_toolbar_action)
-        item_search_subwindow.setAttribute(Qt.WA_DeleteOnClose) # Ensure the subwindow is deleted when closed
-        item_search_subwindow.resize(1089,766)
-        self.mdiArea.addSubWindow(item_search_subwindow)
-        item_search_subwindow.show()
-    
-    def hide_item_toolbar_action(self):
-        self.actionItemMaintance.setVisible(False)
-    #--------------------------Subwindow Focus Change----------------------------
+    #--------------------------Subwindow Focus Change-------------------
     def handle_subwindow_focus_change(self, active_window):
         if active_window is None:
             # No subwindow active, hide the toolbar button
@@ -280,26 +307,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.actionItemMaintance.setVisible(True)
         else:
             self.actionItemMaintance.setVisible(False)
-    #----------------------------Open User Table----------------------------------- 
-    def open_user_table(self):
-        for sub_window in self.mdiArea.subWindowList():
-            if isinstance(sub_window.widget(), UsersTableWindow):
-                sub_window.show()
-                sub_window.setFocus()
-                return
-        
-        user_search_subwindow = QtWidgets. QMdiSubWindow()
-        self.user_search_window = UsersTableWindow()
-        user_search_subwindow.setWidget(self.user_search_window)
-        user_search_subwindow.setWindowTitle ("User Search")
 
-        #Ensure the subwindow is deleted when closed
-        user_search_subwindow.setAttribute(Qt.WA_DeleteOnClose)
-
-        user_search_subwindow.resize(600, 400)
-
-        self.mdiArea.addSubWindow(user_search_subwindow)
-        user_search_subwindow.show()
     
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
