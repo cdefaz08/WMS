@@ -88,9 +88,57 @@ locations = Table(
     Column("pnd_location_id1",String),
     Column("pnd_location_id2",String),
     Column("last_touch",DateTime),
-    
-
 )
+    
+restock_clases = Table(
+    "restock_clases",
+    metadata,
+    Column("id",Integer, primary_key=True, autoincrement=True),
+    Column("class_name", String(15)),
+    Column("description", String(50)),
+)
+
+putaway_clases = Table(
+    "putaway_clases",
+    metadata,
+    Column("id",Integer, primary_key=True, autoincrement=True),
+    Column("class_name", String(15)),
+    Column("description", String(50)),
+)
+
+pick_clases = Table(
+    "pick_clases",
+    metadata,
+    Column("id",Integer, primary_key=True, autoincrement=True),
+    Column("class_name", String(15)),
+    Column("description", String(50)),
+)
+
+block_codes = Table(
+    "block_codes",
+    metadata,
+    Column("id",Integer, primary_key=True, autoincrement=True),
+    Column("code",String(20),nullable=False),
+    Column("description",String(50),nullable=False),
+)
+
+cycle_codes = Table(
+    "cycle_codes",
+    metadata,
+    Column("id",Integer, primary_key=True, autoincrement=True),
+    Column("code",String(20),nullable=False),
+    Column("description",String(50),nullable=False),
+)
+
+proximities = Table(
+    "proximities",
+    metadata,
+    Column("id",Integer, primary_key=True, autoincrement=True),
+    Column("proximity",String(10), nullable=False),
+    Column("movers",Integer,default=0)
+)
+
+
 
 location_types = Table(
     "location_type",
