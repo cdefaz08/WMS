@@ -61,10 +61,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.discard_button = self.findChild(QtWidgets.QAction, 'actionDiscard')
         self.refresh_button = self.findChild(QtWidgets.QAction, 'actionRefresh')
         self.actionItemMaintance = self.findChild(QtWidgets.QAction, "actionItemMaintance")
+        self.delete_button = self.findChild(QtWidgets.QAction,"actionDelete")
         self.actionItemMaintance.setVisible(False)
         self.new_button.triggered.connect(self.toolbar_new)
         self.save_button.triggered.connect(self.toolbar_save)
         self.refresh_button.triggered.connect(self.toolbar_refresh)
+        self.delete_button.triggered.connect(self.toolbar_delete)
         self.discard_button.triggered.connect(self.toolbar_discard)
         self.actionItemMaintance.triggered.connect(self.open_maintance_window)
 
@@ -193,6 +195,15 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
 
+    #----------------------------Toolbar Delete Triger----------------------------------
+    def toolbar_delete(self):
+        active_window = self.get_active_window()
+        
+        if isinstance(active_window,UsersTableWindow):
+            active_window.delete_selection()
+        else:
+            QtWidgets.QMessageBox.warning(self,"No Active Window", "Please select a window First")
+            
     #----------------------------Toolbar Discard Triger-----------------------------------
     
     def toolbar_discard(self):
