@@ -68,32 +68,27 @@ locations = Table(
     Column("pick_class",String),
     Column("rstk_class",String),
     Column("blocked_code",String),
-    Column("palle_cap",Integer, default="0"),
-    Column("carton_cap",Integer, default="0"),
-
-    Column("max_weight",Integer, default="0"),
-    Column("max_height",Integer, default="0"),
-    Column("max_width",Integer, default="0"),
-    Column("max_depth",Integer, default="0"),
-
+    Column("palle_cap",Integer, default=0),
+    Column("carton_cap",Integer, default=0),
+    Column("max_weight",Float, default=0.0),
+    Column("max_height",Float, default=0.0),
+    Column("max_width",Float, default=0.0),
+    Column("max_depth",Float, default=0.0),
     Column("uom_max_weight",String),
     Column("uom_max_height",String),
     Column("uom_max_width",String),
     Column("uom_max_depth",String),
     Column("uom_carton_cap",String),
-
-    Column("pallet_qty_act",Integer, default="0"),
-    Column("carton_qty_act",Integer, default="0"),
-
+    Column("pallet_qty_act",Integer, default=0),
+    Column("carton_qty_act",Integer, default=0),
     Column("aisle",String),
     Column("bay",String),
     Column("loc_level",String),
     Column("slot",String),
-
     Column("pnd_location_id1",String),
     Column("pnd_location_id2",String),
     Column("last_touch",DateTime),
-    Column("last_touced_tm",Time)
+    
 
 )
 
