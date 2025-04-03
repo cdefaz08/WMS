@@ -1,6 +1,6 @@
 from PyQt5 import QtWidgets, uic , QtCore
 import requests
-from Create_NewUser import NewUserDialog  # Import the new dialog
+from Layout.Create_NewUser import NewUserDialog  # Import the new dialog
 
 class UsersTableWindow(QtWidgets.QDialog):
     def __init__(self):

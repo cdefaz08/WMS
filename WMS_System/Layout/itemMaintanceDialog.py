@@ -1,7 +1,7 @@
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtCore import pyqtSignal
 import requests
-from UI_PY.ItemMaintance import Ui_UpdateItemCode
+from Layout.UI_PY.ItemMaintance import Ui_UpdateItemCode
 
 class ItemMaintanceDialog(QtWidgets.QDialog,Ui_UpdateItemCode):
     item_updated = pyqtSignal()

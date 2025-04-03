@@ -1,7 +1,7 @@
 from PyQt5 import QtWidgets, uic, QtCore 
 import requests
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
-from UI_PY.item_search_ui import Ui_ItemSearch
+from Layout.UI_PY.item_search_ui import Ui_ItemSearch
 
 class ItemSearchWindow(QtWidgets.QDialog, Ui_ItemSearch):
     def __init__(self, parent=None):

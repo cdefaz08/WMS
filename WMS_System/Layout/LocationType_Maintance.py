@@ -1,6 +1,6 @@
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QMessageBox 
-from UI_PY.LocationTypeMaintance_ui import Ui_Form
+from Layout.UI_PY.LocationTypeMaintance_ui import Ui_Form
 import requests
 
 class LocationType_Maintance(QtWidgets.QWidget):

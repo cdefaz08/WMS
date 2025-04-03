@@ -2,13 +2,14 @@ from PyQt5 import QtWidgets, uic, QtCore
 from PyQt5.QtCore import Qt 
 import requests
 import sys
-from item_search import ItemSearchWindow  # Import the new sub-window
-from User_table import UsersTableWindow
-from itemMaintanceDialog import ItemMaintanceDialog
-from add_item_dialog import AddItemDialog
-from LocationType_Win import LocationTypes
-from LocationType_Maintance import LocationType_Maintance
-from AddLocationType import AddLocationType
+from Layout.item_search import ItemSearchWindow  # Import the new sub-window
+from Layout.User_table import UsersTableWindow
+from Layout.itemMaintanceDialog import ItemMaintanceDialog
+from Layout.add_item_dialog import AddItemDialog
+from Layout.LocationType_Win import LocationTypes
+from Layout.LocationType_Maintance import LocationType_Maintance
+from Layout.AddLocationType import AddLocationType
+from Layout.RuleClases import RuleClases
 
 
 
@@ -27,15 +28,19 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionItem_Search = self.findChild(QtWidgets.QAction, 'actionItem_Search')
         self.actionUser_table = self.findChild(QtWidgets.QAction, 'actionUsers')
         self.actionLocation_Types = self.findChild(QtWidgets.QAction,"actionLocation_Types")
+        self.actionactionRule_Clases = self.findChild(QtWidgets.QAction,"actionRule_Clases")
         
 
 
         # Connect Actions
+
+
         
         self.actionLogout.triggered.connect(self.logout)
         self.actionItem_Search.triggered.connect(self.open_item_search)
         self.actionUser_table.triggered.connect(self.open_user_table)
         self.actionLocation_Types.triggered.connect(self.open_locationType_win)
+        self.actionactionRule_Clases.triggered.connect(self.open_RuleClases)
               
         
 
@@ -292,6 +297,23 @@ class MainWindow(QtWidgets.QMainWindow):
             else:
                 QtWidgets.QMessageBox.warning(self, "No Selection", "Please select an item from the table.")
 
+    #----------------------------Open Rule Clases Window-----------------
+    def open_RuleClases(self):
+        for sub_window in self.mdiArea.subWindowList():
+            if isinstance(sub_window.widget(), RuleClases):
+                sub_window.show()
+                sub_window.setFocus()
+                return
+
+        # Create new subwindow
+        rule_window = RuleClases()
+        sub_window = QtWidgets.QMdiSubWindow()
+        sub_window.setWidget(rule_window)
+        sub_window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        self.mdiArea.addSubWindow(sub_window)
+        sub_window.show()
+    
+
     #--------------------------Subwindow Focus Change-------------------
     def handle_subwindow_focus_change(self, active_window):
         if active_window is None:
@@ -307,6 +329,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.actionItemMaintance.setVisible(True)
         else:
             self.actionItemMaintance.setVisible(False)
+
+
 
     
 if __name__ == "__main__":

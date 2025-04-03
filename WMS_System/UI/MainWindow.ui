@@ -48,8 +48,18 @@
      <addaction name="actionLocation"/>
      <addaction name="actionLocation_Types"/>
     </widget>
+    <widget class="QMenu" name="menuRules">
+     <property name="title">
+      <string>Rules</string>
+     </property>
+     <addaction name="separator"/>
+     <addaction name="actionRule_Maintance"/>
+     <addaction name="actionRule_Clases"/>
+     <addaction name="actionRule_Grups"/>
+    </widget>
     <addaction name="actionUsers"/>
     <addaction name="menuLocations"/>
+    <addaction name="menuRules"/>
    </widget>
    <widget class="QMenu" name="menuFiles">
     <property name="title">
@@ -198,6 +208,21 @@
    </property>
    <property name="toolTip">
     <string>Delete</string>
+   </property>
+  </action>
+  <action name="actionRule_Clases">
+   <property name="text">
+    <string>Rule Clases</string>
+   </property>
+  </action>
+  <action name="actionRule_Maintance">
+   <property name="text">
+    <string>Rule Maintance</string>
+   </property>
+  </action>
+  <action name="actionRule_Grups">
+   <property name="text">
+    <string>Rule Grups</string>
    </property>
   </action>
  </widget>

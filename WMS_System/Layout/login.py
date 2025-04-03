@@ -1,7 +1,6 @@
 from PyQt5 import QtWidgets, uic
 import requests
-import sys
-from MainWindow import MainWindow
+from Layout.MainWindow import MainWindow
 
 class LoginWindow(QtWidgets.QMainWindow):
     def __init__(self):
@@ -58,9 +57,3 @@ class LoginWindow(QtWidgets.QMainWindow):
         self.main_window = MainWindow()  # Create instance of Main Window
         self.main_window.show()         # Show the Main Window
         self.close()
-
-if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
-    window = LoginWindow()
-    window.show()
-    sys.exit(app.exec_())
