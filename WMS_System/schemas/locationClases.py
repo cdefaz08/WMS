@@ -15,7 +15,7 @@ class RestockClassUpdate(BaseModel):
 class RestockClass(RestockClassBase):
     id: int
     class Config:
-        orm_mode = True
+        model_config = {"from_attributes": True}
 
 
 
@@ -33,7 +33,7 @@ class PutawayClassUpdate(BaseModel):
 class PutawayClass(PutawayClassBase):
     id : int
     class Config:
-        orm_mode = True
+        model_config = {"from_attributes": True}
 
 
 
@@ -51,7 +51,7 @@ class PickClassUpdate(BaseModel):
 class PickClass(PickClasesBase):
     id : int
     class Config:
-        orm_mode = True
+        model_config = {"from_attributes": True}
 
 
  

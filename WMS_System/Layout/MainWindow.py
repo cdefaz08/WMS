@@ -123,6 +123,8 @@ class MainWindow(QtWidgets.QMainWindow):
             
         elif isinstance(active_window, UsersTableWindow):
             active_window.add_new_user()  # Example function in UsersTableWindow
+        elif isinstance(active_window, RuleClases):
+            active_window.add_new_row()
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
 
@@ -140,6 +142,8 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.save_changes()
         elif isinstance(active_window,AddLocationType):
             active_window.save_changes()
+        elif isinstance(active_window, RuleClases):
+            active_window.save_changes()
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
 
@@ -149,6 +153,8 @@ class MainWindow(QtWidgets.QMainWindow):
         
         if isinstance(active_window,UsersTableWindow):
             active_window.delete_selection()
+        elif isinstance(active_window, RuleClases):
+            active_window.delete_selected_row()
         else:
             QtWidgets.QMessageBox.warning(self,"No Active Window", "Please select a window First")
             
@@ -169,6 +175,10 @@ class MainWindow(QtWidgets.QMainWindow):
         
         if isinstance(active_window,LocationTypes):
             active_window.load_location_types()
+        elif isinstance(active_window, RuleClases):
+            active_window.load_data()
+        else:
+            QtWidgets.QMessageBox.warning(self,"No Active Window", "Please select a window First")
     
     def hide_item_toolbar_action(self):
         self.actionItemMaintance.setVisible(False)
@@ -310,6 +320,7 @@ class MainWindow(QtWidgets.QMainWindow):
         sub_window = QtWidgets.QMdiSubWindow()
         sub_window.setWidget(rule_window)
         sub_window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        sub_window.resize(600,500)
         self.mdiArea.addSubWindow(sub_window)
         sub_window.show()
     

@@ -1,4 +1,3 @@
-
 from models import item_class
 from database import database
 from schemas.ItemClass import ItemClassCreate
