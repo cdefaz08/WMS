@@ -1,5 +1,5 @@
 from sqlalchemy import Table, Column, Integer, String, Float, Boolean, DateTime,Time
-from database import metadata
+from database import metadata , Base
 
 # Define the "items" table
 items = Table(
@@ -90,29 +90,33 @@ locations = Table(
     Column("last_touch",DateTime),
 )
     
-restock_clases = Table(
-    "restock_clases",
-    metadata,
-    Column("id",Integer, primary_key=True, autoincrement=True),
-    Column("class_name", String(15)),
-    Column("description", String(50)),
-)
 
-putaway_clases = Table(
-    "putaway_clases",
-    metadata,
-    Column("id",Integer, primary_key=True, autoincrement=True),
-    Column("class_name", String(15)),
-    Column("description", String(50)),
-)
 
-pick_clases = Table(
-    "pick_clases",
-    metadata,
-    Column("id",Integer, primary_key=True, autoincrement=True),
-    Column("class_name", String(15)),
-    Column("description", String(50)),
-)
+
+class RestockClass(Base):
+    __tablename__ = "restock_clases"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    class_name = Column(String(15), nullable=False, unique=True)
+    description = Column(String(50))
+
+
+class PutawayClass(Base):
+    __tablename__ = "putaway_clases"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    class_name = Column(String(15), nullable=False, unique=True)
+    description = Column(String(50))
+
+
+class PickClass(Base):
+    __tablename__ = "pick_clases"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    class_name = Column(String(15), nullable=False, unique=True)
+    description = Column(String(50))
+
+
 
 block_codes = Table(
     "block_codes",

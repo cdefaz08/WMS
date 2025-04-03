@@ -11,6 +11,7 @@ from routers.items import router as items_router
 from routers.ItemClass import router as item_class_router
 from routers.LocationTypes import router as locationType_router
 from routers.Location import router as locations
+from routers import class_routes
 
 # Initialize FastAPI
 app = FastAPI()
@@ -62,3 +63,4 @@ app.include_router(items_router, prefix="/items", tags=["Items"])
 app.include_router(item_class_router, prefix="/item-classes", tags=["Item Classes"])
 app.include_router(locationType_router, prefix="/location-types",tags=["Location Types"])
 app.include_router(locations,prefix="/locations", tags=["locations"])
+app.include_router(class_routes.router)
