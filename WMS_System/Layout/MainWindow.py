@@ -158,7 +158,7 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.clear_filters()
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
-
+    #----------------------------Toolbar Refresh Triger-------------------
     def toolbar_refresh(self):
         active_window = self.get_active_window()
         
