@@ -65,7 +65,6 @@ class UsersTableWindow(QtWidgets.QDialog):
     }
 
 
-        print(f"🟡 Original Data Snapshot: {self.original_data}")
         
         self.tableWidget_Users.blockSignals(False)  # ✅ Enable signals back after loading
 
@@ -121,7 +120,6 @@ class UsersTableWindow(QtWidgets.QDialog):
             self.changes[user_id]['pall_cap'] = new_value
 
 
-        print(f"🟩 Tracking Changes: {self.changes}")
 
     def save_changes(self):
         if not self.changes:
