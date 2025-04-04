@@ -108,9 +108,6 @@ class LocationType_Maintance(QtWidgets.QWidget):
             if self.original_data.get(key) != value:
                 updated[key] = value
 
-        print("Current:", normalized_current)
-        print("Original:", self.original_data)
-        print("Updated Fields:", updated)
         return updated
 
     def save_changes(self):

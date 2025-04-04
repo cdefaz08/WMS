@@ -45,7 +45,7 @@
      <property name="title">
       <string>Locations</string>
      </property>
-     <addaction name="actionLocation"/>
+     <addaction name="actionNewLocation"/>
      <addaction name="actionLocation_Types"/>
     </widget>
     <widget class="QMenu" name="menuRules">
@@ -164,9 +164,9 @@
     <string>Location Search</string>
    </property>
   </action>
-  <action name="actionLocation">
+  <action name="actionNewLocation">
    <property name="text">
-    <string>Location</string>
+    <string>New Location</string>
    </property>
   </action>
   <action name="actionLocation_Types">

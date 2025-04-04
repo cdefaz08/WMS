@@ -8,8 +8,11 @@ class RuleClases(QtWidgets.QDialog):
         super().__init__()
         uic.loadUi("UI/RuleClases.ui", self)
         self.tableWidget_PutawayClass.horizontalHeader().setStretchLastSection(True)
+        self.tableWidget_PutawayClass.verticalHeader().setVisible(False)
         self.tableWidget_RestockClass.horizontalHeader().setStretchLastSection(True)
+        self.tableWidget_RestockClass.verticalHeader().setVisible(False)
         self.tableWidget_PickClass.horizontalHeader().setStretchLastSection(True)
+        self.tableWidget_PickClass.verticalHeader().setVisible(False)
 
         self.load_data()
 
@@ -21,6 +24,7 @@ class RuleClases(QtWidgets.QDialog):
         db.close()
 
         self.fill_table(self.tableWidget_PutawayClass, self.putaway_data)
+        self.tableWidget_PutawayClass.horizontalHeader().setStretchLastSection(True)
         self.fill_table(self.tableWidget_RestockClass, self.restock_data)
         self.fill_table(self.tableWidget_PickClass, self.pick_data)
 

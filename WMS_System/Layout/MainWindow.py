@@ -10,6 +10,8 @@ from Layout.LocationType_Win import LocationTypes
 from Layout.LocationType_Maintance import LocationType_Maintance
 from Layout.AddLocationType import AddLocationType
 from Layout.RuleClases import RuleClases
+from Layout.LocationMaintance import LocationMaintance
+from Layout.add_location import AddLocationDialog
 
 
 
@@ -29,6 +31,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionUser_table = self.findChild(QtWidgets.QAction, 'actionUsers')
         self.actionLocation_Types = self.findChild(QtWidgets.QAction,"actionLocation_Types")
         self.actionactionRule_Clases = self.findChild(QtWidgets.QAction,"actionRule_Clases")
+        self.actionNewLocation = self.findChild(QtWidgets.QAction,"actionNewLocation")
         
 
 
@@ -41,6 +44,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionUser_table.triggered.connect(self.open_user_table)
         self.actionLocation_Types.triggered.connect(self.open_locationType_win)
         self.actionactionRule_Clases.triggered.connect(self.open_RuleClases)
+        self.actionNewLocation.triggered.connect(self.open_new_Location)
               
         
 
@@ -144,6 +148,10 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.save_changes()
         elif isinstance(active_window, RuleClases):
             active_window.save_changes()
+        elif isinstance(active_window,LocationMaintance):
+            active_window.save_changes()
+        elif isinstance(active_window,AddLocationDialog):
+            active_window.save_new_location()
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
 
@@ -324,6 +332,27 @@ class MainWindow(QtWidgets.QMainWindow):
         self.mdiArea.addSubWindow(sub_window)
         sub_window.show()
     
+    #----------------------------Open New location Window-----------------
+    def open_new_Location(self):
+        for sub_window in self.mdiArea.subWindowList():
+            if isinstance(sub_window.widget(), AddLocationDialog):
+                sub_window.show()
+                sub_window.setFocus()
+                return
+        
+        location_maintance_subwindow = QtWidgets. QMdiSubWindow()
+        self.actionNewLocation = AddLocationDialog()
+        self.actionNewLocation.parent_subwindow = location_maintance_subwindow 
+        location_maintance_subwindow.setWidget(self.actionNewLocation)
+        location_maintance_subwindow.setWindowTitle ("New Location")
+
+        #Ensure the subwindow is deleted when closed
+        location_maintance_subwindow.setAttribute(Qt.WA_DeleteOnClose)
+
+        location_maintance_subwindow.resize(634, 715)
+
+        self.mdiArea.addSubWindow(location_maintance_subwindow)
+        location_maintance_subwindow.show() 
 
     #--------------------------Subwindow Focus Change-------------------
     def handle_subwindow_focus_change(self, active_window):
