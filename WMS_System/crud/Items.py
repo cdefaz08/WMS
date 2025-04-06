@@ -111,7 +111,6 @@ async def update_item(item_id: int, updated_data: dict):
         return {"message": "Item updated successfully!"}
     else:
         raise HTTPException(status_code=404, detail="Failed to update item")
-    
 #Delete Item by Item id
 async def delete_item(item_id: int):
     query = items.delete().where(items.c.id == item_id)
@@ -120,5 +119,5 @@ async def delete_item(item_id: int):
         raise HTTPException(status_code=404, detail="Item not found")
     return {"message": "Item successfully deleted!"}
 
-    
+
     

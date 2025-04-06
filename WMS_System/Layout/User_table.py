@@ -69,6 +69,7 @@ class UsersTableWindow(QtWidgets.QDialog):
 
         
         self.tableWidget_Users.blockSignals(False)  # ✅ Enable signals back after loading
+        self.tableWidget_Users.horizontalHeader().setStretchLastSection(True)
 
     def track_changes(self, item):
         """Track changes when cells are modified."""

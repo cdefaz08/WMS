@@ -1,5 +1,4 @@
 from PyQt5 import QtWidgets, uic, QtCore
-from PyQt5.QtCore import Qt 
 from config import API_BASE_URL
 import requests
 import sys
@@ -35,20 +34,27 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionLocation_Types.triggered.connect(self.open_locationType_win)
         self.actionactionRule_Clases.triggered.connect(self.open_RuleClases)
         self.actionNewLocation.triggered.connect(self.open_new_Location)
+        
+    def open_mdi_window(self, widget_class, window_title, size=(600, 400), reuse_existing=True, extra_setup=None, check_existing=True):
+        is_type = isinstance(widget_class, type)
 
-    def open_mdi_window(self, widget_class, window_title, size=(600, 400), reuse_existing=True, extra_setup=None):
-        for sub_window in self.mdiArea.subWindowList():
-            if isinstance(sub_window.widget(), widget_class):
-                if reuse_existing:
-                    sub_window.show()
-                    sub_window.setFocus()
-                    return sub_window
+        if check_existing and is_type:
+            for sub_window in self.mdiArea.subWindowList():
+                if isinstance(sub_window.widget(), widget_class):
+                    if reuse_existing:
+                        sub_window.show()
+                        sub_window.setFocus()
+                        return sub_window
 
-        widget = widget_class(self) if callable(widget_class) else widget_class
+        widget = widget_class() if callable(widget_class) else widget_class
         sub_window = QtWidgets.QMdiSubWindow()
         sub_window.setWidget(widget)
         sub_window.setWindowTitle(window_title)
         sub_window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+
+        # Bloquear el cambio de tamaño horizontal
+        sub_window.setMinimumWidth(size[0])
+        sub_window.setMaximumWidth(size[0])
         sub_window.resize(*size)
 
         if hasattr(widget, "parent_subwindow"):
@@ -61,8 +67,10 @@ class MainWindow(QtWidgets.QMainWindow):
         sub_window.show()
         return sub_window
 
+
+
     def open_user_table(self):
-        self.open_mdi_window(UsersTableWindow, "User Search", size=(600, 400))
+        self.open_mdi_window(UsersTableWindow, "User Search", size=(750, 400))
 
     def open_locationType_win(self):
         def setup(widget, sub_window):
@@ -208,7 +216,9 @@ class MainWindow(QtWidgets.QMainWindow):
                         locationTypeData = response.json()
                         self.open_mdi_window(
                             lambda: LocationType_Maintance(locationTypeData=locationTypeData, parent=self),
-                            "Location Type Maintanance", size=(902, 384)
+                            "Location Type Maintanance",
+                            size=(902, 384),
+                            check_existing=False
                         )
                     else:
                         QtWidgets.QMessageBox.warning(self, "Error", "Could not load item from server.")

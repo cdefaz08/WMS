@@ -7,16 +7,10 @@ class LocationTypes(QtWidgets.QWidget):
     def __init__(self,parent = None):
         super().__init__(parent)
         uic.loadUi("UI/locationTypes.ui", self)
-
         self.tableViewLocationTypes = self.findChild(QtWidgets.QTableView , "tableViewLocationTypes")
-
-        self.tableViewLocationTypes = self.findChild(QtWidgets.QTableView , "tableViewLocationTypes")
-
         self.tableViewLocationTypes.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectItems)
         self.tableViewLocationTypes.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
         self.tableViewLocationTypes.verticalHeader().setVisible(False)
-    
-
         self.load_location_types()
 
     def load_location_types(self):
@@ -39,6 +33,8 @@ class LocationTypes(QtWidgets.QWidget):
                 QtWidgets.QMessageBox.critical(self, "Error", "API response failed")
         except Exception as e:
             QtWidgets.QMessageBox.critical(self, "Error", str(e))
+        
+        self.tableViewLocationTypes.horizontalHeader().setStretchLastSection(True)
 
     def get_selected_item_id(self):
         if not self.tableViewLocationTypes:

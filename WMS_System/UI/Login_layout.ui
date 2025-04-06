@@ -109,7 +109,7 @@
       <widget class="QLabel" name="lb_Welcome">
        <property name="font">
         <font>
-         <pointsize>20</pointsize>
+         <pointsize>50</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>

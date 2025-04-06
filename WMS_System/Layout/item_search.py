@@ -1,6 +1,6 @@
-from PyQt5 import QtWidgets, uic, QtCore 
-from config import API_BASE_URL
+from PyQt5 import QtWidgets, QtCore
 import requests
+from config import API_BASE_URL
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from Layout.UI_PY.item_search_ui import Ui_ItemSearch
 
@@ -8,7 +8,6 @@ class ItemSearchWindow(QtWidgets.QDialog, Ui_ItemSearch):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setupUi(self)
-
 
 
         # Connect ENTER key (returnPressed) from all search fields
@@ -105,7 +104,10 @@ class ItemSearchWindow(QtWidgets.QDialog, Ui_ItemSearch):
             model.appendRow(row)
 
         self.tableViewItemSearch.setModel(model)
+        self.tableViewItemSearch.resizeColumnsToContents()
         self.Records.setText(f"Records found: <b>{len(items)}</b>")
+        self.tableViewItemSearch.horizontalHeader().setStretchLastSection(True)
+
 
     def clear_filters(self):
         # Limpiar todos los lineEdits

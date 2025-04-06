@@ -34,7 +34,7 @@ class Ui_Form(object):
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.description = QtWidgets.QLineEdit(self.widget_3)
         self.description.setObjectName("description")
-        self.gridLayout_2.addWidget(self.description, 0, 2, 1, 1)
+        self.gridLayout_2.addWidget(self.description, 0, 2, 1, 2)
         self.label_2 = QtWidgets.QLabel(self.widget_3)
         self.label_2.setObjectName("label_2")
         self.gridLayout_2.addWidget(self.label_2, 0, 1, 1, 1)

@@ -5,8 +5,8 @@ import requests
 from crud import class_crud
 
 class RuleClases(QtWidgets.QDialog):
-    def __init__(self):
-        super().__init__()
+    def __init__(self,parent=None):
+        super().__init__(parent)
         uic.loadUi("UI/RuleClases.ui", self)
         self.tableWidget_PutawayClass.horizontalHeader().setStretchLastSection(True)
         self.tableWidget_PutawayClass.verticalHeader().setVisible(False)
@@ -84,15 +84,33 @@ class RuleClases(QtWidgets.QDialog):
         if selected >= 0:
             item_id = table.item(selected, 0)
             if item_id:
+                # Show confirmation dialog
+                confirm = QtWidgets.QMessageBox.question(
+                    self,
+                    "Confirm Deletion",
+                    "Are you sure you want to delete this class?",
+                    QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No
+                )
+
+                if confirm != QtWidgets.QMessageBox.Yes:
+                    return  # User cancelled
+
                 db = SessionLocal()
-                if current_tab == 0:
-                    class_crud.delete_putaway_class(db, int(item_id.text()))
-                elif current_tab == 1:
-                    class_crud.delete_restock_class(db, int(item_id.text()))
-                elif current_tab == 2:
-                    class_crud.delete_pick_class(db, int(item_id.text()))
-                db.close()
-            table.removeRow(selected)
+                try:
+                    if current_tab == 0:
+                        class_crud.delete_putaway_class(db, int(item_id.text()))
+                    elif current_tab == 1:
+                        class_crud.delete_restock_class(db, int(item_id.text()))
+                    elif current_tab == 2:
+                        class_crud.delete_pick_class(db, int(item_id.text()))
+                    db.commit()
+                except Exception as e:
+                    QtWidgets.QMessageBox.critical(self, "Error", f"Could not delete class:\n{str(e)}")
+                finally:
+                    db.close()
+
+                table.removeRow(selected)
+
 
     def save_changes(self):
         current_tab = self.tabWidget_Clases.currentIndex()
