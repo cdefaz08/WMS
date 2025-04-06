@@ -61,5 +61,5 @@ class LoginWindow(QtWidgets.QMainWindow):
 
     def open_main_window(self):
         self.main_window = MainWindow()  # Create instance of Main Window
-        self.main_window.show()         # Show the Main Window
+        self.main_window.showMaximized()         # Show the Main Window
         self.close()
