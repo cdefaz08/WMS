@@ -22,6 +22,7 @@ class UsersTableWindow(QtWidgets.QDialog):
 
         # Connect cell change tracking
         self.tableWidget_Users.itemChanged.connect(self.track_changes)
+        self.tableWidget_Users.verticalHeader().setVisible(False)
 
     def add_new_user(self):
         """Open the New User Dialog when the 'New' button is clicked."""

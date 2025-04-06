@@ -1,19 +1,24 @@
 from PyQt5 import QtWidgets, uic
 import requests
 from Layout.MainWindow import MainWindow
+from PyQt5.QtGui import QFont
 
 class LoginWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
         uic.loadUi("UI/Login_layout.ui", self)
+
+        font = QFont("Segoe UI", 60, QFont.Bold)
         
         # Reference UI Elements
         self.User_input = self.findChild(QtWidgets.QLineEdit, 'User_input')
         self.Passw_data = self.findChild(QtWidgets.QLineEdit, 'Passw_data')
         self.btn_Login = self.findChild(QtWidgets.QPushButton, 'btn_Login')
         self.btn_Cancel = self.findChild(QtWidgets.QPushButton, 'btn_Cancel')
+        self.lb_Welcome = self.findChild(QtWidgets.QLabel, 'lb_Welcome')
 
         self.User_input.textChanged.connect(self.force_uppercase)
+        self.lb_Welcome.setFont(font)
 
         # Set Password Field to Show `******`
         self.Passw_data.setEchoMode(QtWidgets.QLineEdit.Password)

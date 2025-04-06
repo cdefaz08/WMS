@@ -25,6 +25,7 @@ class ItemSearchWindow(QtWidgets.QDialog, Ui_ItemSearch):
 
         self.tableViewItemSearch.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectItems)
         self.tableViewItemSearch.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
+        self.tableViewItemSearch.verticalHeader().setVisible(False)
     
     def search_items(self):
         # Leer y normalizar los campos de búsqueda

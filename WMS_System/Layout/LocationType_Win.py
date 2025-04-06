@@ -13,6 +13,7 @@ class LocationTypes(QtWidgets.QWidget):
 
         self.tableViewLocationTypes.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectItems)
         self.tableViewLocationTypes.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
+        self.tableViewLocationTypes.verticalHeader().setVisible(False)
     
 
         self.load_location_types()

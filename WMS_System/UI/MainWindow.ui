@@ -33,9 +33,11 @@
     <property name="title">
      <string>Inquiry</string>
     </property>
-    <addaction name="actionLocation_Search"/>
     <addaction name="separator"/>
     <addaction name="actionItem_Search"/>
+    <addaction name="actionLocation_Search"/>
+    <addaction name="actionInventory_Adjustment"/>
+    <addaction name="actionInventory_Movement"/>
    </widget>
    <widget class="QMenu" name="menuConfigurations">
     <property name="title">
@@ -57,28 +59,74 @@
      <addaction name="actionRule_Clases"/>
      <addaction name="actionRule_Grups"/>
     </widget>
+    <widget class="QMenu" name="menuSystem">
+     <property name="title">
+      <string>System</string>
+     </property>
+     <addaction name="actionOwner"/>
+     <addaction name="actionVendors"/>
+     <addaction name="actionReason_Codes"/>
+    </widget>
+    <widget class="QMenu" name="menuOrders_Configuration">
+     <property name="title">
+      <string>Orders Configuration</string>
+     </property>
+     <addaction name="actionOrder_Types"/>
+     <addaction name="actionDocument_Forms"/>
+    </widget>
     <addaction name="actionUsers"/>
     <addaction name="menuLocations"/>
     <addaction name="menuRules"/>
+    <addaction name="menuSystem"/>
+    <addaction name="menuOrders_Configuration"/>
    </widget>
    <widget class="QMenu" name="menuFiles">
     <property name="title">
      <string>Files</string>
     </property>
     <addaction name="actionLogout"/>
+    <addaction name="actionExport_to_CSV"/>
    </widget>
    <widget class="QMenu" name="menuActivities">
     <property name="title">
      <string>Activities</string>
     </property>
-    <addaction name="actionOrders"/>
-    <addaction name="actionReceiving"/>
+    <widget class="QMenu" name="menuOrders">
+     <property name="title">
+      <string>Orders</string>
+     </property>
+     <addaction name="actionNew_Order"/>
+     <addaction name="actionOrder_Search"/>
+    </widget>
+    <widget class="QMenu" name="menuReceiving">
+     <property name="title">
+      <string>Receiving</string>
+     </property>
+     <addaction name="actionNew_Receipt"/>
+     <addaction name="actionReceipt_Search"/>
+    </widget>
+    <widget class="QMenu" name="menuPurchase_Orders">
+     <property name="title">
+      <string>Purchase Orders</string>
+     </property>
+     <addaction name="actionNew_PO"/>
+     <addaction name="actionPurchase_Order_Search"/>
+    </widget>
+    <addaction name="menuOrders"/>
+    <addaction name="menuReceiving"/>
+    <addaction name="menuPurchase_Orders"/>
     <addaction name="actionLabels"/>
+   </widget>
+   <widget class="QMenu" name="menuReports">
+    <property name="title">
+     <string>Reports</string>
+    </property>
    </widget>
    <addaction name="menuFiles"/>
    <addaction name="menuActivities"/>
    <addaction name="menuItems"/>
    <addaction name="menuConfigurations"/>
+   <addaction name="menuReports"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
@@ -142,16 +190,6 @@
    </property>
    <property name="toolTip">
     <string>Refresh</string>
-   </property>
-  </action>
-  <action name="actionOrders">
-   <property name="text">
-    <string>Orders</string>
-   </property>
-  </action>
-  <action name="actionReceiving">
-   <property name="text">
-    <string>Receiving</string>
    </property>
   </action>
   <action name="actionLabels">
@@ -223,6 +261,76 @@
   <action name="actionRule_Grups">
    <property name="text">
     <string>Rule Grups</string>
+   </property>
+  </action>
+  <action name="actionNew_Order">
+   <property name="text">
+    <string>New Order</string>
+   </property>
+  </action>
+  <action name="actionOrder_Search">
+   <property name="text">
+    <string>Order Search</string>
+   </property>
+  </action>
+  <action name="actionOwner">
+   <property name="text">
+    <string>Owner</string>
+   </property>
+  </action>
+  <action name="actionVendors">
+   <property name="text">
+    <string>Vendors</string>
+   </property>
+  </action>
+  <action name="actionNew_Receipt">
+   <property name="text">
+    <string>New Receipt</string>
+   </property>
+  </action>
+  <action name="actionReceipt_Search">
+   <property name="text">
+    <string>Receipt Search</string>
+   </property>
+  </action>
+  <action name="actionNew_PO">
+   <property name="text">
+    <string>New PO</string>
+   </property>
+  </action>
+  <action name="actionPurchase_Order_Search">
+   <property name="text">
+    <string>Purchase Order Search</string>
+   </property>
+  </action>
+  <action name="actionOrder_Types">
+   <property name="text">
+    <string>Order Types</string>
+   </property>
+  </action>
+  <action name="actionDocument_Forms">
+   <property name="text">
+    <string>Document Forms</string>
+   </property>
+  </action>
+  <action name="actionExport_to_CSV">
+   <property name="text">
+    <string>Export to CSV</string>
+   </property>
+  </action>
+  <action name="actionInventory_Adjustment">
+   <property name="text">
+    <string>Inventory Adjustment</string>
+   </property>
+  </action>
+  <action name="actionInventory_Movement">
+   <property name="text">
+    <string>Inventory Movement</string>
+   </property>
+  </action>
+  <action name="actionReason_Codes">
+   <property name="text">
+    <string>Reason Codes</string>
    </property>
   </action>
  </widget>
