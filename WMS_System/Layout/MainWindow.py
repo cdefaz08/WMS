@@ -264,7 +264,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
             if item_id:
                 try:
-                    response = requests.get(f"http://localhost:8000/items/{item_id}")
+                    response = requests.get(f"{API_BASE_URL}/items/{item_id}")
                     if response.status_code == 200:
                         item_data = response.json()
 
@@ -293,7 +293,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
             if Locationtype:
                 try: 
-                    response = requests.get(f"http://localhost:8000/location-types/{Locationtype}")
+                    response = requests.get(f"{API_BASE_URL}/location-types/{Locationtype}")
                     if response.status_code == 200:
                         locationTypeData = response.json()
                         # Need to create the subwindow and mapp the correct data into the screnn

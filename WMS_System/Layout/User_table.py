@@ -1,4 +1,5 @@
 from PyQt5 import QtWidgets, uic , QtCore
+from config import API_BASE_URL
 import requests
 from Layout.Create_NewUser import NewUserDialog  # Import the new dialog
 
@@ -172,7 +173,7 @@ class UsersTableWindow(QtWidgets.QDialog):
                 print(f"✅ Final Data Sent to API: {user_data}")
 
                 response = requests.put(
-                    f"http://localhost:8000/Users/{user_id}",
+                    f"{API_BASE_URL}/Users/{user_id}",
                     json=user_data,  
                     headers={"Content-Type": "application/json"} 
                 )
@@ -192,7 +193,7 @@ class UsersTableWindow(QtWidgets.QDialog):
     def load_users(self):
         """Load all users when the window opens."""
         try:
-            response = requests.get("http://localhost:8000/Users/")
+            response = requests.get(f"{API_BASE_URL}/Users/")
 
             if response.status_code == 200:
                 self.populate_table(response.json())

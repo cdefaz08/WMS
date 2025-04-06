@@ -1,6 +1,7 @@
 from PyQt5 import QtWidgets
 import requests
 from Layout.UI_PY.AddLocation import Ui_AddLocation  # Ajusta si tu path es distinto
+from config import API_BASE_URL
 
 class AddLocationDialog(QtWidgets.QWidget, Ui_AddLocation):
     def __init__(self, parent=None):
@@ -13,10 +14,10 @@ class AddLocationDialog(QtWidgets.QWidget, Ui_AddLocation):
 
     def load_location_classes(self):
         try:
-            putaway = requests.get("http://localhost:8000/classes/putaway").json()
-            restock = requests.get("http://localhost:8000/classes/restock").json()
-            pick = requests.get("http://localhost:8000/classes/pick").json()
-            location_type = requests.get("http://localhost:8000/location-types").json()
+            putaway = requests.get(f"{API_BASE_URL}/classes/putaway").json()
+            restock = requests.get(f"{API_BASE_URL}/classes/restock").json()
+            pick = requests.get(f"{API_BASE_URL}/classes/pick").json()
+            location_type = requests.get(f"{API_BASE_URL}/location-types").json()
 
             self.comboBox_PutawayClass.clear()
             self.comboBox_RestockClass.clear()
@@ -87,7 +88,7 @@ class AddLocationDialog(QtWidgets.QWidget, Ui_AddLocation):
         print("Sending data to create location:", data)
 
         try:
-            response = requests.post("http://localhost:8000/locations/", json=data)
+            response = requests.post(f"{API_BASE_URL}/locations/", json=data)
             if response.status_code == 200:
                 QtWidgets.QMessageBox.information(self, "Success", "Location created successfully.")
                 self.close_self()

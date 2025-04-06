@@ -1,5 +1,6 @@
 from PyQt5 import QtWidgets, uic
 import requests
+from config import API_BASE_URL
 
 class NewUserDialog(QtWidgets.QDialog):
     def __init__(self):
@@ -51,7 +52,7 @@ class NewUserDialog(QtWidgets.QDialog):
         }
 
         try:
-            response = requests.post("http://localhost:8000/Users/", json=new_user_data)
+            response = requests.post(f"{API_BASE_URL}/Users/", json=new_user_data)
 
             if response.status_code == 200:
                 QtWidgets.QMessageBox.information(self, "Success", "New user created successfully!")

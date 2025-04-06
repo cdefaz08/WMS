@@ -1,8 +1,7 @@
 from PyQt5 import QtWidgets, uic
 from Layout.UI_PY.LocationMaintance import Ui_LocationMaintance
 import requests
-
-BASE_URL = "http://localhost:8000/classes"  # or your FastAPI server URL
+from config import API_BASE_URL
 
 class LocationMaintance(QtWidgets.QWidget, Ui_LocationMaintance):
     def __init__(self, location_data=None, parent=None):
@@ -18,9 +17,9 @@ class LocationMaintance(QtWidgets.QWidget, Ui_LocationMaintance):
 
     def loadLocationClasesDropdown(self):
         try:
-            putaway_classes = requests.get(f"{BASE_URL}/putaway").json()
-            restock_classes = requests.get(f"{BASE_URL}/restock").json()
-            pick_classes = requests.get(f"{BASE_URL}/pick").json()
+            putaway_classes = requests.get(f"{API_BASE_URL}/putaway").json()
+            restock_classes = requests.get(f"{API_BASE_URL}/restock").json()
+            pick_classes = requests.get(f"{API_BASE_URL}/pick").json()
 
             self.comboBox_PutawayClass.clear()
             self.comboBox_RestockClass.clear()
@@ -175,7 +174,7 @@ class LocationMaintance(QtWidgets.QWidget, Ui_LocationMaintance):
 
         location_id = self.original_data.get("id")
         try:
-            response = requests.put(f"http://localhost:8000/locations/{location_id}", json=updated_fields)
+            response = requests.put(f"{API_BASE_URL}/locations/{location_id}", json=updated_fields)
             if response.status_code == 200:
                 QtWidgets.QMessageBox.information(self, "Success", "Location updated successfully.")
                 self.accept()  # or self.close()

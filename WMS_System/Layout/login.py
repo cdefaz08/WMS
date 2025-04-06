@@ -1,4 +1,5 @@
 from PyQt5 import QtWidgets, uic
+from config import API_BASE_URL
 import requests
 from Layout.MainWindow import MainWindow
 from PyQt5.QtGui import QFont
@@ -37,7 +38,7 @@ class LoginWindow(QtWidgets.QMainWindow):
         password = self.Passw_data.text()
 
         #FastAPI enpoint
-        url = "http://localhost:8000/login/"
+        url = f"{API_BASE_URL}/login/"
 
         #Sta to send to FastAPI
         data = {

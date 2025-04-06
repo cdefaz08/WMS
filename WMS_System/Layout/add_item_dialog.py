@@ -1,4 +1,6 @@
 from PyQt5 import QtWidgets, uic
+from PyQt5.QtGui import QDoubleValidator
+from config import API_BASE_URL
 import requests
 
 class AddItemDialog(QtWidgets.QWidget):
@@ -32,6 +34,7 @@ class AddItemDialog(QtWidgets.QWidget):
         self.lineEdit_default_cfg = self.findChild(QtWidgets.QLineEdit,'lineEdit_default_cfg')
 
         self.comboBox_active.addItems(["Yes","No"])
+        self.lineEdit_Price.setValidator(QDoubleValidator(0.0, 99999.99, 2))
 
         
         self.populate_item_classes()
@@ -41,7 +44,7 @@ class AddItemDialog(QtWidgets.QWidget):
 
     def populate_item_classes(self):
         try:
-            response = requests.get("http://127.0.0.1:8000/item-classes/")
+            response = requests.get(f"{API_BASE_URL}/item-classes/")
             if response.status_code == 200:
                 item_classes = response.json()
                 self.comboBox_item_class.clear()
@@ -62,7 +65,7 @@ class AddItemDialog(QtWidgets.QWidget):
         """Submit new item data."""
         item_code = self.lineEdit_ItemCode.text().strip()
         description = self.lineEdit_description.text().strip()
-        price = self.lineEdit_Price.text().strip()
+        price_text = self.lineEdit_Price.text().strip()
         active_status = self.comboBox_active.currentText()
         color = self.lineEdit_Color.text().strip()
         size = self.lineEdit_Size.text().strip()
@@ -81,8 +84,14 @@ class AddItemDialog(QtWidgets.QWidget):
         custum5 = self.lineEdit_Custom5.text().strip()
         custum6 = self.lineEdit_Custom6.text().strip()
 
-        if not item_code or not price:
+        if not item_code or not price_text:
             QtWidgets.QMessageBox.warning(self, "Error", "Item Code and Price are required!")
+            return
+
+        try:
+            price = float(price_text)
+        except ValueError:
+            QtWidgets.QMessageBox.warning(self, "Invalid Input", "Please enter a valid number for the price.")
             return
 
         self.item_data = {
@@ -90,13 +99,13 @@ class AddItemDialog(QtWidgets.QWidget):
             "description": description,
             "color": color,
             "size": size,
-            "price": float(price) if price else 0.0,
-            "upc": int(upc) if upc else 0,
+            "price": price,
+            "upc": int(upc) if upc.isdigit() else 0,
             "item_class": item_class,
-            "is_offer": active_status.strip().lower() == "yes", # Default to active
+            "is_offer": active_status.strip().lower() == "yes",
             "default_cfg": default_cfg,
-            "alt_item_id1": int(alt_itemid1) if alt_itemid1 else None,
-            "alt_item_id2": int(alt_itemid2) if alt_itemid2 else None,
+            "alt_item_id1": int(alt_itemid1) if alt_itemid1.isdigit() else None,
+            "alt_item_id2": int(alt_itemid2) if alt_itemid2.isdigit() else None,
             "brand": brand,
             "style": style,
             "description2": description2,
@@ -108,11 +117,12 @@ class AddItemDialog(QtWidgets.QWidget):
             "custum6": custum6
         }
 
+
     def createItem(self):
         self.submit_item()
         if self.item_data:
             try:
-                response = requests.post("http://localhost:8000/items/", json=self.item_data)
+                response = requests.post(f"{API_BASE_URL}/items/", json=self.item_data)
                 if response.status_code == 200:
                     QtWidgets.QMessageBox.information(self, "Success", "New item added successfully!")
                     # Intenta cerrar el subwindow si existe

@@ -1,4 +1,5 @@
 from PyQt5 import QtWidgets, uic, QtCore 
+from config import API_BASE_URL
 import requests
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 
@@ -20,7 +21,7 @@ class LocationTypes(QtWidgets.QWidget):
 
     def load_location_types(self):
         try:
-            response = requests.get("http://127.0.0.1:8000/location-types")
+            response = requests.get(f"{API_BASE_URL}/location-types")
             if response.status_code == 200:
                 data = response.json()
 

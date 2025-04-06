@@ -2,6 +2,7 @@ from PyQt5 import QtWidgets, uic
 from PyQt5.QtCore import pyqtSignal
 import requests
 from Layout.UI_PY.ItemMaintance import Ui_UpdateItemCode
+from config import API_BASE_URL
 
 class ItemMaintanceDialog(QtWidgets.QDialog,Ui_UpdateItemCode):
     item_updated = pyqtSignal()
@@ -54,7 +55,7 @@ class ItemMaintanceDialog(QtWidgets.QDialog,Ui_UpdateItemCode):
 
     def load_item_class_dropdown(self):
         try:
-            response = requests.get("http://localhost:8000/item-classes/")
+            response = requests.get(f"{API_BASE_URL}/item-classes/")
             if response.status_code == 200:
                 item_classes = response.json()
                 self.comboBox_item_class.clear()
@@ -127,7 +128,7 @@ class ItemMaintanceDialog(QtWidgets.QDialog,Ui_UpdateItemCode):
 
         item_id = self.original_data["id"]
         try:
-            response = requests.put(f"http://localhost:8000/items/{item_id}", json=updated_fields)
+            response = requests.put(f"{API_BASE_URL}/items/{item_id}", json=updated_fields)
             if response.status_code == 200:
                 QtWidgets.QMessageBox.information(self, "Success", "Item updated successfully.")
                 if hasattr(self, 'subwindow'):

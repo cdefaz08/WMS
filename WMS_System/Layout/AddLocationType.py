@@ -2,6 +2,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QMessageBox 
 from Layout.UI_PY.LocationTypeMaintance_ui import Ui_Form
 import requests
+from config import API_BASE_URL
 
 class AddLocationType(QtWidgets.QWidget):
     def __init__(self, parent=None):
@@ -45,7 +46,7 @@ class AddLocationType(QtWidgets.QWidget):
             return
 
         try:
-            url = f"http://localhost:8000/location-types/"
+            url = f"{API_BASE_URL}/location-types/"
             response = requests.post(url, json=updated_data)
 
             if response.status_code == 200:

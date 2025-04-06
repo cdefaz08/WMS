@@ -1,5 +1,6 @@
 from PyQt5 import QtWidgets, uic
 from database import SessionLocal
+from config import API_BASE_URL
 import requests
 from crud import class_crud
 
@@ -98,13 +99,13 @@ class RuleClases(QtWidgets.QDialog):
 
         if current_tab == 0:
             table = self.tableWidget_PutawayClass
-            base_url = "http://localhost:8000/classes/putaway/"
+            base_url = f"{API_BASE_URL}/classes/putaway/"
         elif current_tab == 1:
             table = self.tableWidget_RestockClass
-            base_url = "http://localhost:8000/classes/restock/"
+            base_url = f"{API_BASE_URL}/classes/restock/"
         elif current_tab == 2:
             table = self.tableWidget_PickClass
-            base_url = "http://localhost:8000/classes/pick/"
+            base_url = f"{API_BASE_URL}/classes/pick/"
         else:
             return
 
@@ -146,13 +147,13 @@ class RuleClases(QtWidgets.QDialog):
 
         if current_tab == 0:
             table = self.tableWidget_PutawayClass
-            api_url = "http://localhost:8000/classes/putaway"
+            api_url = f"{API_BASE_URL}/classes/putaway"
         elif current_tab == 1:
             table = self.tableWidget_RestockClass
-            api_url = "http://localhost:8000/classes/restock"
+            api_url = f"{API_BASE_URL}/classes/restock"
         elif current_tab == 2:
             table = self.tableWidget_PickClass
-            api_url = "http://localhost:8000/classes/pick"
+            api_url = f"{API_BASE_URL}/classes/pick"
         else:
             return False
 
