@@ -135,4 +135,33 @@ class ItemSearchWindow(QtWidgets.QDialog, Ui_ItemSearch):
 
         return model.index(row, 0).data(QtCore.Qt.UserRole)
 
+    def delete_selected_item(self):
+        item_id = self.get_selected_item_id()
+        if not item_id:
+            QtWidgets.QMessageBox.warning(self, "No Selection", "Please select an item to delete.")
+            return
+
+        confirm = QtWidgets.QMessageBox.question(
+            self,
+            "Confirm Delete",
+            "Are you sure you want to delete this item?",
+            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No
+        )
+
+        if confirm != QtWidgets.QMessageBox.Yes:
+            return
+
+        try:
+            response = requests.delete(f"{API_BASE_URL}/items/{item_id}")
+            if response.status_code == 200:
+                QtWidgets.QMessageBox.information(self, "Deleted", "Item successfully deleted.")
+                self.search_items()  # Refresh table
+            elif response.status_code == 404:
+                QtWidgets.QMessageBox.warning(self, "Error", "Item not found.")
+            else:
+                QtWidgets.QMessageBox.critical(self, "Error", f"Failed to delete item.\n{response.text}")
+        except requests.exceptions.RequestException:
+            QtWidgets.QMessageBox.critical(self, "Error", "Could not connect to the server.")
+
+
 

@@ -152,6 +152,8 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.delete_selection()
         elif isinstance(active_window, RuleClases):
             active_window.delete_selected_row()
+        elif isinstance(active_window, ItemSearchWindow):
+            active_window.delete_selected_item()
         else:
             QtWidgets.QMessageBox.warning(self,"No Active Window", "Please select a window First")
 
