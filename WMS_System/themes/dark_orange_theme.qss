@@ -60,6 +60,7 @@ QMenuBar::item {
 
 QMenuBar::item:selected {
     background-color: #fd7014;
+    color: #eeeeee;
 }
 
 QMenu {
@@ -69,6 +70,8 @@ QMenu {
 
 QMenu::item:selected {
     background-color: #fd7014;
+    color: #eeeeee;
+
 }
 
 

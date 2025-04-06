@@ -327,6 +327,7 @@ class MainWindow(QtWidgets.QMainWindow):
         rule_window = RuleClases()
         sub_window = QtWidgets.QMdiSubWindow()
         sub_window.setWidget(rule_window)
+        sub_window.setWindowTitle("Rule Clases")
         sub_window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         sub_window.resize(600,500)
         self.mdiArea.addSubWindow(sub_window)
