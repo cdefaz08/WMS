@@ -53,8 +53,8 @@ class MainWindow(QtWidgets.QMainWindow):
         sub_window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
         # Bloquear el cambio de tamaño horizontal
-        sub_window.setMinimumWidth(size[0])
-        sub_window.setMaximumWidth(size[0])
+        #sub_window.setMinimumWidth(size[0])
+        #sub_window.setMaximumWidth(size[0])
         sub_window.resize(*size)
 
         if hasattr(widget, "parent_subwindow"):
@@ -84,7 +84,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.mdiArea.subWindowActivated.connect(self.handle_subwindow_focus_change)
             self.actionItemMaintance.setVisible(True)
             widget.destroyed.connect(self.hide_item_toolbar_action)
-        self.open_mdi_window(ItemSearchWindow, "Item Search", size=(1089, 766), extra_setup=setup)
+        self.open_mdi_window(ItemSearchWindow, "Item Search", size=(1089, 720), extra_setup=setup)
 
     def open_RuleClases(self):
         self.open_mdi_window(RuleClases, "Rule Clases", size=(600, 500))

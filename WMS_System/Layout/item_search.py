@@ -104,8 +104,21 @@ class ItemSearchWindow(QtWidgets.QDialog, Ui_ItemSearch):
             model.appendRow(row)
 
         self.tableViewItemSearch.setModel(model)
-        self.tableViewItemSearch.resizeColumnsToContents()
+        #self.tableViewItemSearch.resizeColumnsToContents()
         self.Records.setText(f"Records found: <b>{len(items)}</b>")
+        self.tableViewItemSearch.setColumnWidth(0, 160)   # Item ID
+        self.tableViewItemSearch.setColumnWidth(1, 200)   # Description
+        self.tableViewItemSearch.setColumnWidth(2, 120)   # UPC
+        self.tableViewItemSearch.setColumnWidth(3, 80)    # Price
+        self.tableViewItemSearch.setColumnWidth(4, 60)    # Active
+        self.tableViewItemSearch.setColumnWidth(5, 100)   # Item Class
+        self.tableViewItemSearch.setColumnWidth(6, 130)   # Alt Item id1
+        self.tableViewItemSearch.setColumnWidth(7, 130)   # Alt Item id2
+        self.tableViewItemSearch.setColumnWidth(8, 110)   # Default CFG
+        self.tableViewItemSearch.setColumnWidth(9, 100)   # Color
+        self.tableViewItemSearch.setColumnWidth(10, 60)   # Size
+        self.tableViewItemSearch.setColumnWidth(11, 100)  # Brand
+        self.tableViewItemSearch.setColumnWidth(12, 100)  # Style
         self.tableViewItemSearch.horizontalHeader().setStretchLastSection(True)
 
 
