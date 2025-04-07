@@ -1,8 +1,6 @@
 from PyQt5 import QtWidgets, uic
-from database import SessionLocal
 from config import API_BASE_URL
 import requests
-from crud import class_crud
 
 class RuleClases(QtWidgets.QDialog):
     def __init__(self,parent=None):
@@ -18,16 +16,32 @@ class RuleClases(QtWidgets.QDialog):
         self.load_data()
 
     def load_data(self):
-        db = SessionLocal()
-        self.putaway_data = class_crud.get_putaway_classes(db)
-        self.restock_data = class_crud.get_restock_classes(db)
-        self.pick_data = class_crud.get_pick_classes(db)
-        db.close()
+        try:
+            endpoints = {
+                "putaway": self.tableWidget_PutawayClass,
+                "restock": self.tableWidget_RestockClass,
+                "pick": self.tableWidget_PickClass,
+            }
 
-        self.fill_table(self.tableWidget_PutawayClass, self.putaway_data)
-        self.tableWidget_PutawayClass.horizontalHeader().setStretchLastSection(True)
-        self.fill_table(self.tableWidget_RestockClass, self.restock_data)
-        self.fill_table(self.tableWidget_PickClass, self.pick_data)
+            for endpoint, widget in endpoints.items():
+                try:
+                    response = requests.get(f"{API_BASE_URL}/classes/{endpoint}")
+                    if response.status_code == 200:
+                        data = response.json()
+                    else:
+                        data = []  # API returned error → show empty table
+                except Exception:
+                    data = []  # Invalid or no JSON → show empty table
+
+                self.fill_table(widget, data)
+
+            self.tableWidget_PutawayClass.horizontalHeader().setStretchLastSection(True)
+            self.tableWidget_RestockClass.horizontalHeader().setStretchLastSection(True)
+            self.tableWidget_PickClass.horizontalHeader().setStretchLastSection(True)
+
+        except requests.exceptions.RequestException as e:
+            QtWidgets.QMessageBox.critical(self, "Error", f"Could not load data:\n{str(e)}")
+
 
     def fill_table(self, table_widget, data):
         table_widget.setRowCount(len(data))
@@ -35,9 +49,10 @@ class RuleClases(QtWidgets.QDialog):
         table_widget.setHorizontalHeaderLabels(["ID", "Class Name", "Description"])
 
         for row_index, item in enumerate(data):
-            table_widget.setItem(row_index, 0, QtWidgets.QTableWidgetItem(str(item.id)))
-            table_widget.setItem(row_index, 1, QtWidgets.QTableWidgetItem(item.class_name))
-            table_widget.setItem(row_index, 2, QtWidgets.QTableWidgetItem(item.description))
+            table_widget.setItem(row_index, 0, QtWidgets.QTableWidgetItem(str(item["id"])))
+            table_widget.setItem(row_index, 1, QtWidgets.QTableWidgetItem(item["class_name"]))
+            table_widget.setItem(row_index, 2, QtWidgets.QTableWidgetItem(item["description"]))
+
 
         table_widget.setColumnHidden(0, True)  # Hide ID
         table_widget.resizeColumnsToContents()
@@ -73,10 +88,13 @@ class RuleClases(QtWidgets.QDialog):
         current_tab = self.tabWidget_Clases.currentIndex()
         if current_tab == 0:
             table = self.tableWidget_PutawayClass
+            url = f"{API_BASE_URL}/classes/putaway"
         elif current_tab == 1:
             table = self.tableWidget_RestockClass
+            url = f"{API_BASE_URL}/classes/restock"
         elif current_tab == 2:
             table = self.tableWidget_PickClass
+            url = f"{API_BASE_URL}/classes/pick"
         else:
             return
 
@@ -84,32 +102,24 @@ class RuleClases(QtWidgets.QDialog):
         if selected >= 0:
             item_id = table.item(selected, 0)
             if item_id:
-                # Show confirmation dialog
                 confirm = QtWidgets.QMessageBox.question(
                     self,
                     "Confirm Deletion",
                     "Are you sure you want to delete this class?",
                     QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No
                 )
-
                 if confirm != QtWidgets.QMessageBox.Yes:
-                    return  # User cancelled
+                    return
 
-                db = SessionLocal()
                 try:
-                    if current_tab == 0:
-                        class_crud.delete_putaway_class(db, int(item_id.text()))
-                    elif current_tab == 1:
-                        class_crud.delete_restock_class(db, int(item_id.text()))
-                    elif current_tab == 2:
-                        class_crud.delete_pick_class(db, int(item_id.text()))
-                    db.commit()
-                except Exception as e:
-                    QtWidgets.QMessageBox.critical(self, "Error", f"Could not delete class:\n{str(e)}")
-                finally:
-                    db.close()
+                    response = requests.delete(f"{url}/{item_id.text()}")
+                    if response.status_code in (200, 204):
+                        table.removeRow(selected)
+                    else:
+                        QtWidgets.QMessageBox.warning(self, "Error", "Could not delete class.")
+                except requests.exceptions.RequestException as e:
+                    QtWidgets.QMessageBox.critical(self, "Error", f"Could not delete:\n{str(e)}")
 
-                table.removeRow(selected)
 
 
     def save_changes(self):

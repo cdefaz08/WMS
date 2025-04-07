@@ -1,117 +1,134 @@
-from sqlalchemy.orm import Session
-from models import RestockClass, PutawayClass, PickClass
+from fastapi import HTTPException
+from sqlalchemy import select, insert, update, delete
+from models import restock_classes, putaway_classes, pick_classes
 from schemas.locationClases import (
-    RestockClass as RestockClassSchema,
-    RestockClassCreate,
-    RestockClassUpdate,
-    PutawayClass as PutawayClassSchema,
-    PutawayClassCreate,
-    PutawayClassUpdate,
-    PickClass as PickClassSchema,
-    PickClassCreate,
-    PickClassUpdate
+    RestockClassCreate, RestockClassUpdate,
+    PutawayClassCreate, PutawayClassUpdate,
+    PickClassCreate, PickClassUpdate
 )
+from database import database
 
 # ========== RESTOCK ==========
-def create_restock_class(db: Session, class_data: RestockClassCreate):
-    existing = db.query(RestockClass).filter(RestockClass.class_name == class_data.class_name).first()
+async def create_restock_class(new_class: RestockClassCreate):
+    query = select(restock_classes).where(restock_classes.c.class_name == new_class.class_name)
+    existing = await database.fetch_one(query)
     if existing:
-        return {"error": "Restock class name already exists."}
+        raise HTTPException(status_code=400, detail="Restock class already exists.")
 
-    new_class = RestockClass(**class_data.dict())
-    db.add(new_class)
-    db.commit()
-    db.refresh(new_class)
-    return new_class
+    insert_query = insert(restock_classes).values(**new_class.dict())
+    await database.execute(insert_query)
+    return {"message": "Restock class created successfully."}
 
 
-def get_restock_classes(db: Session):
-    return db.query(RestockClass).all()
+async def get_restock_classes():
+    query = select(restock_classes)
+    return await database.fetch_all(query)
 
 
-def update_restock_class(db: Session, class_id: int, class_data: RestockClassUpdate):
-    db_class = db.query(RestockClass).filter(RestockClass.id == class_id).first()
-    if db_class:
-        for key, value in class_data.dict(exclude_unset=True).items():
-            setattr(db_class, key, value)
-        db.commit()
-        db.refresh(db_class)
-    return db_class
+async def update_restock_class(class_id: int, class_data: RestockClassUpdate):
+    update_query = (
+        update(restock_classes)
+        .where(restock_classes.c.id == class_id)
+        .values(**class_data.dict(exclude_unset=True))
+        .returning(restock_classes)
+    )
+    updated = await database.fetch_one(update_query)
+    if not updated:
+        raise HTTPException(status_code=404, detail="Restock class not found.")
+    return updated
 
 
-def delete_restock_class(db: Session, class_id: int):
-    db_class = db.query(RestockClass).filter(RestockClass.id == class_id).first()
-    if db_class:
-        db.delete(db_class)
-        db.commit()
-    return db_class
+async def delete_restock_class(class_id: int):
+    delete_query = (
+        delete(restock_classes)
+        .where(restock_classes.c.id == class_id)
+        .returning(restock_classes)
+    )
+    deleted = await database.fetch_one(delete_query)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Restock class not found.")
+    return deleted
 
 
 # ========== PUTAWAY ==========
-def create_putaway_class(db: Session, class_data: PutawayClassCreate):
-    existing = db.query(PutawayClass).filter(PutawayClass.class_name == class_data.class_name).first()
+async def create_putaway_class(new_class: PutawayClassCreate):
+    query = select(putaway_classes).where(putaway_classes.c.class_name == new_class.class_name)
+    existing = await database.fetch_one(query)
     if existing:
-        return {"error": "Putaway class name already exists."}
+        raise HTTPException(status_code=400, detail="Putaway class already exists.")
 
-    new_class = PutawayClass(**class_data.dict())
-    db.add(new_class)
-    db.commit()
-    db.refresh(new_class)
-    return new_class
+    insert_query = insert(putaway_classes).values(**new_class.dict())
+    await database.execute(insert_query)
+    return {"message": "Putaway class created successfully."}
 
 
-def get_putaway_classes(db: Session):
-    return db.query(PutawayClass).all()
+async def get_putaway_classes():
+    query = select(putaway_classes)
+    return await database.fetch_all(query)
 
 
-def update_putaway_class(db: Session, class_id: int, class_data: PutawayClassUpdate):
-    db_class = db.query(PutawayClass).filter(PutawayClass.id == class_id).first()
-    if db_class:
-        for key, value in class_data.dict(exclude_unset=True).items():
-            setattr(db_class, key, value)
-        db.commit()
-        db.refresh(db_class)
-    return db_class
+async def update_putaway_class(class_id: int, class_data: PutawayClassUpdate):
+    update_query = (
+        update(putaway_classes)
+        .where(putaway_classes.c.id == class_id)
+        .values(**class_data.dict(exclude_unset=True))
+        .returning(putaway_classes)
+    )
+    updated = await database.fetch_one(update_query)
+    if not updated:
+        raise HTTPException(status_code=404, detail="Putaway class not found.")
+    return updated
 
 
-def delete_putaway_class(db: Session, class_id: int):
-    db_class = db.query(PutawayClass).filter(PutawayClass.id == class_id).first()
-    if db_class:
-        db.delete(db_class)
-        db.commit()
-    return db_class
+async def delete_putaway_class(class_id: int):
+    delete_query = (
+        delete(putaway_classes)
+        .where(putaway_classes.c.id == class_id)
+        .returning(putaway_classes)
+    )
+    deleted = await database.fetch_one(delete_query)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Putaway class not found.")
+    return deleted
 
 
 # ========== PICK ==========
-def create_pick_class(db: Session, class_data: PickClassCreate):
-    existing = db.query(PickClass).filter(PickClass.class_name == class_data.class_name).first()
+async def create_pick_class(new_class: PickClassCreate):
+    query = select(pick_classes).where(pick_classes.c.class_name == new_class.class_name)
+    existing = await database.fetch_one(query)
     if existing:
-        return {"error": "Pick class name already exists."}
+        raise HTTPException(status_code=400, detail="Pick class already exists.")
 
-    new_class = PickClass(**class_data.dict())
-    db.add(new_class)
-    db.commit()
-    db.refresh(new_class)
-    return new_class
+    insert_query = insert(pick_classes).values(**new_class.dict())
+    await database.execute(insert_query)
+    return {"message": "Pick class created successfully."}
 
 
-def get_pick_classes(db: Session):
-    return db.query(PickClass).all()
+async def get_pick_classes():
+    query = select(pick_classes)
+    return await database.fetch_all(query)
 
 
-def update_pick_class(db: Session, class_id: int, class_data: PickClassUpdate):
-    db_class = db.query(PickClass).filter(PickClass.id == class_id).first()
-    if db_class:
-        for key, value in class_data.dict(exclude_unset=True).items():
-            setattr(db_class, key, value)
-        db.commit()
-        db.refresh(db_class)
-    return db_class
+async def update_pick_class(class_id: int, class_data: PickClassUpdate):
+    update_query = (
+        update(pick_classes)
+        .where(pick_classes.c.id == class_id)
+        .values(**class_data.dict(exclude_unset=True))
+        .returning(pick_classes)
+    )
+    updated = await database.fetch_one(update_query)
+    if not updated:
+        raise HTTPException(status_code=404, detail="Pick class not found.")
+    return updated
 
 
-def delete_pick_class(db: Session, class_id: int):
-    db_class = db.query(PickClass).filter(PickClass.id == class_id).first()
-    if db_class:
-        db.delete(db_class)
-        db.commit()
-    return db_class
+async def delete_pick_class(class_id: int):
+    delete_query = (
+        delete(pick_classes)
+        .where(pick_classes.c.id == class_id)
+        .returning(pick_classes)
+    )
+    deleted = await database.fetch_one(delete_query)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Pick class not found.")
+    return deleted

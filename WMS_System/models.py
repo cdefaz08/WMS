@@ -93,28 +93,33 @@ locations = Table(
 
 
 
-class RestockClass(Base):
-    __tablename__ = "restock_clases"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    class_name = Column(String(15), nullable=False, unique=True)
-    description = Column(String(50))
-
-
-class PutawayClass(Base):
-    __tablename__ = "putaway_clases"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    class_name = Column(String(15), nullable=False, unique=True)
-    description = Column(String(50))
+restock_classes = Table(
+    "restock_classes",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("class_name", String(15), nullable=False, unique=True),
+    Column("description", String(50)),
+)
 
 
-class PickClass(Base):
-    __tablename__ = "pick_clases"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    class_name = Column(String(15), nullable=False, unique=True)
-    description = Column(String(50))
+putaway_classes = Table(
+    "putaway_classes",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("class_name", String(15), nullable=False, unique=True),
+    Column("description", String(50)),
+)
+
+
+pick_classes = Table(
+    "pick_classes",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("class_name", String(15), nullable=False, unique=True),
+    Column("description", String(50)),
+)
+
 
 
 
@@ -170,4 +175,64 @@ location_types = Table(
     Column("pick_cart_flag",String(1),default="N"),
     Column("pick_piece_flag",String(1),default="N"),
 
+)
+
+vendors = Table(
+    "vendors",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("vendor_code", String(50), nullable=False, unique=True),
+    Column("vendor_name", String(100), nullable=False),
+    Column("contact_name", String(50)),
+    Column("phone", String(30)),
+    Column("email", String(50)),
+    Column("address", String(150)),
+    Column("city", String(50)),
+    Column("state", String(30)),
+    Column("zip_code", String(20)),
+    Column("country", String(30)),
+    Column("notes", String(200)),
+)
+
+
+purchase_orders = Table(
+    "purchase_orders",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("po_number", String(50), nullable=False, unique=True),
+    Column("vendor_id", Integer, nullable=False),  # Foreign key ref to vendors
+    Column("order_date", DateTime, nullable=False),
+    Column("expected_date", DateTime),
+    Column("status", String(30), default="Open"),  # Open, Received, Cancelled, etc.
+    Column("created_by", Integer),  # Foreign key ref to users
+    Column("comments", String(200)),
+)
+
+
+orders = Table(
+    "orders",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("order_number", String(50), nullable=False, unique=True),
+    Column("customer_name", String(100), nullable=False),
+    Column("order_date", DateTime, nullable=False),
+    Column("ship_date", DateTime),
+    Column("status", String(30), default="Pending"),  # Pending, Shipped, Cancelled
+    Column("total_amount", Float),
+    Column("created_by", Integer),  # Foreign key ref to users
+    Column("comments", String(200)),
+)
+
+
+receipts = Table(
+    "receipts",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("receipt_number", String(50), nullable=False, unique=True),
+    Column("po_id", Integer, nullable=False),  # Foreign key to purchase_orders
+    Column("vendor_id", Integer, nullable=False),  # Foreign key to vendors
+    Column("received_by", Integer),  # Foreign key to users
+    Column("receipt_date", DateTime, nullable=False),
+    Column("total_received_items", Integer),
+    Column("comments", String(200)),
 )
