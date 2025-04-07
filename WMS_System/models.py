@@ -184,6 +184,7 @@ vendors = Table(
     Column("vendor_code", String(50), nullable=False, unique=True),
     Column("vendor_name", String(100), nullable=False),
     Column("contact_name", String(50)),
+    Column("tax_id", String(30)),
     Column("phone", String(30)),
     Column("email", String(50)),
     Column("address", String(150)),
