@@ -236,6 +236,19 @@ orders = Table(
     Column("comments", String(200)),
 )
 
+order_lines = Table(
+    "order_lines",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("order_id", Integer, nullable=False),     # FK to orders
+    Column("item_id", Integer, nullable=False),      # FK to items
+    Column("quantity", Integer, nullable=False),
+    Column("unit_price", Float),
+    Column("line_total", Float),  # Optional: calculated as quantity * unit_price
+    Column("comments", String(200)),
+)
+
+
 
 receipts = Table(
     "receipts",

@@ -11,7 +11,12 @@ from routers.items import router as items_router
 from routers.ItemClass import router as item_class_router
 from routers.LocationTypes import router as locationType_router
 from routers.Location import router as locations
-from routers import class_routes , vendors_routes, purchase_order_line_routes, purchase_order_routes
+from routers import (class_routes ,
+vendors_routes, 
+purchase_order_line_routes, 
+purchase_order_routes , 
+order_routes,
+order_line_routes)
 
 # Initialize FastAPI
 app = FastAPI()
@@ -67,3 +72,5 @@ app.include_router(class_routes.router)
 app.include_router(vendors_routes.router)
 app.include_router(purchase_order_line_routes.router)
 app.include_router(purchase_order_routes.router)
+app.include_router(order_routes.router)
+app.include_router(order_line_routes.router)
