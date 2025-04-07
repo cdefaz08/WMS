@@ -209,6 +209,18 @@ purchase_orders = Table(
     Column("comments", String(200)),
 )
 
+purchase_order_lines = Table(
+    "purchase_order_lines",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("purchase_order_id", Integer, nullable=False),  # FK to purchase_orders
+    Column("item_id", Integer, nullable=False),            # FK to items
+    Column("quantity", Integer, nullable=False),
+    Column("unit_price", Float, nullable=True),
+    Column("line_total", Float),  # quantity * unit_price
+    Column("comments", String(200))
+)
+
 
 orders = Table(
     "orders",
