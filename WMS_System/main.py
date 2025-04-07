@@ -13,6 +13,7 @@ from routers.LocationTypes import router as locationType_router
 from routers.Location import router as locations
 from routers import class_routes
 from routers import vendors_routes
+from routers import purchase_order_routes
 
 # Initialize FastAPI
 app = FastAPI()
@@ -66,3 +67,4 @@ app.include_router(locationType_router, prefix="/location-types",tags=["Location
 app.include_router(locations,prefix="/locations", tags=["locations"])
 app.include_router(class_routes.router)
 app.include_router(vendors_routes.router)
+app.include_router(purchase_order_routes.router)
