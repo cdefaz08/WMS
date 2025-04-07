@@ -90,7 +90,7 @@ class ItemSearchWindow(QtWidgets.QDialog, Ui_ItemSearch):
                 item_id_item,
                 QStandardItem(str(item.get("description", ""))),
                 QStandardItem(str(item.get("upc", ""))),
-                QStandardItem(str(item.get("price", ""))),
+                QStandardItem(f"$ {item.get('price', 0):,.2f}"),
                 QStandardItem("Yes" if item.get("is_offer") else "No"),
                 QStandardItem(str(item.get("item_class", ""))),
                 QStandardItem(str(item.get("alt_item_id1", ""))),
@@ -110,11 +110,11 @@ class ItemSearchWindow(QtWidgets.QDialog, Ui_ItemSearch):
         self.tableViewItemSearch.setColumnWidth(1, 200)   # Description
         self.tableViewItemSearch.setColumnWidth(2, 120)   # UPC
         self.tableViewItemSearch.setColumnWidth(3, 80)    # Price
-        self.tableViewItemSearch.setColumnWidth(4, 60)    # Active
-        self.tableViewItemSearch.setColumnWidth(5, 100)   # Item Class
+        self.tableViewItemSearch.setColumnWidth(4, 80)    # Active
+        self.tableViewItemSearch.setColumnWidth(5, 120)   # Item Class
         self.tableViewItemSearch.setColumnWidth(6, 130)   # Alt Item id1
         self.tableViewItemSearch.setColumnWidth(7, 130)   # Alt Item id2
-        self.tableViewItemSearch.setColumnWidth(8, 110)   # Default CFG
+        self.tableViewItemSearch.setColumnWidth(8, 130)   # Default CFG
         self.tableViewItemSearch.setColumnWidth(9, 100)   # Color
         self.tableViewItemSearch.setColumnWidth(10, 60)   # Size
         self.tableViewItemSearch.setColumnWidth(11, 100)  # Brand
