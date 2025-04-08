@@ -19,11 +19,15 @@ class LocationMaintance(QtWidgets.QWidget, Ui_LocationMaintance):
             restock_classes = requests.get(f"{API_BASE_URL}/classes/restock").json()
             pick_classes = requests.get(f"{API_BASE_URL}/classes/pick").json()
             location_type = requests.get(f"{API_BASE_URL}/location-types").json()
+            proximities = requests.get(f"{API_BASE_URL}/proximities").json()
+
 
             self.comboBox_PutawayClass.clear()
             self.comboBox_RestockClass.clear()
             self.comboBox_PickClass.clear()
             self.comboBox_LocationType.clear()
+            self.comboBox_PrxIN.clear()
+            self.comboBox_PrxOUT.clear()
 
             for c in putaway_classes:
                 self.comboBox_PutawayClass.addItem(c["class_name"], c["id"])
@@ -36,6 +40,10 @@ class LocationMaintance(QtWidgets.QWidget, Ui_LocationMaintance):
 
             for lt in location_type:
                 self.comboBox_LocationType.addItem(lt["location_type"])
+
+            for p in proximities:
+                self.comboBox_PrxIN.addItem(p["proximity"])
+                self.comboBox_PrxOUT.addItem(p["proximity"])
 
         except Exception as e:
             print(f"Error loading dropdowns: {e}")

@@ -18,6 +18,7 @@ class AddLocationDialog(QtWidgets.QWidget, Ui_AddLocation):
             restock = requests.get(f"{API_BASE_URL}/classes/restock").json()
             pick = requests.get(f"{API_BASE_URL}/classes/pick").json()
             location_type = requests.get(f"{API_BASE_URL}/location-types").json()
+            proximities = requests.get(f"{API_BASE_URL}/proximities").json()
 
             self.comboBox_PutawayClass.clear()
             self.comboBox_RestockClass.clear()
@@ -35,6 +36,10 @@ class AddLocationDialog(QtWidgets.QWidget, Ui_AddLocation):
 
             for lt in location_type:
                 self.comboBox_LocationType.addItem(lt["location_type"])
+                
+            for p in proximities:
+                self.comboBox_PrxIN.addItem(p["proximity"])
+                self.comboBox_PrxOUT.addItem(p["proximity"])
 
         except requests.exceptions.RequestException as e:
             QtWidgets.QMessageBox.critical(self, "Error", f"Could not connect to server: {e}")
