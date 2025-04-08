@@ -16,7 +16,7 @@ vendors_routes,
 purchase_order_line_routes, 
 purchase_order_routes , 
 order_routes,
-order_line_routes)
+order_line_routes,proximity)
 
 # Initialize FastAPI
 app = FastAPI()
@@ -74,3 +74,4 @@ app.include_router(purchase_order_line_routes.router)
 app.include_router(purchase_order_routes.router)
 app.include_router(order_routes.router)
 app.include_router(order_line_routes.router)
+app.include_router(proximity.router)
