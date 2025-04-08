@@ -25,7 +25,7 @@ class ItemMaintanceDialog(QtWidgets.QDialog,Ui_UpdateItemCode):
         self.lineEdit_ItemCode.setText(item.get("item_id", ""))
         self.lineEdit_description.setText(item.get("description", ""))
         self.lineEdit_UPC.setText(str(item.get("upc", "")))
-        self.lineEdit_Price.setText(str(item.get("price", "")))
+        self.lineEdit_Price.setText(f"$ {item.get('price', 0):,.2f}"),
 
         is_offer = item.get("is_offer")
         self.comboBox_active.setCurrentText("Yes" if is_offer else "No")
@@ -135,7 +135,7 @@ class ItemMaintanceDialog(QtWidgets.QDialog,Ui_UpdateItemCode):
                     self.subwindow.close()
                 self.accept()
                 self.item_updated.emit()
-                self.close()
+                self.close_self()
             else:
                 QtWidgets.QMessageBox.warning(self, "Error", f"Failed to update item: {response.text}")
         except requests.exceptions.RequestException:
@@ -143,4 +143,11 @@ class ItemMaintanceDialog(QtWidgets.QDialog,Ui_UpdateItemCode):
         
         print(f"Final data to update:,Item:ID: {item_id}, {updated_fields}")
 
+
+    def close_self(self):
+        parent = self.parent()
+        if isinstance(parent, QtWidgets.QMdiSubWindow):
+            parent.close()
+        else:
+            self.close()
 

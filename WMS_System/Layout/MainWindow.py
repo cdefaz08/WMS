@@ -3,6 +3,7 @@ from config import API_BASE_URL
 import requests
 import sys
 from Layout.item_search import ItemSearchWindow
+from Layout.Location_search import LocationSearchWindow
 from Layout.User_table import UsersTableWindow
 from Layout.itemMaintanceDialog import ItemMaintanceDialog
 from Layout.add_item_dialog import AddItemDialog
@@ -27,6 +28,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionLocation_Types = self.findChild(QtWidgets.QAction,"actionLocation_Types")
         self.actionactionRule_Clases = self.findChild(QtWidgets.QAction,"actionRule_Clases")
         self.actionNewLocation = self.findChild(QtWidgets.QAction,"actionNewLocation")
+        self.actionLocation_Search = self.findChild(QtWidgets.QAction,"actionLocation_Search")
 
         self.actionLogout.triggered.connect(self.logout)
         self.actionItem_Search.triggered.connect(self.open_item_search)
@@ -34,6 +36,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionLocation_Types.triggered.connect(self.open_locationType_win)
         self.actionactionRule_Clases.triggered.connect(self.open_RuleClases)
         self.actionNewLocation.triggered.connect(self.open_new_Location)
+        self.actionLocation_Search.triggered.connect(self.open_location_search)  
         
     def open_mdi_window(self, widget_class, window_title, size=(600, 400), reuse_existing=True, extra_setup=None, check_existing=True):
         is_type = isinstance(widget_class, type)
@@ -86,6 +89,13 @@ class MainWindow(QtWidgets.QMainWindow):
             widget.destroyed.connect(self.hide_item_toolbar_action)
         self.open_mdi_window(ItemSearchWindow, "Item Search", size=(1089, 720), extra_setup=setup)
 
+    def open_location_search(self):
+        def setup(widget, sub_window):
+            self.mdiArea.subWindowActivated.connect(self.handle_subwindow_focus_change)
+            self.actionItemMaintance.setVisible(True)
+            widget.destroyed.connect(self.hide_item_toolbar_action)
+        self.open_mdi_window(LocationSearchWindow, "Location Search", size=(1089, 720), extra_setup=setup)
+
     def open_RuleClases(self):
         self.open_mdi_window(RuleClases, "Rule Clases", size=(600, 500))
 
@@ -130,6 +140,8 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.add_new_user()
         elif isinstance(active_window, RuleClases):
             active_window.add_new_row()
+        elif isinstance(active_window, LocationSearchWindow):
+            self.open_mdi_window(AddLocationDialog, "Add New Location", size=(634, 715))
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
 
@@ -162,6 +174,8 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.delete_selected_row()
         elif isinstance(active_window, ItemSearchWindow):
             active_window.delete_selected_item()
+        elif isinstance(active_window, LocationSearchWindow):
+            active_window.delete_selected_location()
         else:
             QtWidgets.QMessageBox.warning(self,"No Active Window", "Please select a window First")
 
@@ -170,6 +184,8 @@ class MainWindow(QtWidgets.QMainWindow):
         if isinstance(active_window, UsersTableWindow):
             active_window.discard_users()
         elif isinstance(active_window, ItemSearchWindow):
+            active_window.clear_filters()
+        elif isinstance(active_window, LocationSearchWindow):
             active_window.clear_filters()
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
@@ -226,13 +242,34 @@ class MainWindow(QtWidgets.QMainWindow):
                     QtWidgets.QMessageBox.critical(self, "Error", "Could not connect to the server.")
             else:
                 QtWidgets.QMessageBox.warning(self, "No Selection", "Please select an item from the table.")
+        elif isinstance(active_window, LocationSearchWindow):
+            location_id = active_window.get_selected_location_id()
+            if location_id:
+                try:
+                    response = requests.get(f"{API_BASE_URL}/locations/{location_id}")
+                    if response.status_code == 200:
+                        location_data = response.json()
+                        self.open_mdi_window(
+                            lambda: LocationMaintance(location_data=location_data, parent=self),
+                            "Location Maintanance",
+                            size=(700, 600),
+                            extra_setup=lambda w, s: setattr(w, "parent_subwindow", s)
+                        )
+                    else:
+                        QtWidgets.QMessageBox.warning(self, "Error", "Could not load item from server.")
+                except requests.exceptions.RequestException:
+                    QtWidgets.QMessageBox.critical(self, "Error", "Could not connect to the server.")
+            else:
+                QtWidgets.QMessageBox.warning(self, "No Selection", "Please select an item from the table.")
+
+
 
     def handle_subwindow_focus_change(self, active_window):
         if active_window is None:
             self.actionItemMaintance.setVisible(False)
             return
         widget = active_window.widget()
-        if isinstance(widget, (ItemSearchWindow, LocationTypes)):
+        if isinstance(widget, (ItemSearchWindow, LocationTypes, LocationSearchWindow)):
             self.actionItemMaintance.setVisible(True)
         else:
             self.actionItemMaintance.setVisible(False)
