@@ -49,6 +49,7 @@
      </property>
      <addaction name="actionNewLocation"/>
      <addaction name="actionLocation_Types"/>
+     <addaction name="actionProximity"/>
     </widget>
     <widget class="QMenu" name="menuRules">
      <property name="title">
@@ -331,6 +332,11 @@
   <action name="actionReason_Codes">
    <property name="text">
     <string>Reason Codes</string>
+   </property>
+  </action>
+  <action name="actionProximity">
+   <property name="text">
+    <string>Proximities</string>
    </property>
   </action>
  </widget>

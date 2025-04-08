@@ -13,6 +13,7 @@ from Layout.AddLocationType import AddLocationType
 from Layout.RuleClases import RuleClases
 from Layout.LocationMaintance import LocationMaintance
 from Layout.add_location import AddLocationDialog
+from Layout.Proximities import ProximityWindow
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
@@ -29,6 +30,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionactionRule_Clases = self.findChild(QtWidgets.QAction,"actionRule_Clases")
         self.actionNewLocation = self.findChild(QtWidgets.QAction,"actionNewLocation")
         self.actionLocation_Search = self.findChild(QtWidgets.QAction,"actionLocation_Search")
+        self.actionProximity = self.findChild(QtWidgets.QAction, 'actionProximity')
 
         self.actionLogout.triggered.connect(self.logout)
         self.actionItem_Search.triggered.connect(self.open_item_search)
@@ -37,6 +39,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionactionRule_Clases.triggered.connect(self.open_RuleClases)
         self.actionNewLocation.triggered.connect(self.open_new_Location)
         self.actionLocation_Search.triggered.connect(self.open_location_search)  
+        self.actionProximity.triggered.connect(self.open_proximity_window)
         
     def open_mdi_window(self, widget_class, window_title, size=(600, 400), reuse_existing=True, extra_setup=None, check_existing=True):
         is_type = isinstance(widget_class, type)
@@ -74,6 +77,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def open_user_table(self):
         self.open_mdi_window(UsersTableWindow, "User Search", size=(750, 400))
+
+    def open_proximity_window(self):
+        self.open_mdi_window(ProximityWindow, "Proximity Search", size=(600, 400))
 
     def open_locationType_win(self):
         def setup(widget, sub_window):
@@ -142,6 +148,8 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.add_new_row()
         elif isinstance(active_window, LocationSearchWindow):
             self.open_mdi_window(AddLocationDialog, "Add New Location", size=(634, 715))
+        elif isinstance(active_window, ProximityWindow):
+            active_window.add_new_row()
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
 
@@ -163,6 +171,8 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.save_changes()
         elif isinstance(active_window, AddLocationDialog):
             active_window.save_new_location()
+        elif isinstance(active_window, ProximityWindow):
+            active_window.save_changes()
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
 
@@ -176,6 +186,8 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.delete_selected_item()
         elif isinstance(active_window, LocationSearchWindow):
             active_window.delete_selected_location()
+        elif isinstance(active_window, ProximityWindow):
+            active_window.delete_selected_row()
         else:
             QtWidgets.QMessageBox.warning(self,"No Active Window", "Please select a window First")
 
