@@ -67,7 +67,7 @@ QPushButton:pressed {
 /* ========== LABELS ========== */
 QLabel {
     color: #222831;
-    font-weight: 300;
+    font-weight: 500;
 }
 
 /* ========== TABLES ========== */
