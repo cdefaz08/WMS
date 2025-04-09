@@ -209,6 +209,36 @@ purchase_orders = Table(
     Column("comments", String(200)),
 )
 
+Order_type = Table(
+    "order_type",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("order_type", String(50), nullable=False, unique=True),
+    Column("description", String(50)),
+    Column("document_form", String(50)),
+    Column("label_form", String(50)),
+)
+
+Doc_form = Table(
+    "document_form",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("document_form", String(60), nullable=False, unique=True),
+    Column("description", String(50)),
+    Column("action", String(50)),  # Action to be taken for this document form
+    Column("template_content", String),  # Path to the template file
+)
+
+Label_form = Table(
+    "label_form",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("label_form", String(60), nullable=False, unique=True),
+    Column("description", String(50)),
+    Column("action", String(50)),  # Action to be taken for this label form
+    Column("template_content", String),  # Path to the template file
+)
+
 purchase_order_lines = Table(
     "purchase_order_lines",
     metadata,
@@ -218,7 +248,7 @@ purchase_order_lines = Table(
     Column("quantity", Integer, nullable=False),
     Column("unit_price", Float, nullable=True),
     Column("line_total", Float),  # quantity * unit_price
-    Column("comments", String(200))
+    Column("comments", String(200)),
 )
 
 

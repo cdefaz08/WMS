@@ -73,7 +73,7 @@
       <string>Orders Configuration</string>
      </property>
      <addaction name="actionOrder_Types"/>
-     <addaction name="actionDocument_Forms"/>
+     <addaction name="actionForms"/>
     </widget>
     <addaction name="actionUsers"/>
     <addaction name="menuLocations"/>
@@ -309,9 +309,9 @@
     <string>Order Types</string>
    </property>
   </action>
-  <action name="actionDocument_Forms">
+  <action name="actionForms">
    <property name="text">
-    <string>Document Forms</string>
+    <string>Forms</string>
    </property>
   </action>
   <action name="actionExport_to_CSV">

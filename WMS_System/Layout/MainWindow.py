@@ -16,6 +16,9 @@ from Layout.add_location import AddLocationDialog
 from Layout.Proximities import ProximityWindow
 from Layout.Vendors import VendorSearchWindow
 from Layout.VendorMaintane import VendorMaintanceDialog
+from Layout.order_type import OrderTypeWindow
+from Layout.label_forms_window import FormManager
+
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
@@ -34,6 +37,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionLocation_Search = self.findChild(QtWidgets.QAction,"actionLocation_Search")
         self.actionProximity = self.findChild(QtWidgets.QAction, 'actionProximity')
         self.actionactionVendors = self.findChild(QtWidgets.QAction, "actionVendors")
+        self.actionOrder_Types = self.findChild(QtWidgets.QAction, "actionOrder_Types")
+        self.actionForms = self.findChild(QtWidgets.QAction, "actionForms")
 
         self.actionLogout.triggered.connect(self.logout)
         self.actionItem_Search.triggered.connect(self.open_item_search)
@@ -44,7 +49,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionLocation_Search.triggered.connect(self.open_location_search)  
         self.actionProximity.triggered.connect(self.open_proximity_window)
         self.actionVendors.triggered.connect(self.open_vendorSearch_window)
-        
+        self.actionOrder_Types.triggered.connect(self.open_order_type_window)
+        self.actionForms.triggered.connect(self.open_forms_window)
+
     def open_mdi_window(self, widget_class, window_title, size=(600, 400), reuse_existing=True, extra_setup=None, check_existing=True):
         is_type = isinstance(widget_class, type)
 
@@ -92,6 +99,9 @@ class MainWindow(QtWidgets.QMainWindow):
             widget.destroyed.connect(self.hide_item_toolbar_action)
         self.open_mdi_window(LocationTypes, "Location Types", size=(500, 600), extra_setup=setup)
 
+    def open_order_type_window(self):
+        self.open_mdi_window(OrderTypeWindow, "Order Types", size = (700, 400))
+
     def open_item_search(self):
         def setup(widget, sub_window):
             self.mdiArea.subWindowActivated.connect(self.handle_subwindow_focus_change)
@@ -115,6 +125,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def open_RuleClases(self):
         self.open_mdi_window(RuleClases, "Rule Clases", size=(600, 500))
+
+    def open_forms_window(self):
+        self.open_mdi_window(FormManager, "Forms", size= (606,458))
 
     def open_new_Location(self):
         self.open_mdi_window(AddLocationDialog, "New Location", size=(634, 715))
@@ -163,6 +176,10 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.add_new_row()
         elif isinstance(active_window, VendorSearchWindow):
             self.open_mdi_window(VendorMaintanceDialog, "Add New Vendor", size=(800, 320))
+        elif isinstance(active_window, OrderTypeWindow):
+            active_window.add_new_row()
+        elif isinstance(active_window, FormManager):
+            active_window.add_new_row()
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
 
@@ -188,6 +205,10 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.save_changes()
         elif isinstance(active_window,VendorMaintanceDialog):
             active_window.save_changes()
+        elif isinstance(active_window, OrderTypeWindow):
+            active_window.save_changes()
+        elif isinstance(active_window, FormManager):
+            active_window.save_changes()
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
 
@@ -202,6 +223,12 @@ class MainWindow(QtWidgets.QMainWindow):
         elif isinstance(active_window, LocationSearchWindow):
             active_window.delete_selected_location()
         elif isinstance(active_window, ProximityWindow):
+            active_window.delete_selected_row()
+        elif isinstance(active_window, VendorSearchWindow):
+            active_window.delete_selected_vendor()
+        elif isinstance(active_window, OrderTypeWindow):
+            active_window.delete_selected_row()
+        elif isinstance(active_window, FormManager):
             active_window.delete_selected_row()
         else:
             QtWidgets.QMessageBox.warning(self,"No Active Window", "Please select a window First")

@@ -141,3 +141,31 @@ class VendorSearchWindow(QtWidgets.QDialog, Ui_VendorSearch):
         self.lineEdit_Country.clear()
         self.lineEdit_ZipCode.clear()
 
+    def delete_selected_vendor(self):
+        vendor_id = self.get_selected_vendor_id()
+
+        if not vendor_id:
+            QtWidgets.QMessageBox.warning(self, "No Selection", "Please select a vendor to delete.")
+            return
+
+        confirm = QtWidgets.QMessageBox.question(
+            self,
+            "Confirm Deletion",
+            "Are you sure you want to delete the selected vendor?",
+            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No
+        )
+
+        if confirm == QtWidgets.QMessageBox.No:
+            return
+
+        try:
+            response = requests.delete(f"{API_BASE_URL}/vendors/{vendor_id}")
+            if response.status_code == 200:
+                QtWidgets.QMessageBox.information(self, "Success", "Vendor deleted successfully.")
+                self.search_vendors()  # Refresh list
+            else:
+                QtWidgets.QMessageBox.warning(self, "Error", f"Failed to delete vendor:\n{response.text}")
+        except requests.exceptions.RequestException:
+            QtWidgets.QMessageBox.critical(self, "Error", "Failed to connect to the server.")
+    
+
