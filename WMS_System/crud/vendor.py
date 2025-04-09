@@ -11,9 +11,10 @@ async def create_vendor(vendor: VendorCreate):
     if existing:
         raise HTTPException(status_code=400, detail="Vendor code already exists.")
 
-    insert_query = insert(vendors).values(**vendor.dict())
-    await database.execute(insert_query)
-    return {"message": "Vendor created successfully."}
+    insert_query = insert(vendors).values(**vendor.dict()).returning(vendors)
+    created = await database.fetch_one(insert_query)
+    return created
+
 
 
 async def get_vendors():

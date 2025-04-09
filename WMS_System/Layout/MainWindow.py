@@ -14,6 +14,8 @@ from Layout.RuleClases import RuleClases
 from Layout.LocationMaintance import LocationMaintance
 from Layout.add_location import AddLocationDialog
 from Layout.Proximities import ProximityWindow
+from Layout.Vendors import VendorSearchWindow
+from Layout.VendorMaintane import VendorMaintanceDialog
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
@@ -31,6 +33,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionNewLocation = self.findChild(QtWidgets.QAction,"actionNewLocation")
         self.actionLocation_Search = self.findChild(QtWidgets.QAction,"actionLocation_Search")
         self.actionProximity = self.findChild(QtWidgets.QAction, 'actionProximity')
+        self.actionactionVendors = self.findChild(QtWidgets.QAction, "actionVendors")
 
         self.actionLogout.triggered.connect(self.logout)
         self.actionItem_Search.triggered.connect(self.open_item_search)
@@ -40,6 +43,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionNewLocation.triggered.connect(self.open_new_Location)
         self.actionLocation_Search.triggered.connect(self.open_location_search)  
         self.actionProximity.triggered.connect(self.open_proximity_window)
+        self.actionVendors.triggered.connect(self.open_vendorSearch_window)
         
     def open_mdi_window(self, widget_class, window_title, size=(600, 400), reuse_existing=True, extra_setup=None, check_existing=True):
         is_type = isinstance(widget_class, type)
@@ -101,6 +105,13 @@ class MainWindow(QtWidgets.QMainWindow):
             self.actionItemMaintance.setVisible(True)
             widget.destroyed.connect(self.hide_item_toolbar_action)
         self.open_mdi_window(LocationSearchWindow, "Location Search", size=(1089, 720), extra_setup=setup)
+
+    def open_vendorSearch_window(self):
+        def setup(widget, sub_window):
+            self.mdiArea.subWindowActivated.connect(self.handle_subwindow_focus_change)
+            self.actionItemMaintance.setVisible(True)
+            widget.destroyed.connect(self.hide_item_toolbar_action)
+        self.open_mdi_window(VendorSearchWindow, "Vendor Search", size=(1089, 720), extra_setup=setup)
 
     def open_RuleClases(self):
         self.open_mdi_window(RuleClases, "Rule Clases", size=(600, 500))
@@ -172,6 +183,8 @@ class MainWindow(QtWidgets.QMainWindow):
         elif isinstance(active_window, AddLocationDialog):
             active_window.save_new_location()
         elif isinstance(active_window, ProximityWindow):
+            active_window.save_changes()
+        elif isinstance(active_window,VendorMaintanceDialog):
             active_window.save_changes()
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
@@ -273,6 +286,27 @@ class MainWindow(QtWidgets.QMainWindow):
                     QtWidgets.QMessageBox.critical(self, "Error", "Could not connect to the server.")
             else:
                 QtWidgets.QMessageBox.warning(self, "No Selection", "Please select an item from the table.")
+        elif isinstance(active_window,VendorSearchWindow):
+            vendor_id = active_window.get_selected_vendor_id()
+            if vendor_id:
+                try:
+                    response = requests.get(f"{API_BASE_URL}/vendors/{vendor_id}")
+                    if response.status_code == 200:
+                        vendor_data = response.json()
+                        self.open_mdi_window(
+                            lambda: VendorMaintanceDialog(vendor_data=vendor_data, parent=self),
+                            "Vendor Maintanance",
+                            size=(800, 289),
+                            extra_setup=lambda w, s: setattr(w, "parent_subwindow", s)
+                        )
+                    else:
+                        QtWidgets.QMessageBox.warning(self, "Error", "Could not load item from server.")
+                except requests.exceptions.RequestException:
+                    QtWidgets.QMessageBox.critical(self, "Error", "Could not connect to the server.")
+            else:
+                QtWidgets.QMessageBox.warning(self, "No Selection", "Please select an item from the table.")                
+
+        
 
 
 
@@ -281,7 +315,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.actionItemMaintance.setVisible(False)
             return
         widget = active_window.widget()
-        if isinstance(widget, (ItemSearchWindow, LocationTypes, LocationSearchWindow)):
+        if isinstance(widget, (ItemSearchWindow, LocationTypes, LocationSearchWindow,VendorSearchWindow)):
             self.actionItemMaintance.setVisible(True)
         else:
             self.actionItemMaintance.setVisible(False)

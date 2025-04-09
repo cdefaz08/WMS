@@ -10,7 +10,7 @@ def apply_theme_from_file(app, qss_file):
 def main():
     app = QtWidgets.QApplication(sys.argv)
     apply_theme_from_file(app, "themes/dark_orange_theme.qss")
-    app.setWindowIcon(QIcon("icons/Logo/de-faz Logo_Transparent.png"))
+    app.setWindowIcon(QIcon("icons/Logo/DEFAZ_LOGO.png"))
     login_window = LoginWindow()
     login_window.show()
     sys.exit(app.exec_())

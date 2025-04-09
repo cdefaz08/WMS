@@ -26,6 +26,7 @@ async def update_vendor(vendor_id: int, vendor_data: VendorUpdate):
     return await vendor.update_vendor(vendor_id, vendor_data)
 
 
-@router.delete("/{vendor_id}")
+@router.delete("/{vendor_id}", response_model=dict)
 async def delete_vendor(vendor_id: int):
-    return await vendor.delete_vendor(vendor_id)
+    deleted = await vendor.delete_vendor(vendor_id)
+    return {"message": f"Vendor {deleted['vendor_code']} deleted."}
