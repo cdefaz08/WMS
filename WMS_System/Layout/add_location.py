@@ -8,6 +8,8 @@ class AddLocationDialog(QtWidgets.QWidget, Ui_AddLocation):
         super().__init__(parent)
         self.setupUi(self)
 
+        self.saved = False 
+
         self.setWindowTitle("Create New Location")
         self.load_location_classes()
 
@@ -90,25 +92,31 @@ class AddLocationDialog(QtWidgets.QWidget, Ui_AddLocation):
         set_if_not_empty(data, "max_width", self.lineEdit_MaxWidthValue, float)
         set_if_not_empty(data, "max_depth", self.lineEdit_MaxDepthValue, float)
 
-        print("Sending data to create location:", data)
 
         try:
             response = requests.post(f"{API_BASE_URL}/locations/", json=data)
             if response.status_code == 200:
+                self.saved = True
                 QtWidgets.QMessageBox.information(self, "Success", "Location created successfully.")
-                self.close_self()
+                mdi = self.parent()
+                while mdi and not isinstance(mdi, QtWidgets.QMdiSubWindow):
+                    mdi = mdi.parent()
+                if mdi:
+                    mdi.close()
+                else:
+                    self.close()  
             else:
                 QtWidgets.QMessageBox.warning(self, "Error", f"Failed to create location:\n{response.text}")
         except requests.exceptions.RequestException as e:
             QtWidgets.QMessageBox.critical(self, "Connection Error", f"Could not connect to server:\n{e}")
 
-    def close_self(self):
-        if hasattr(self, "parent_subwindow"):
-            self.parent_subwindow.close()
-        else:
-            self.close()
+
 
     def closeEvent(self, event):
+        if getattr(self, "saved", False):  # ✅ Ya fue guardado, no mostrar advertencia
+            event.accept()
+            return
+
         # Lista de campos de texto a revisar
         fields = [
             self.lineEdit_Location,
@@ -127,7 +135,6 @@ class AddLocationDialog(QtWidgets.QWidget, Ui_AddLocation):
             self.lineEdit_MaxWwightValue,
         ]
 
-        # Verifica si alguno tiene texto
         has_unsaved_input = any(field.text().strip() for field in fields)
 
         if has_unsaved_input:
@@ -140,9 +147,9 @@ class AddLocationDialog(QtWidgets.QWidget, Ui_AddLocation):
             )
 
             if reply == QtWidgets.QMessageBox.No:
-                event.ignore()  # ❌ No cerrar
+                event.ignore()
                 return
 
-        event.accept()  # ✅ Cerrar permitido
+        event.accept()
 
 

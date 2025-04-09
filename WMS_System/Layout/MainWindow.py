@@ -161,6 +161,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.open_mdi_window(AddLocationDialog, "Add New Location", size=(634, 715))
         elif isinstance(active_window, ProximityWindow):
             active_window.add_new_row()
+        elif isinstance(active_window, VendorSearchWindow):
+            self.open_mdi_window(VendorMaintanceDialog, "Add New Vendor", size=(800, 320))
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
 
@@ -211,6 +213,8 @@ class MainWindow(QtWidgets.QMainWindow):
         elif isinstance(active_window, ItemSearchWindow):
             active_window.clear_filters()
         elif isinstance(active_window, LocationSearchWindow):
+            active_window.clear_filters()
+        elif isinstance(active_window, VendorSearchWindow):
             active_window.clear_filters()
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")

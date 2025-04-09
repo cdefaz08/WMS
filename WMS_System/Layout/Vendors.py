@@ -128,4 +128,16 @@ class VendorSearchWindow(QtWidgets.QDialog, Ui_VendorSearch):
         row = indexes[0].row()
 
         return model.index(row, 0).data(QtCore.Qt.UserRole)
+    
+    def clear_filters(self):
+        self.lineEdit_VendorCode.clear()
+        self.lineEdit_VendorName.clear()
+        self.lineEdit_ContactName.clear()
+        self.lineEdit_Phone.clear()
+        self.lineEdit_Email.clear()
+        self.lineEdit_TaxId.clear()
+        self.lineEdit_City.clear()
+        self.lineEdit_State.clear()
+        self.lineEdit_Country.clear()
+        self.lineEdit_ZipCode.clear()
 

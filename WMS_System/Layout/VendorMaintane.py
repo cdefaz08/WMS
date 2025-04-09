@@ -60,26 +60,49 @@ class VendorMaintanceDialog(QtWidgets.QDialog, Ui_VendorMaintance):
         return updated
 
     def save_changes(self):
-        updated_fields = self.get_updated_fields()
-        if not updated_fields:
-            QtWidgets.QMessageBox.information(self, "No Changes", "No fields were modified.")
-            return
-
         vendor_id = self.original_data.get("id")
-        if not vendor_id:
-            QtWidgets.QMessageBox.warning(self, "Error", "Vendor ID is missing.")
-            return
+        is_edit = vendor_id is not None
+
+        if is_edit:
+            updated_fields = self.get_updated_fields()
+            if not updated_fields:
+                QtWidgets.QMessageBox.information(self, "No Changes", "No fields were modified.")
+                return
+            payload = updated_fields
+            url = f"{API_BASE_URL}/vendors/{vendor_id}"
+            method = requests.put
+        else:
+            # Collect all fields for creation
+            payload = {
+                "vendor_code": self.lineEdit_VendorCode.text().strip(),
+                "vendor_name": self.lineEdit_VendorName.text().strip(),
+                "contact_name": self.lineEdit_ContactName.text().strip(),
+                "tax_id": self.lineEdit_TaxId.text().strip(),
+                "phone": self.lineEdit_Phone.text().strip(),
+                "email": self.lineEdit_Email.text().strip(),
+                "address": self.lineEdit_Address.text().strip(),
+                "city": self.lineEdit_City.text().strip(),
+                "state": self.lineEdit_State.text().strip(),
+                "country": self.lineEdit_Country.text().strip(),
+                "zip_code": self.lineEdit_ZipCode.text().strip(),
+                "notes": self.textEdit_notes.toPlainText().strip()
+            }
+            url = f"{API_BASE_URL}/vendors/"
+            method = requests.post
 
         try:
-            print("JSON to send:",vendor_id, updated_fields)
-            response = requests.put(f"{API_BASE_URL}/vendors/{vendor_id}", json=updated_fields)
-            if response.status_code == 200:
-                QtWidgets.QMessageBox.information(self, "Success", "Vendor updated successfully.")
-                if hasattr(self, "parent_subwindow") and self.parent_subwindow:
-                    self.parent_subwindow.close()
+            response = method(url, json=payload)
+            if response.status_code in (200, 201):
+                QtWidgets.QMessageBox.information(self, "Success", "Vendor saved successfully.")  
+                mdi = self.parent()
+                while mdi and not isinstance(mdi, QtWidgets.QMdiSubWindow):
+                    mdi = mdi.parent()
+                if mdi:
+                    mdi.close()
                 else:
-                    self.close()
+                    self.close()      
             else:
-                QtWidgets.QMessageBox.warning(self, "Error", f"Failed to update vendor:\n{response.text}")
+                QtWidgets.QMessageBox.warning(self, "Error", f"Failed to save vendor:\n{response.text}")
         except requests.exceptions.RequestException:
             QtWidgets.QMessageBox.critical(self, "Connection Error", "Could not connect to server.")
+
