@@ -126,10 +126,13 @@ class AddItemDialog(QtWidgets.QWidget):
                 if response.status_code == 200:
                     QtWidgets.QMessageBox.information(self, "Success", "New item added successfully!")
                     # Intenta cerrar el subwindow si existe
-                    if hasattr(self, "parent_subwindow"):
-                        self.parent_subwindow.close()
+                    mdi = self.parent()
+                    while mdi and not isinstance(mdi, QtWidgets.QMdiSubWindow):
+                        mdi = mdi.parent()
+                    if mdi:
+                        mdi.close()
                     else:
-                        self.close()
+                        self.close()  
                 else:
                     QtWidgets.QMessageBox.warning(self, "Error", f"Failed to add item.\n{response.text}")
             except requests.exceptions.RequestException:

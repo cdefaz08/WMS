@@ -80,7 +80,8 @@ class ItemMaintanceDialog(QtWidgets.QDialog,Ui_UpdateItemCode):
                     if target_type == int:
                         updated[field_name] = int(text)
                     elif target_type == float:
-                        updated[field_name] = float(text)
+                        clean_text = text.replace('$', '').replace(',', '')
+                        updated[field_name] = float(clean_text)
                     else:
                         updated[field_name] = text
                 except ValueError:
@@ -141,7 +142,6 @@ class ItemMaintanceDialog(QtWidgets.QDialog,Ui_UpdateItemCode):
         except requests.exceptions.RequestException:
             QtWidgets.QMessageBox.critical(self, "Error", "Failed to connect to server")
         
-        print(f"Final data to update:,Item:ID: {item_id}, {updated_fields}")
 
 
     def close_self(self):
