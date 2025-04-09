@@ -22,6 +22,7 @@ class VendorCreate(VendorBase):
 
 
 class VendorUpdate(BaseModel): 
+    vendor_code: Optional[str] = None
     vendor_name: Optional[str]= None
     contact_name: Optional[str]= None
     tax_id: Optional[str]= None

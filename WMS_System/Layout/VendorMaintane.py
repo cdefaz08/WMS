@@ -71,7 +71,7 @@ class VendorMaintanceDialog(QtWidgets.QDialog, Ui_VendorMaintance):
             return
 
         try:
-            print("JSON to send:", updated_fields)
+            print("JSON to send:",vendor_id, updated_fields)
             response = requests.put(f"{API_BASE_URL}/vendors/{vendor_id}", json=updated_fields)
             if response.status_code == 200:
                 QtWidgets.QMessageBox.information(self, "Success", "Vendor updated successfully.")
