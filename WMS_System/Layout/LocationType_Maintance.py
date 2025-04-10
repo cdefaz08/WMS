@@ -5,11 +5,12 @@ from Layout.UI_PY.LocationTypeMaintance_ui import Ui_Form
 import requests
 
 class LocationType_Maintance(QtWidgets.QWidget):
-    def __init__(self, locationTypeData=None, parent=None):
+    def __init__(self,api_client = None, locationTypeData=None, parent=None):
         super().__init__(parent)
 
         self.ui = Ui_Form()
         self.ui.setupUi(self)
+        self.api_client = api_client
 
         self.original_data = {}
 

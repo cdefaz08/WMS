@@ -4,10 +4,11 @@ import requests
 from config import API_BASE_URL
 
 class LocationMaintance(QtWidgets.QWidget, Ui_LocationMaintance):
-    def __init__(self, location_data=None, parent=None):
+    def __init__(self,api_client = None, location_data=None, parent=None):
         super().__init__(parent)
         self.setupUi(self)
         self.loadLocationClasesDropdown()
+        self.api_client = api_client
 
         self.original_data = location_data.copy() if location_data else {}
         if location_data:

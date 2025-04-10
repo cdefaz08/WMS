@@ -4,9 +4,10 @@ import requests
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 
 class LocationTypes(QtWidgets.QWidget):
-    def __init__(self,parent = None):
+    def __init__(self,api_client = None,parent = None):
         super().__init__(parent)
         uic.loadUi("UI/locationTypes.ui", self)
+        self.api_client = api_client
         self.tableViewLocationTypes = self.findChild(QtWidgets.QTableView , "tableViewLocationTypes")
         self.tableViewLocationTypes.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectItems)
         self.tableViewLocationTypes.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)

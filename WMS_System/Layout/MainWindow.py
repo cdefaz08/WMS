@@ -20,6 +20,7 @@ from Layout.order_type import OrderTypeWindow
 from Layout.label_forms_window import FormManager
 from Layout.OrderSearch import OrderSearchWindow
 from Layout.OrderMaintance import OrderMaintanceWindow
+from api_client import APIClient
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -27,6 +28,7 @@ class MainWindow(QtWidgets.QMainWindow):
         super().__init__()
         uic.loadUi("UI/MainWindow.ui", self)
         self.token = token
+        self.api_client = APIClient(token)
 
         self.connect_toolbar()
         self.mdiArea = self.findChild(QtWidgets.QMdiArea, 'mdiArea')
@@ -69,7 +71,13 @@ class MainWindow(QtWidgets.QMainWindow):
                         sub_window.setFocus()
                         return sub_window
 
-        widget = widget_class() if callable(widget_class) else widget_class
+        if callable(widget_class):
+            try:
+                widget = widget_class(api_client=self.api_client)  # 🔐 intenta pasar api_client
+            except TypeError:
+                widget = widget_class()  # fallback si no acepta el parámetro
+        else:
+            widget = widget_class
         sub_window = QtWidgets.QMdiSubWindow()
         sub_window.setWidget(widget)
         sub_window.setWindowTitle(window_title)
@@ -281,7 +289,7 @@ class MainWindow(QtWidgets.QMainWindow):
             item_id = active_window.get_selected_item_id()
             if item_id:
                 try:
-                    response = requests.get(f"{API_BASE_URL}/items/{item_id}")
+                    response = self.api_client.get(f"/items/{item_id}")
                     if response.status_code == 200:
                         item_data = response.json()
                         self.open_mdi_window(
@@ -299,7 +307,7 @@ class MainWindow(QtWidgets.QMainWindow):
             order_id = active_window.get_selected_order_id()
             if order_id:
                 try:
-                    response = requests.get(f"{API_BASE_URL}/orders/{order_id}")
+                    response = self.api_client.get(f"/orders/{order_id}")
                     if response.status_code == 200:
                         order_data = response.json()
                         self.open_mdi_window(
@@ -319,7 +327,7 @@ class MainWindow(QtWidgets.QMainWindow):
             location_type_id = active_window.get_selected_item_id()
             if location_type_id:
                 try:
-                    response = requests.get(f"{API_BASE_URL}/location-types/{location_type_id}")
+                    response = self.api_client.get(f"/location-types/{location_type_id}")
                     if response.status_code == 200:
                         locationTypeData = response.json()
                         self.open_mdi_window(
@@ -338,7 +346,7 @@ class MainWindow(QtWidgets.QMainWindow):
             location_id = active_window.get_selected_location_id()
             if location_id:
                 try:
-                    response = requests.get(f"{API_BASE_URL}/locations/{location_id}")
+                    response = self.api_client.get(f"/locations/{location_id}")
                     if response.status_code == 200:
                         location_data = response.json()
                         self.open_mdi_window(
@@ -357,7 +365,7 @@ class MainWindow(QtWidgets.QMainWindow):
             vendor_id = active_window.get_selected_vendor_id()
             if vendor_id:
                 try:
-                    response = requests.get(f"{API_BASE_URL}/vendors/{vendor_id}")
+                    response = self.api_client.get(f"/vendors/{vendor_id}")
                     if response.status_code == 200:
                         vendor_data = response.json()
                         self.open_mdi_window(

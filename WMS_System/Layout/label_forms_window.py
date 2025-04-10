@@ -5,10 +5,11 @@ from Layout.UI_PY.forms_ui import Ui_Forms
 from config import API_BASE_URL
 
 class FormManager(QtWidgets.QWidget):
-    def __init__(self):
+    def __init__(self,api_client = None):
         super().__init__()
         self.ui = Ui_Forms()
         self.ui.setupUi(self)
+        self.api_client = api_client
 
         self.setup_tables()
         self.load_all_data()

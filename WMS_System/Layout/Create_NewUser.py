@@ -3,9 +3,11 @@ import requests
 from config import API_BASE_URL
 
 class NewUserDialog(QtWidgets.QDialog):
-    def __init__(self):
+    def __init__(self,api_client = None):
         super().__init__()
         uic.loadUi("UI/CreateNewUser.ui", self)
+
+        self.api_client = api_client
 
         # Reference UI Elements
         self.UserName = self.findChild(QtWidgets.QLineEdit, 'UserName')

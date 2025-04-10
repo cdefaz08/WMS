@@ -6,9 +6,10 @@ from config import API_BASE_URL
 
 class ItemMaintanceDialog(QtWidgets.QDialog,Ui_UpdateItemCode):
     item_updated = pyqtSignal()
-    def __init__(self, item_data = None, parent=None):
+    def __init__(self, api_client = None,item_data = None, parent=None):
         super().__init__(parent)
         self.setupUi(self)
+        self.api_client = api_client
 
         self.comboBox_active.addItems(["Yes", "No"])
 

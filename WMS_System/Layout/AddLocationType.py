@@ -5,11 +5,12 @@ import requests
 from config import API_BASE_URL
 
 class AddLocationType(QtWidgets.QWidget):
-    def __init__(self, parent=None):
+    def __init__(self,api_client = None, parent=None):
         super().__init__(parent)
 
         self.ui = Ui_Form()
         self.ui.setupUi(self)
+        self.api_client = api_client
 
 
 

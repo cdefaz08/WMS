@@ -8,9 +8,10 @@ from PyQt5.QtGui import QStandardItemModel, QStandardItem
 
 
 class VendorSearchWindow(QtWidgets.QDialog, Ui_VendorSearch):
-    def __init__(self, parent=None):
+    def __init__(self,api_client = None, parent=None):
         super().__init__(parent)
         self.setupUi(self)
+        self.api_client = api_client
 
         # Connect ENTER key for all fields
         self.lineEdit_VendorCode.returnPressed.connect(self.search_vendors)

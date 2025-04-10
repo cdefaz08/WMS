@@ -4,9 +4,10 @@ from Layout.UI_PY.AddLocation import Ui_AddLocation  # Ajusta si tu path es dist
 from config import API_BASE_URL
 
 class AddLocationDialog(QtWidgets.QWidget, Ui_AddLocation):
-    def __init__(self, parent=None):
+    def __init__(self,api_client = None, parent=None):
         super().__init__(parent)
         self.setupUi(self)
+        self.api_client = api_client
 
         self.saved = False 
 

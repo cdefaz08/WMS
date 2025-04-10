@@ -4,9 +4,10 @@ import requests
 from Layout.Create_NewUser import NewUserDialog  # Import the new dialog
 
 class UsersTableWindow(QtWidgets.QDialog):
-    def __init__(self,parent=None):
+    def __init__(self,api_client = None,parent=None):
         super().__init__(parent)
         uic.loadUi("UI/Users.ui", self)
+        self.api_client = api_client
 
         # Reference UI Elements
         self.tableWidget_Users = self.findChild(QtWidgets.QTableWidget, 'tableWidget_Users')

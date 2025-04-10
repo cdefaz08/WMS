@@ -4,10 +4,10 @@ from config import API_BASE_URL
 import requests
 
 class AddItemDialog(QtWidgets.QWidget):
-    def __init__(self, parent= None):
+    def __init__(self,api_client = None, parent= None):
         super().__init__()
         uic.loadUi("UI/add_item.ui", self)  # Load your .ui file
-        
+        self.api_client = api_client
         self.item_data = None
 
         # Reference UI Elements

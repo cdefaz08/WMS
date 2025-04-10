@@ -3,9 +3,10 @@ from config import API_BASE_URL
 import requests
 
 class RuleClases(QtWidgets.QDialog):
-    def __init__(self,parent=None):
+    def __init__(self,api_client = None,parent=None):
         super().__init__(parent)
         uic.loadUi("UI/RuleClases.ui", self)
+        self.api_client = api_client
         self.tableWidget_PutawayClass.horizontalHeader().setStretchLastSection(True)
         self.tableWidget_PutawayClass.verticalHeader().setVisible(False)
         self.tableWidget_RestockClass.horizontalHeader().setStretchLastSection(True)

@@ -4,10 +4,11 @@ from config import API_BASE_URL
 import requests
 
 class ProximityWindow(QtWidgets.QDialog):
-    def __init__(self, parent=None):
+    def __init__(self,api_client = None, parent=None):
         super().__init__(parent)
         self.ui = Ui_Form()
         self.ui.setupUi(self)
+        self.api_client = api_client
 
         self.ui.tableWidgetProximities.horizontalHeader().setStretchLastSection(True)
         self.ui.tableWidgetProximities.verticalHeader().setVisible(False)

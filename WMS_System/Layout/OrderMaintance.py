@@ -5,9 +5,10 @@ from config import API_BASE_URL
 from datetime import datetime
 
 class OrderMaintanceWindow(QtWidgets.QDialog, Ui_OrderMaintance):
-    def __init__(self, order_data=None, parent=None):
+    def __init__(self,api_client = None, order_data=None, parent=None):
         super().__init__(parent)
         self.setupUi(self)
+        self.api_client = api_client
         self.order_data = order_data
         self.original_data = order_data.copy() if order_data else {}
 

@@ -5,9 +5,10 @@ from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from Layout.UI_PY.Location_search_ui import Ui_LocationSearch
 
 class LocationSearchWindow(QtWidgets.QDialog, Ui_LocationSearch):
-    def __init__(self, parent=None):
+    def __init__(self,api_client = None, parent=None):
         super().__init__(parent)
         self.setupUi(self)
+        self.api_client = api_client
 
         self.pushButton_Search.clicked.connect(self.search_locations)
         self.load_class_dropdowns()

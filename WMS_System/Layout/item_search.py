@@ -5,9 +5,10 @@ from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from Layout.UI_PY.item_search_ui import Ui_ItemSearch
 
 class ItemSearchWindow(QtWidgets.QDialog, Ui_ItemSearch):
-    def __init__(self, parent=None):
+    def __init__(self,api_client = None, parent=None):
         super().__init__(parent)
         self.setupUi(self)
+        self.api_client = api_client
 
 
         # Connect ENTER key (returnPressed) from all search fields

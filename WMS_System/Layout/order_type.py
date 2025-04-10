@@ -7,10 +7,11 @@ from Layout.UI_PY.order_type_ui import Ui_OrderTypes
 from config import API_BASE_URL
 
 class OrderTypeWindow(QWidget):
-    def __init__(self):
+    def __init__(self,api_client = None):
         super().__init__()
         self.ui = Ui_OrderTypes()
         self.ui.setupUi(self)
+        self.api_client = api_client
 
         self.changes_made = False
 

@@ -7,10 +7,11 @@ from config import API_BASE_URL
 class VendorMaintanceDialog(QtWidgets.QDialog, Ui_VendorMaintance):
     vendor_updated = pyqtSignal()
 
-    def __init__(self, vendor_data=None, parent=None):
+    def __init__(self,api_client = None, vendor_data=None, parent=None):
         super().__init__(parent)
         self.setupUi(self)
         self.setWindowTitle("Vendor Maintenance")
+        self.api_client = api_client
         self.original_data = vendor_data or {}
         
         if vendor_data:

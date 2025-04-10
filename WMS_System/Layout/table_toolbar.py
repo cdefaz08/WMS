@@ -1,8 +1,9 @@
 from PyQt5.QtWidgets import QToolBar, QAction, QMessageBox
 
 class TableToolbar(QToolBar):
-    def __init__(self, parent=None):
+    def __init__(self,api_client = None, parent=None):
         super().__init__(parent)
+        self.api_client = api_client
 
         # Store references to the table and functions
         self.tableWidget = None

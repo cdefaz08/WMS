@@ -6,9 +6,10 @@ from Layout.UI_PY.UI_OrderSearch import Ui_OrderSearch
 from datetime import datetime
 
 class OrderSearchWindow(QtWidgets.QDialog, Ui_OrderSearch):
-    def __init__(self, parent=None):
+    def __init__(self,api_client = None, parent=None):
         super().__init__(parent)
         self.setupUi(self)
+        self.api_client = api_client
 
         self.pushButton_Search.clicked.connect(self.search_orders)
         self.tableViewOrders.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
