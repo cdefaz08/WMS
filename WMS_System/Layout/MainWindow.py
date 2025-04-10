@@ -19,6 +19,7 @@ from Layout.VendorMaintane import VendorMaintanceDialog
 from Layout.order_type import OrderTypeWindow
 from Layout.label_forms_window import FormManager
 from Layout.OrderSearch import OrderSearchWindow
+from Layout.OrderMaintance import OrderMaintanceWindow
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -220,6 +221,8 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.save_changes()
         elif isinstance(active_window, FormManager):
             active_window.save_changes()
+        elif isinstance(active_window, OrderMaintanceWindow):
+            active_window.save_order()
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
 
@@ -282,6 +285,25 @@ class MainWindow(QtWidgets.QMainWindow):
                             lambda: ItemMaintanceDialog(item_data=item_data, parent=self),
                             "Item Code Maintanance", size=(700, 600),
                             extra_setup=lambda w, s: w.item_updated.connect(active_window.search_items)
+                        )
+                    else:
+                        QtWidgets.QMessageBox.warning(self, "Error", "Could not load item from server.")
+                except requests.exceptions.RequestException:
+                    QtWidgets.QMessageBox.critical(self, "Error", "Could not connect to the server.")
+            else:
+                QtWidgets.QMessageBox.warning(self, "No Selection", "Please select an item from the table.")
+        elif isinstance(active_window, OrderSearchWindow):
+            order_id = active_window.get_selected_order_id()
+            if order_id:
+                try:
+                    response = requests.get(f"{API_BASE_URL}/orders/{order_id}")
+                    if response.status_code == 200:
+                        order_data = response.json()
+                        self.open_mdi_window(
+                            lambda: OrderMaintanceWindow(order_data=order_data, parent=self),
+                            "Order Maintanance",
+                            size=(1072, 617),
+                            extra_setup=lambda w, s: setattr(w, "parent_subwindow", s)
                         )
                     else:
                         QtWidgets.QMessageBox.warning(self, "Error", "Could not load item from server.")

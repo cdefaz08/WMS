@@ -3,6 +3,7 @@ import requests
 from config import API_BASE_URL
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from Layout.UI_PY.UI_OrderSearch import Ui_OrderSearch
+from datetime import datetime
 
 class OrderSearchWindow(QtWidgets.QDialog, Ui_OrderSearch):
     def __init__(self, parent=None):
@@ -93,21 +94,59 @@ class OrderSearchWindow(QtWidgets.QDialog, Ui_OrderSearch):
         ])
 
         for order in orders:
+            order_date = order.get("order_date", "")
+            ship_date = order.get("ship_date", "")
+
+            formatted_order_date = datetime.fromisoformat(order_date).strftime("%m/%d/%y") if order_date else ""
+            formatted_ship_date = datetime.fromisoformat(ship_date).strftime("%m/%d/%y") if ship_date else ""
+
             row = [
                 QStandardItem(order.get("order_number", "")),
                 QStandardItem(order.get("customer_name", "")),
-                QStandardItem(order.get("order_date", "")),
-                QStandardItem(order.get("ship_date", "")),
+                QStandardItem(formatted_order_date),
+                QStandardItem(formatted_ship_date),
                 QStandardItem(order.get("status", "")),
                 QStandardItem(str(order.get("total_amount", ""))),
                 QStandardItem(str(order.get("created_by", ""))),
                 QStandardItem(order.get("comments", "")),
                 QStandardItem(order.get("label_form", "")),
                 QStandardItem(order.get("document_form", "")),
-                QStandardItem(order.get("order_type", ""))
+                QStandardItem(order.get("order_type", "")),
+                QStandardItem(str(order.get("id", "")))  # 👈 This is the order_id for internal use
             ]
             model.appendRow(row)
 
         self.tableViewOrders.setModel(model)
-        self.tableViewOrders.horizontalHeader().setStretchLastSection(True)
         self.Records.setText(f"Records found: <b>{len(orders)}</b>")
+        self.tableViewOrders.setColumnWidth(0, 100)  # Order #
+        self.tableViewOrders.setColumnWidth(1, 140)  # Customer
+        self.tableViewOrders.setColumnWidth(2, 130)   # Order Date
+        self.tableViewOrders.setColumnWidth(3, 130)   # Ship Date
+        self.tableViewOrders.setColumnWidth(4, 80)   # Status
+        self.tableViewOrders.setColumnWidth(5, 70)   # Total
+        self.tableViewOrders.setColumnWidth(6, 120)   # Created By
+        self.tableViewOrders.setColumnWidth(7, 120)  # Comments
+        self.tableViewOrders.setColumnWidth(8, 130)  # Label Form
+        self.tableViewOrders.setColumnWidth(9, 130)  # Document Form
+        self.tableViewOrders.setColumnWidth(10, 120) # Order Type       
+        self.tableViewOrders.horizontalHeader().setStretchLastSection(False)
+        self.tableViewOrders.setColumnHidden(11, True)  # Hide the ID column
+
+    def get_selected_order_id(self):
+        if not self.tableViewOrders:
+            return None
+
+        selection_model = self.tableViewOrders.selectionModel()
+        if not selection_model or not selection_model.hasSelection():
+            return None
+
+        indexes = selection_model.selectedIndexes()
+        if not indexes:
+            return None
+
+        model = self.tableViewOrders.model()
+        selected_row = indexes[0].row()
+        order_number = model.index(selected_row, 11).data(QtCore.Qt.DisplayRole)  # columna 11 es "Order_id"
+        
+        return order_number.strip() if order_number else None
+
