@@ -262,8 +262,11 @@ orders = Table(
     Column("ship_date", DateTime),
     Column("status", String(30), default="Pending"),  # Pending, Shipped, Cancelled
     Column("total_amount", Float),
-    Column("created_by", Integer),  # Foreign key ref to users
+    Column("created_by", Integer),
     Column("comments", String(200)),
+    Column("label_form", String(50)),
+    Column("document_form", String(50)),
+    Column("order_type", String(50)),
 )
 
 order_lines = Table(

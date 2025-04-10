@@ -11,9 +11,13 @@ async def create_order(order_data: OrderCreate):
     if existing:
         raise HTTPException(status_code=400, detail="Order number already exists.")
 
-    insert_query = insert(orders).values(**order_data.dict())
-    await database.execute(insert_query)
-    return {"message": "Order created successfully."}
+    insert_query = (
+        insert(orders)
+        .values(**order_data.dict())
+        .returning(orders)  # <- Return full order row
+    )
+    new_order = await database.fetch_one(insert_query)
+    return new_order
 
 
 async def get_orders():

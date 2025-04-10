@@ -12,7 +12,10 @@ class OrderBase(BaseModel):
     total_amount: Optional[float] = 0.0
     created_by: Optional[int] = None
     comments: Optional[str] = None
-
+    # ✅ Nuevos campos
+    label_form: Optional[str] = None
+    document_form: Optional[str] = None
+    order_type: Optional[str] = None
 
 class OrderCreate(OrderBase):
     pass

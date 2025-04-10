@@ -18,6 +18,7 @@ from Layout.Vendors import VendorSearchWindow
 from Layout.VendorMaintane import VendorMaintanceDialog
 from Layout.order_type import OrderTypeWindow
 from Layout.label_forms_window import FormManager
+from Layout.OrderSearch import OrderSearchWindow
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -39,6 +40,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionactionVendors = self.findChild(QtWidgets.QAction, "actionVendors")
         self.actionOrder_Types = self.findChild(QtWidgets.QAction, "actionOrder_Types")
         self.actionForms = self.findChild(QtWidgets.QAction, "actionForms")
+        self.actionOrder_Search = self.findChild(QtWidgets.QAction, "actionOrder_Search")
+
 
         self.actionLogout.triggered.connect(self.logout)
         self.actionItem_Search.triggered.connect(self.open_item_search)
@@ -51,6 +54,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionVendors.triggered.connect(self.open_vendorSearch_window)
         self.actionOrder_Types.triggered.connect(self.open_order_type_window)
         self.actionForms.triggered.connect(self.open_forms_window)
+        self.actionOrder_Search.triggered.connect(self.open_Order_Search)
 
     def open_mdi_window(self, widget_class, window_title, size=(600, 400), reuse_existing=True, extra_setup=None, check_existing=True):
         is_type = isinstance(widget_class, type)
@@ -108,6 +112,13 @@ class MainWindow(QtWidgets.QMainWindow):
             self.actionItemMaintance.setVisible(True)
             widget.destroyed.connect(self.hide_item_toolbar_action)
         self.open_mdi_window(ItemSearchWindow, "Item Search", size=(1089, 720), extra_setup=setup)
+
+    def open_Order_Search(self):
+        def setup(widget, sub_window):
+            self.mdiArea.subWindowActivated.connect(self.handle_subwindow_focus_change)
+            self.actionItemMaintance.setVisible(True)
+            widget.destroyed.connect(self.hide_item_toolbar_action)
+        self.open_mdi_window(OrderSearchWindow, "Order Search", size=(1089, 720), extra_setup=setup)
 
     def open_location_search(self):
         def setup(widget, sub_window):
@@ -337,16 +348,12 @@ class MainWindow(QtWidgets.QMainWindow):
             else:
                 QtWidgets.QMessageBox.warning(self, "No Selection", "Please select an item from the table.")                
 
-        
-
-
-
     def handle_subwindow_focus_change(self, active_window):
         if active_window is None:
             self.actionItemMaintance.setVisible(False)
             return
         widget = active_window.widget()
-        if isinstance(widget, (ItemSearchWindow, LocationTypes, LocationSearchWindow,VendorSearchWindow)):
+        if isinstance(widget, (ItemSearchWindow, LocationTypes, LocationSearchWindow,VendorSearchWindow,OrderSearchWindow)):
             self.actionItemMaintance.setVisible(True)
         else:
             self.actionItemMaintance.setVisible(False)
