@@ -17,7 +17,7 @@ class ProximityWindow(QtWidgets.QDialog):
 
     def load_data(self):
         try:
-            response = requests.get(f"{API_BASE_URL}/proximities")
+            response = self.api_client.get("/proximities")
             if response.status_code == 200:
                 data = response.json()
             else:
@@ -66,13 +66,13 @@ class ProximityWindow(QtWidgets.QDialog):
 
             try:
                 if not id_item or not id_item.text().strip():
-                    response = requests.post(f"{API_BASE_URL}/proximities", json=data)
+                    response = self.api_client.post(f"/proximities", json=data)
                     if response.status_code in (200, 201):
                         new_id = response.json().get("id")
                         table.setItem(row, 0, QtWidgets.QTableWidgetItem(str(new_id)))
                 else:
                     proximity_id = id_item.text().strip()
-                    requests.put(f"{API_BASE_URL}/proximities/{proximity_id}", json=data)
+                    self.api_client.put(f"/proximities/{proximity_id}", json=data)
             except requests.exceptions.RequestException as e:
                 QtWidgets.QMessageBox.warning(self, "Error", str(e))
 
@@ -80,7 +80,7 @@ class ProximityWindow(QtWidgets.QDialog):
 
     def has_unsaved_changes(self):
         try:
-            response = requests.get(f"{API_BASE_URL}/proximities")
+            response = self.api_client.get(f"/proximities")
             if response.status_code != 200:
                 return False
 
@@ -138,7 +138,7 @@ class ProximityWindow(QtWidgets.QDialog):
             return
 
         try:
-            response = requests.delete(f"{API_BASE_URL}/proximities/{proximity_id}")
+            response = self.api_client.delete(f"/proximities/{proximity_id}")
             if response.status_code in (200, 204):
                 table.removeRow(selected_row)
                 QtWidgets.QMessageBox.information(self, "Deleted", "Proximity deleted successfully.")

@@ -54,7 +54,7 @@ class NewUserDialog(QtWidgets.QDialog):
         }
 
         try:
-            response = requests.post(f"{API_BASE_URL}/Users/", json=new_user_data)
+            response = self.api_client.post(f"/Users/", json=new_user_data)
 
             if response.status_code == 200:
                 QtWidgets.QMessageBox.information(self, "Success", "New user created successfully!")

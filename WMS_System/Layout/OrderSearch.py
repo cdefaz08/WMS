@@ -50,7 +50,7 @@ class OrderSearchWindow(QtWidgets.QDialog, Ui_OrderSearch):
         ship_to = None if ship_to == default_date else ship_to
 
         try:
-            response = requests.get(f"{API_BASE_URL}/orders")
+            response = self.api_client.get(f"/orders")
             if response.status_code == 200:
                 orders = response.json()
                 filtered = []

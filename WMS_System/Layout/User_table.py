@@ -174,8 +174,8 @@ class UsersTableWindow(QtWidgets.QDialog):
                 print(f"🧩 Updating User ID: {user_id}")
                 print(f"✅ Final Data Sent to API: {user_data}")
 
-                response = requests.put(
-                    f"{API_BASE_URL}/Users/{user_id}",
+                response = self.api_client.put(
+                    f"/Users/{user_id}",
                     json=user_data,  
                     headers={"Content-Type": "application/json"} 
                 )
@@ -195,7 +195,7 @@ class UsersTableWindow(QtWidgets.QDialog):
     def load_users(self):
         """Load all users when the window opens."""
         try:
-            response = requests.get(f"{API_BASE_URL}/Users/")
+            response = self.api_client.get(f"/Users/")
 
             if response.status_code == 200:
                 self.populate_table(response.json())

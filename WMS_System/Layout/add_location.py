@@ -17,11 +17,11 @@ class AddLocationDialog(QtWidgets.QWidget, Ui_AddLocation):
 
     def load_location_classes(self):
         try:
-            putaway = requests.get(f"{API_BASE_URL}/classes/putaway").json()
-            restock = requests.get(f"{API_BASE_URL}/classes/restock").json()
-            pick = requests.get(f"{API_BASE_URL}/classes/pick").json()
-            location_type = requests.get(f"{API_BASE_URL}/location-types").json()
-            proximities = requests.get(f"{API_BASE_URL}/proximities").json()
+            putaway = self.api_client.get(f"/classes/putaway").json()
+            restock = self.api_client.get(f"/classes/restock").json()
+            pick = self.api_client.get(f"/classes/pick").json()
+            location_type = self.api_client.get(f"/location-types").json()
+            proximities = self.api_client.get(f"/proximities").json()
 
             self.comboBox_PutawayClass.clear()
             self.comboBox_RestockClass.clear()
@@ -95,7 +95,7 @@ class AddLocationDialog(QtWidgets.QWidget, Ui_AddLocation):
 
 
         try:
-            response = requests.post(f"{API_BASE_URL}/locations/", json=data)
+            response = self.api_client.post(f"/locations/", json=data)
             if response.status_code == 200:
                 self.saved = True
                 QtWidgets.QMessageBox.information(self, "Success", "Location created successfully.")

@@ -34,7 +34,7 @@ class FormManager(QtWidgets.QWidget):
 
     def load_forms(self, endpoint, table):
         try:
-            response = requests.get(f"{API_BASE_URL}/{endpoint}/")
+            response = self.api_client.get(f"/{endpoint}/")
             if response.status_code == 200:
                 self.fill_table(table, response.json())
         except Exception as e:
@@ -83,13 +83,13 @@ class FormManager(QtWidgets.QWidget):
 
             try:
                 if not id_item or not id_item.text().strip():
-                    response = requests.post(f"{API_BASE_URL}/{endpoint}/", json=data)
+                    response = self.api_client.post(f"/{endpoint}/", json=data)
                     if response.status_code in (200, 201):
                         new_id = response.json().get("id")
                         table.setItem(row, 0, QtWidgets.QTableWidgetItem(str(new_id)))
                 else:
                     form_id = id_item.text().strip()
-                    requests.put(f"{API_BASE_URL}/{endpoint}/{form_id}", json=data)
+                    self.api_client.put(f"/{endpoint}/{form_id}", json=data)
             except requests.exceptions.RequestException as e:
                 QtWidgets.QMessageBox.warning(self, "Error", str(e))
 
@@ -124,7 +124,7 @@ class FormManager(QtWidgets.QWidget):
 
         form_id = id_item.text().strip()
         try:
-            response = requests.delete(f"{API_BASE_URL}/{endpoint}/{form_id}")
+            response = self.api_client.delete(f"/{endpoint}/{form_id}")
             if response.status_code in (200, 204):
                 table.removeRow(row)
                 QtWidgets.QMessageBox.information(self, "Deleted", "Item deleted.")

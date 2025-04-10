@@ -56,7 +56,7 @@ class ItemMaintanceDialog(QtWidgets.QDialog,Ui_UpdateItemCode):
 
     def load_item_class_dropdown(self):
         try:
-            response = requests.get(f"{API_BASE_URL}/item-classes/")
+            response = self.api_client.get(f"/item-classes/")
             if response.status_code == 200:
                 item_classes = response.json()
                 self.comboBox_item_class.clear()
@@ -130,7 +130,7 @@ class ItemMaintanceDialog(QtWidgets.QDialog,Ui_UpdateItemCode):
 
         item_id = self.original_data["id"]
         try:
-            response = requests.put(f"{API_BASE_URL}/items/{item_id}", json=updated_fields)
+            response = self.api_client.put(f"/items/{item_id}", json=updated_fields)
             if response.status_code == 200:
                 QtWidgets.QMessageBox.information(self, "Success", "Item updated successfully.")
                 if hasattr(self, 'subwindow'):

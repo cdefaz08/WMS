@@ -42,7 +42,7 @@ class ItemSearchWindow(QtWidgets.QDialog, Ui_ItemSearch):
         }
 
         try:
-            response = requests.get(f"{API_BASE_URL}/items/")
+            response = self.api_client.get(f"/items/")
             if response.status_code == 200:
                 items = response.json()
 
@@ -168,7 +168,7 @@ class ItemSearchWindow(QtWidgets.QDialog, Ui_ItemSearch):
             return
 
         try:
-            response = requests.delete(f"{API_BASE_URL}/items/{item_id}")
+            response = self.api_client.delete(f"/items/{item_id}")
             if response.status_code == 200:
                 QtWidgets.QMessageBox.information(self, "Deleted", "Item successfully deleted.")
                 self.search_items()  # Refresh table

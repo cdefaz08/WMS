@@ -50,8 +50,8 @@ class LoginWindow(QtWidgets.QMainWindow):
             response = requests.post(url, data=data)  # Note: Using `params` for query parameters
             if response.status_code == 200:
                 self.token = response.json().get("access_token")
-                self.main_window = MainWindow(token=self.token)
-                self.open_main_window()
+                print("TOKEN EN LOGIN:", self.token)
+                self.open_main_window(self.token)
             elif response.status_code == 404:
                 QtWidgets.QMessageBox.warning(self, "Error", "User not found")
             elif response.status_code == 400:
@@ -61,7 +61,7 @@ class LoginWindow(QtWidgets.QMainWindow):
         except requests.exceptions.RequestException:
             QtWidgets.QMessageBox.critical(self, "Error", "Failed to connect to the server")
 
-    def open_main_window(self):
-        self.main_window = MainWindow()  # Create instance of Main Window
+    def open_main_window(self, token):
+        self.main_window = MainWindow(token = token)  # Create instance of Main Window
         self.main_window.showMaximized()         # Show the Main Window
         self.close()

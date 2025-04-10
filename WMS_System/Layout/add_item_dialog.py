@@ -44,7 +44,7 @@ class AddItemDialog(QtWidgets.QWidget):
 
     def populate_item_classes(self):
         try:
-            response = requests.get(f"{API_BASE_URL}/item-classes/")
+            response = self.api_client.get(f"/item-classes/")
             if response.status_code == 200:
                 item_classes = response.json()
                 self.comboBox_item_class.clear()
@@ -122,7 +122,7 @@ class AddItemDialog(QtWidgets.QWidget):
         self.submit_item()
         if self.item_data:
             try:
-                response = requests.post(f"{API_BASE_URL}/items/", json=self.item_data)
+                response = self.api_client.post(f"/items/", json=self.item_data)
                 if response.status_code == 200:
                     QtWidgets.QMessageBox.information(self, "Success", "New item added successfully!")
                     # Intenta cerrar el subwindow si existe

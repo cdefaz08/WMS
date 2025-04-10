@@ -46,7 +46,7 @@ class VendorSearchWindow(QtWidgets.QDialog, Ui_VendorSearch):
         }
 
         try:
-            response = requests.get(f"{API_BASE_URL}/vendors/")
+            response = self.api_client.get(f"/vendors/")
             if response.status_code == 200:
                 vendors = response.json()
 
@@ -160,7 +160,7 @@ class VendorSearchWindow(QtWidgets.QDialog, Ui_VendorSearch):
             return
 
         try:
-            response = requests.delete(f"{API_BASE_URL}/vendors/{vendor_id}")
+            response = self.api_client.delete(f"/vendors/{vendor_id}")
             if response.status_code == 200:
                 QtWidgets.QMessageBox.information(self, "Success", "Vendor deleted successfully.")
                 self.search_vendors()  # Refresh list

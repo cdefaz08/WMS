@@ -31,21 +31,21 @@ class OrderMaintanceWindow(QtWidgets.QDialog, Ui_OrderMaintance):
 
     def load_order_dropdowns(self):
         try:
-            order_types_response = requests.get(f"{API_BASE_URL}/order_types")
+            order_types_response = self.api_client.get(f"/order_types")
             if order_types_response.status_code == 200:
                 order_types = order_types_response.json()
                 self.comboBox_OrderType.clear()
                 for ot in order_types:
                     self.comboBox_OrderType.addItem(ot["order_type"])
 
-            label_forms_response = requests.get(f"{API_BASE_URL}/label_forms")
+            label_forms_response = self.api_client.get(f"/label_forms")
             if label_forms_response.status_code == 200:
                 label_forms = label_forms_response.json()
                 self.comboBox_Label_Form.clear()
                 for lf in label_forms:
                     self.comboBox_Label_Form.addItem(lf["label_form"])
 
-            document_forms_response = requests.get(f"{API_BASE_URL}/document_forms")
+            document_forms_response = self.api_client.get(f"/document_forms")
             if document_forms_response.status_code == 200:
                 document_forms = document_forms_response.json()
                 self.comboBox_Doc_Form.clear()
@@ -180,10 +180,10 @@ class OrderMaintanceWindow(QtWidgets.QDialog, Ui_OrderMaintance):
             if not updated_data:
                 QtWidgets.QMessageBox.information(self, "No Changes", "No fields were modified.")
                 return
-            response = requests.put(f"{API_BASE_URL}/orders/{self.order_data['id']}", json=updated_data)
+            response = self.api_client.put(f"/orders/{self.order_data['id']}", json=updated_data)
         else:
             full_data = self.collect_form_data()
-            response = requests.post(f"{API_BASE_URL}/orders", json=full_data)
+            response = self.api_client.post(f"/orders", json=full_data)
 
         if response.status_code in (200, 201):
             QtWidgets.QMessageBox.information(self, "Success", "Order saved successfully.")

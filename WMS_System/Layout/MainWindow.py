@@ -27,6 +27,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self,token = None):
         super().__init__()
         uic.loadUi("UI/MainWindow.ui", self)
+        print("TOKEN:", token)
         self.token = token
         self.api_client = APIClient(token)
 
@@ -135,7 +136,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.mdiArea.subWindowActivated.connect(self.handle_subwindow_focus_change)
             self.actionItemMaintance.setVisible(True)
             widget.destroyed.connect(self.hide_item_toolbar_action)
-        self.open_mdi_window(LocationSearchWindow, "Location Search", size=(1089, 720), extra_setup=setup)
+        self.open_mdi_window(
+            lambda: LocationSearchWindow(api_client=self.api_client), "Location Search", size=(1089, 720), extra_setup=setup)
 
     def open_vendorSearch_window(self):
         def setup(widget, sub_window):
@@ -311,7 +313,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     if response.status_code == 200:
                         order_data = response.json()
                         self.open_mdi_window(
-                            lambda: OrderMaintanceWindow(order_data=order_data, parent=self),
+                            lambda: OrderMaintanceWindow(order_data=order_data,api_client=self.api_client, parent=self),
                             "Order Maintanance",
                             size=(1072, 617),
                             extra_setup=lambda w, s: setattr(w, "parent_subwindow", s)

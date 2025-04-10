@@ -71,7 +71,7 @@ class VendorMaintanceDialog(QtWidgets.QDialog, Ui_VendorMaintance):
                 return
             payload = updated_fields
             url = f"{API_BASE_URL}/vendors/{vendor_id}"
-            method = requests.put
+            method = self.api_client.put
         else:
             # Collect all fields for creation
             payload = {
@@ -88,8 +88,8 @@ class VendorMaintanceDialog(QtWidgets.QDialog, Ui_VendorMaintance):
                 "zip_code": self.lineEdit_ZipCode.text().strip(),
                 "notes": self.textEdit_notes.toPlainText().strip()
             }
-            url = f"{API_BASE_URL}/vendors/"
-            method = requests.post
+            url = f"/vendors/"
+            method = self.api_client.post
 
         try:
             response = method(url, json=payload)

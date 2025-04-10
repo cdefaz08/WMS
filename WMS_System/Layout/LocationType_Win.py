@@ -16,7 +16,7 @@ class LocationTypes(QtWidgets.QWidget):
 
     def load_location_types(self):
         try:
-            response = requests.get(f"{API_BASE_URL}/location-types")
+            response = self.api_client.get(f"/location-types")
             if response.status_code == 200:
                 data = response.json()
 

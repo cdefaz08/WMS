@@ -26,7 +26,7 @@ class OrderTypeWindow(QWidget):
 
     def fetch_label_forms(self):
         try:
-            response = requests.get(f"{API_BASE_URL}/label_forms/")
+            response = self.api_client.get(f"/label_forms/")
             if response.status_code == 200:
                 data = response.json()
                 return [item["label_form"] for item in data]
@@ -36,7 +36,7 @@ class OrderTypeWindow(QWidget):
 
     def fetch_document_forms(self):
         try:
-            response = requests.get(f"{API_BASE_URL}/document_forms/")
+            response = self.api_client.get(f"/document_forms/")
             if response.status_code == 200:
                 data = response.json()
                 return [item["document_form"] for item in data]
@@ -48,7 +48,7 @@ class OrderTypeWindow(QWidget):
         table = self.ui.tableWidgetOrderTypes
         table.blockSignals(True)  # 🔒 Prevent itemChanged from firing during load
         try:
-            response = requests.get(f"{API_BASE_URL}/order_types/")
+            response = self.api_client.get("/order_types/")
             if response.status_code == 200:
                 order_types = response.json()
                 self.populate_table(order_types)
@@ -127,13 +127,13 @@ class OrderTypeWindow(QWidget):
 
             try:
                 if not id_item or not id_item.text().strip():
-                    response = requests.post(f"{API_BASE_URL}/order_types/", json=data)
+                    response = self.api_client.post("/order_types/", json=data)
                     if response.status_code in (200, 201):
                         new_id = response.json().get("id")
                         table.setItem(row, 0, QTableWidgetItem(str(new_id)))
                 else:
                     type_id = id_item.text().strip()
-                    requests.put(f"{API_BASE_URL}/order_types/{type_id}", json=data)
+                    self.api_client.put(f"/order_types/{type_id}", json=data)
             except requests.exceptions.RequestException as e:
                 QtWidgets.QMessageBox.warning(self, "Error", str(e))
 
@@ -170,7 +170,7 @@ class OrderTypeWindow(QWidget):
             return
 
         try:
-            response = requests.delete(f"{API_BASE_URL}/order_types/{type_id}")
+            response = self.api_client.delete(f"/order_types/{type_id}")
             if response.status_code in (200, 204):
                 table.removeRow(selected_row)
                 QtWidgets.QMessageBox.information(self, "Deleted", "Order Type deleted successfully.")

@@ -47,8 +47,8 @@ class AddLocationType(QtWidgets.QWidget):
             return
 
         try:
-            url = f"{API_BASE_URL}/location-types/"
-            response = requests.post(url, json=updated_data)
+            url = f"/location-types/"
+            response = self.api_client.post(url, json=updated_data)
 
             if response.status_code == 200:
                 QtWidgets.QMessageBox.information(self, "Success", "Location type Created successfully!")

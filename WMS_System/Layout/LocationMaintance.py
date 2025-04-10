@@ -16,11 +16,11 @@ class LocationMaintance(QtWidgets.QWidget, Ui_LocationMaintance):
 
     def loadLocationClasesDropdown(self):
         try:
-            putaway_classes = requests.get(f"{API_BASE_URL}/classes/putaway").json()
-            restock_classes = requests.get(f"{API_BASE_URL}/classes/restock").json()
-            pick_classes = requests.get(f"{API_BASE_URL}/classes/pick").json()
-            location_type = requests.get(f"{API_BASE_URL}/location-types").json()
-            proximities = requests.get(f"{API_BASE_URL}/proximities").json()
+            putaway_classes = self.api_client.get(f"/classes/putaway").json()
+            restock_classes = self.api_client.get(f"/classes/restock").json()
+            pick_classes = self.api_client.get(f"/classes/pick").json()
+            location_type = self.api_client.get(f"/location-types").json()
+            proximities = self.api_client.get(f"/proximities").json()
 
 
             self.comboBox_PutawayClass.clear()
@@ -173,7 +173,7 @@ class LocationMaintance(QtWidgets.QWidget, Ui_LocationMaintance):
 
         location_id = self.original_data.get("location_id")
         try:
-            response = requests.put(f"{API_BASE_URL}/locations/{location_id}", json=updated_fields)
+            response = self.api_client.put(f"/locations/{location_id}", json=updated_fields)
             if response.status_code == 200:
                 QtWidgets.QMessageBox.information(self, "Success", "Location updated successfully.")
                 self.original_data = self.original_data | updated_fields 

@@ -30,10 +30,10 @@ class LocationSearchWindow(QtWidgets.QDialog, Ui_LocationSearch):
 
     def load_class_dropdowns(self):
         try:
-            restock_response = requests.get(f"{API_BASE_URL}/classes/restock")
-            putaway_response = requests.get(f"{API_BASE_URL}/classes/putaway")
-            pick_response = requests.get(f"{API_BASE_URL}/classes/pick")
-            location_type = requests.get(f"{API_BASE_URL}/location-types")
+            restock_response = self.api_client.get(f"/classes/restock")
+            putaway_response = self.api_client.get(f"/classes/putaway")
+            pick_response = self.api_client.get(f"/classes/pick")
+            location_type = self.api_client.get(f"/location-types")
 
             if restock_response.status_code == 200:
                 restock_classes = restock_response.json()
@@ -85,7 +85,7 @@ class LocationSearchWindow(QtWidgets.QDialog, Ui_LocationSearch):
         }
 
         try:
-            response = requests.get(f"{API_BASE_URL}/locations")
+            response = self.api_client.get(f"/locations")
             if response.status_code == 200:
                 locations = response.json()
 
@@ -196,10 +196,10 @@ class LocationSearchWindow(QtWidgets.QDialog, Ui_LocationSearch):
             if confirm != QtWidgets.QMessageBox.Yes:
                 return
 
-            url = f"{API_BASE_URL}/locations/{location_id}"
+            url = f"/locations/{location_id}"
             print("DELETE URL:", url)
 
-            response = requests.delete(url)
+            response = self.api_client.delete(url)
             if response.status_code == 200:
                 QtWidgets.QMessageBox.information(self, "Deleted", "Location successfully deleted.")
                 self.search_locations()
