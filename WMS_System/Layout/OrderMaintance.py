@@ -14,7 +14,17 @@ class OrderMaintanceWindow(QtWidgets.QDialog, Ui_OrderMaintance):
         self.dateEdit_OrderDate.setDisplayFormat("MM/dd/yyyy")
         self.dateEdit_ShipDate.setDisplayFormat("MM/dd/yyyy")
 
+        if not self.order_data:
+            self.dateEdit_OrderDate.setDate(QtCore.QDate.currentDate())
+
         self.setWindowTitle("Edit Order" if self.order_data else "Create Order")
+
+        self.load_order_dropdowns()
+
+        if not order_data:
+            # Capture accurate default state after all dropdowns are loaded
+            self.original_data = self.collect_form_data()
+
 
         self.load_order_dropdowns()
 
@@ -150,6 +160,18 @@ class OrderMaintanceWindow(QtWidgets.QDialog, Ui_OrderMaintance):
             "custom_5": get("custom_5"),
         }
         return {k: v for k, v in data.items() if v not in [None, ""]}
+    
+    def get_updated_fields(self):
+        updated = {}
+        current_data = self.collect_form_data()
+
+        for key, current_value in current_data.items():
+            original_value = self.original_data.get(key, "")
+            if str(current_value).strip() != str(original_value).strip():
+                updated[key] = current_value
+
+        return updated
+
 
     def save_order(self):
         if self.order_data and "id" in self.order_data:
@@ -165,7 +187,13 @@ class OrderMaintanceWindow(QtWidgets.QDialog, Ui_OrderMaintance):
         if response.status_code in (200, 201):
             QtWidgets.QMessageBox.information(self, "Success", "Order saved successfully.")
             self.original_data = self.original_data | (self.collect_form_data() if not self.order_data else self.get_updated_fields())
-            self.accept()
+            mdi = self.parent()
+            while mdi and not isinstance(mdi, QtWidgets.QMdiSubWindow):
+                mdi = mdi.parent()
+            if mdi:
+                mdi.close()
+            else:
+                self.close()  
         else:
             QtWidgets.QMessageBox.warning(self, "Error", f"Failed to save order: {response.text}")
 

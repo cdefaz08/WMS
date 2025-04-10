@@ -1,8 +1,10 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from Security.dependencies import get_current_user
 from schemas.label_form import LabelForm, LabelFormCreate, LabelFormUpdate
 import crud.label_form as crud
 
-router = APIRouter(prefix="/label_forms", tags=["Label Forms"])
+router = APIRouter(prefix="/label_forms", tags=["Label Forms"],
+    dependencies=[Depends(get_current_user)] )
 
 @router.post("/", response_model=dict)
 async def create(new_form: LabelFormCreate):

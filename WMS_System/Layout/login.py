@@ -47,8 +47,10 @@ class LoginWindow(QtWidgets.QMainWindow):
         }
         
         try:
-            response = requests.post(url, json=data)  # Note: Using `params` for query parameters
+            response = requests.post(url, data=data)  # Note: Using `params` for query parameters
             if response.status_code == 200:
+                self.token = response.json().get("access_token")
+                self.main_window = MainWindow(token=self.token)
                 self.open_main_window()
             elif response.status_code == 404:
                 QtWidgets.QMessageBox.warning(self, "Error", "User not found")

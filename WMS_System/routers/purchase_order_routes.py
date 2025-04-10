@@ -1,9 +1,11 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from Security.dependencies import get_current_user
 from typing import List
 from crud import purchase_order_crud
 from schemas.purchase_order import PurchaseOrder, PurchaseOrderCreate, PurchaseOrderUpdate
 
-router = APIRouter(prefix="/purchase-orders", tags=["Purchase Orders"])
+router = APIRouter(prefix="/purchase-orders", tags=["Purchase Orders"],
+    dependencies=[Depends(get_current_user)])
 
 
 @router.post("/", response_model=PurchaseOrder)

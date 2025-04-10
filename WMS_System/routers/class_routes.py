@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends
+from Security.dependencies import get_current_user
 from crud import class_crud
 from schemas.locationClases import (
     RestockClass, RestockClassCreate, RestockClassUpdate,
@@ -6,7 +7,8 @@ from schemas.locationClases import (
     PickClass, PickClassCreate, PickClassUpdate
 )
 
-router = APIRouter(prefix="/classes", tags=["Classes"])
+router = APIRouter(prefix="/classes", tags=["Classes"],
+    dependencies=[Depends(get_current_user)])
 
 
 # ========== RESTOCK ==========

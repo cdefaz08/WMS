@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends
+from Security.dependencies import get_current_user
 from database import database  # your async DB instance
 import crud.proximity as crud
 from schemas.proximity import ProximityCreate, Proximity
 
-router = APIRouter(prefix="/proximities", tags=["Proximities"])
+router = APIRouter(prefix="/proximities", tags=["Proximities"],
+    dependencies=[Depends(get_current_user)] )
 
 @router.post("/")
 async def create(proximity: ProximityCreate):

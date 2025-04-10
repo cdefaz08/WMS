@@ -5,22 +5,22 @@ from datetime import datetime
 class OrderBase(BaseModel):
     order_number: str
     customer_name: str
-    order_date: datetime
+    order_date: Optional[datetime] = None
     ship_date: Optional[datetime] = None
     status: Optional[str] = "Pending"
     total_amount: Optional[float] = 0.0
-    created_by: Optional[int] = None
+    created_by: Optional[str] = None
     comments: Optional[str] = None
 
     label_form: Optional[str] = None
     document_form: Optional[str] = None
     order_type: Optional[str] = None
     carrier: Optional[str] = None
-    Ship_method: Optional[str] = None
+    ship_method: Optional[str] = None
     customer_PO: Optional[str] = None
 
     shp_to_Company: Optional[str] = None
-    shp_to_Address: Optional[str] = None
+    shp_to_Addres: Optional[str] = None
     shp_to_City: Optional[str] = None
     shp_to_State: Optional[str] = None
     shp_to_ZipCode: Optional[str] = None
@@ -30,7 +30,7 @@ class OrderBase(BaseModel):
     shp_to_TaxId: Optional[str] = None
 
     bill_to_Company: Optional[str] = None
-    bill_to_Address: Optional[str] = None
+    bill_to_Addres: Optional[str] = None
     bill_to_City: Optional[str] = None
     bill_to_State: Optional[str] = None
     bill_to_ZipCode: Optional[str] = None
@@ -53,13 +53,13 @@ class OrderCreate(OrderBase):
     pass
 
 class OrderUpdate(BaseModel):
-    customer_name: Optional[str]
-    order_date: Optional[datetime]
-    ship_date: Optional[datetime]
-    status: Optional[str]
-    total_amount: Optional[float]
-    created_by: Optional[str]
-    comments: Optional[str]
+    customer_name: Optional[str]= None
+    order_date: Optional[datetime]= None
+    ship_date: Optional[datetime]= None
+    status: Optional[str]= None
+    total_amount: Optional[float]= None
+    created_by: Optional[str]= None
+    comments: Optional[str]= None
 
     label_form: Optional[str] = None
     document_form: Optional[str] = None
@@ -69,7 +69,7 @@ class OrderUpdate(BaseModel):
     customer_PO: Optional[str] = None
 
     shp_to_Company: Optional[str] = None
-    shp_to_Address: Optional[str] = None
+    shp_to_Addres: Optional[str] = None
     shp_to_Addres2 : Optional[str] = None
     shp_to_City: Optional[str] = None
     shp_to_State: Optional[str] = None
@@ -80,7 +80,7 @@ class OrderUpdate(BaseModel):
     shp_to_TaxId: Optional[str] = None
 
     bill_to_Company: Optional[str] = None
-    bill_to_Address: Optional[str] = None
+    bill_to_Addres: Optional[str] = None
     bill_to_Address2: Optional[str] = None
     bill_to_City: Optional[str] = None
     bill_to_State: Optional[str] = None

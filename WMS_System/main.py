@@ -1,6 +1,10 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
+from Security.dependencies import get_current_user
+from Security.auth import create_access_token
+from datetime import timedelta
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from fastapi.security import OAuth2PasswordRequestForm
 from fastapi import Request
 from pydantic import BaseModel
 from database import database, metadata, engine
@@ -36,7 +40,7 @@ class LoginRequest(BaseModel):
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     return JSONResponse(
         status_code=422,
-        content={"detail": exc.errors(), "body": await request.json()},
+        content={"detail": exc.errors()}  # ✅ No intentes volver a leer el body
     )
 
 # Start & 
@@ -52,26 +56,31 @@ async def shutdown():
 async def read_root():
     return {"message": "Welcome to the FastAPI app!"}
 
-#Validate Login
 @app.post("/login/")
-async def login(request: LoginRequest):
-    query = users.select().where(users.c.username == request.username)
+async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+    query = users.select().where(users.c.username == form_data.username)
     db_user = await database.fetch_one(query)
 
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
-    
-    if not verify_password(request.password, db_user["password"]):
+
+    if not verify_password(form_data.password, db_user["password"]):
         raise HTTPException(status_code=400, detail="Incorrect password")
-    
-    return {"message": "Login successful!"}
+
+    access_token_expires = timedelta(minutes=480)
+    access_token = create_access_token(
+        data={"sub": db_user["username"]}, 
+        expires_delta=access_token_expires
+    )
+
+    return {"access_token": access_token, "token_type": "bearer"}
 
 
-app.include_router(users_router, prefix="/Users", tags=["Users"])
-app.include_router(items_router, prefix="/items", tags=["Items"])
-app.include_router(item_class_router, prefix="/item-classes", tags=["Item Classes"])
-app.include_router(locationType_router, prefix="/location-types",tags=["Location Types"])
-app.include_router(locations,prefix="/locations", tags=["locations"])
+app.include_router(users_router, prefix="/Users", tags=["Users"], dependencies=[Depends(get_current_user)])
+app.include_router(items_router, prefix="/items", tags=["Items"], dependencies=[Depends(get_current_user)])
+app.include_router(item_class_router, prefix="/item-classes", tags=["Item Classes"], dependencies=[Depends(get_current_user)])
+app.include_router(locationType_router, prefix="/location-types",tags=["Location Types"], dependencies=[Depends(get_current_user)])
+app.include_router(locations,prefix="/locations", tags=["locations"], dependencies=[Depends(get_current_user)])
 app.include_router(class_routes.router)
 app.include_router(vendors_routes.router)
 app.include_router(purchase_order_line_routes.router)

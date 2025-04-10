@@ -1,9 +1,11 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from Security.dependencies import get_current_user
 from typing import List
 from crud import vendor
 from schemas.vendor import Vendor, VendorCreate, VendorUpdate
 
-router = APIRouter(prefix="/vendors", tags=["Vendors"])
+router = APIRouter(prefix="/vendors", tags=["Vendors"],
+    dependencies=[Depends(get_current_user)])
 
 
 @router.post("/", response_model=Vendor)

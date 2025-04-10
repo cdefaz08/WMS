@@ -1,8 +1,10 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from Security.dependencies import get_current_user
 from schemas.order_type import OrderTypeCreate, OrderTypeUpdate
 import crud.order_type as crud
 
-router = APIRouter(prefix="/order_types", tags=["Order Types"])
+router = APIRouter(prefix="/order_types", tags=["Order Types"],
+    dependencies=[Depends(get_current_user)] )
 
 @router.post("/")
 async def create_order_type(new_type: OrderTypeCreate):

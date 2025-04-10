@@ -1,8 +1,10 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from Security.dependencies import get_current_user
 from schemas.document_form import DocumentForm, DocumentFormCreate, DocumentFormUpdate
 import crud.document_form as crud
 
-router = APIRouter(prefix="/document_forms", tags=["Document Forms"])
+router = APIRouter(prefix="/document_forms", tags=["Document Forms"],
+    dependencies=[Depends(get_current_user)])
 
 @router.post("/", response_model=dict)
 async def create(new_form: DocumentFormCreate):

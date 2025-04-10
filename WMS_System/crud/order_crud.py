@@ -5,7 +5,7 @@ from database import database
 from schemas.order import OrderCreate, OrderUpdate
 
 
-async def create_order(order_data: OrderCreate):
+async def create_order(order_data: OrderCreate, created_by: str):
     query = select(orders).where(orders.c.order_number == order_data.order_number)
     existing = await database.fetch_one(query)
     if existing:
@@ -13,7 +13,7 @@ async def create_order(order_data: OrderCreate):
 
     insert_query = (
         insert(orders)
-        .values(**order_data.dict())
+        .values(**order_data.dict(exclude_none=True),created_by=created_by)
         .returning(orders)  # <- Return full order row
     )
     new_order = await database.fetch_one(insert_query)

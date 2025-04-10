@@ -23,9 +23,10 @@ from Layout.OrderMaintance import OrderMaintanceWindow
 
 
 class MainWindow(QtWidgets.QMainWindow):
-    def __init__(self):
+    def __init__(self,token = None):
         super().__init__()
         uic.loadUi("UI/MainWindow.ui", self)
+        self.token = token
 
         self.connect_toolbar()
         self.mdiArea = self.findChild(QtWidgets.QMdiArea, 'mdiArea')
@@ -192,6 +193,8 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.add_new_row()
         elif isinstance(active_window, FormManager):
             active_window.add_new_row()
+        elif isinstance(active_window, OrderSearchWindow):
+            self.open_mdi_window(OrderMaintanceWindow, "Add New Order", size=(1072, 617))
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
 
