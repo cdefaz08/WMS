@@ -87,9 +87,6 @@ class MainWindow(QtWidgets.QMainWindow):
         sub_window.setWindowTitle(window_title)
         sub_window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
-        # Bloquear el cambio de tamaño horizontal
-        #sub_window.setMinimumWidth(size[0])
-        #sub_window.setMaximumWidth(size[0])
         sub_window.resize(*size)
 
         if hasattr(widget, "parent_subwindow"):
@@ -100,6 +97,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.mdiArea.addSubWindow(sub_window)
         sub_window.show()
+        print(f"🪟 Opened MDI Subwindow: {window_title}")
+        print(f"   Size: {sub_window.size().width()} x {sub_window.size().height()}")
         return sub_window
 
 

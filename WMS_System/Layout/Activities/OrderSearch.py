@@ -136,7 +136,7 @@ class OrderSearchWindow(QtWidgets.QDialog, Ui_OrderSearch):
         self.tableViewOrders.setColumnWidth(6, 120)   # Created By
         self.tableViewOrders.setColumnWidth(7, 120)  # Comments
         self.tableViewOrders.setColumnWidth(8, 130)  # Label Form
-        self.tableViewOrders.setColumnWidth(9, 130)  # Document Form
+        self.tableViewOrders.setColumnWidth(9, 150)  # Document Form
         self.tableViewOrders.setColumnWidth(10, 120) # Order Type       
         self.tableViewOrders.horizontalHeader().setStretchLastSection(False)
         self.tableViewOrders.setColumnHidden(11, True)  # Hide the ID column
