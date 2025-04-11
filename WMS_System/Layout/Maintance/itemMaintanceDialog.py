@@ -2,7 +2,6 @@ from PyQt5 import QtWidgets, uic
 from PyQt5.QtCore import pyqtSignal
 import requests
 from Layout.UI_PY.ItemMaintance import Ui_UpdateItemCode
-from config import API_BASE_URL
 
 class ItemMaintanceDialog(QtWidgets.QDialog,Ui_UpdateItemCode):
     item_updated = pyqtSignal()
@@ -19,6 +18,9 @@ class ItemMaintanceDialog(QtWidgets.QDialog,Ui_UpdateItemCode):
 
         self.original_data = item_data.copy()
 
+
+    def get_item_id(self):
+        return self.original_data.get("id")  # Devuelve el ID real del ítem (entero)
 
 
 

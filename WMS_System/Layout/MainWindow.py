@@ -24,6 +24,7 @@ from Layout.Activities.OrderLinesWindow import OrderLinesWindow
 from Layout.Activities.ReceiptSearchWindow import ReceiptSearchWindow
 from Layout.Activities.ReceiptMaintance import ReceiptMaintanceWindow
 from Layout.Activities.ReceiptLinesWindow import ReceiptLinesWindow
+from Layout.Maintance.ItemConfiguration import ItemConfigurationWindow
 from api_client import APIClient
 
 
@@ -250,6 +251,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 current_tab.add_new_blank_row()
             else:
                 active_window.add_new_row()
+        elif isinstance(active_window, ItemConfigurationWindow):
+            active_window.add_configuration_block()
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
 
@@ -366,7 +369,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     if response.status_code == 200:
                         item_data = response.json()
                         self.open_mdi_window(
-                            lambda: ItemMaintanceDialog(item_data=item_data, parent=self),
+                            lambda: ItemMaintanceDialog(api_client=self.api_client, item_data=item_data, parent=self),
                             "Item Code Maintanance", size=(700, 600),min_size=(697, 459), max_size=(799, 569),
                             extra_setup=lambda w, s: w.item_updated.connect(active_window.search_items)
                         )
@@ -512,6 +515,25 @@ class MainWindow(QtWidgets.QMainWindow):
                     QtWidgets.QMessageBox.critical(self, "Error", "Could not connect to the server.")
             else:
                 QtWidgets.QMessageBox.warning(self, "No Selection", "Please select an item from the table.")
+        elif isinstance(active_window, ItemMaintanceDialog):
+            item_id = active_window.get_item_id()
+            if item_id:
+                try:
+                    response = self.api_client.get(f"/item-config/items/{item_id}/configurations")
+                    if response.status_code == 200:
+                        item_data = response.json()
+                        self.open_mdi_window(
+                            lambda: ItemConfigurationWindow(item_name=item_id, api_client=self.api_client, parent=self),
+                            "Item Configurations",
+                            size=(700, 600),min_size=(697, 459), max_size=(1047, 1000),
+                            extra_setup=lambda w, s: setattr(w, "parent_subwindow", s)
+                        )
+                    else:
+                        QtWidgets.QMessageBox.warning(self, "Error", "Could not load item from server.")
+                except requests.exceptions.RequestException:
+                    QtWidgets.QMessageBox.critical(self, "Error", "Could not connect to the server.")
+            else:
+                QtWidgets.QMessageBox.warning(self, "No Selection", "Please select an item from the table.")
 
     def handle_subwindow_focus_change(self, active_subwindow):
         self.actionItemMaintance.setVisible(False)
@@ -524,7 +546,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         if isinstance(widget, (ItemSearchWindow, LocationTypes, LocationSearchWindow, VendorSearchWindow, OrderSearchWindow,ReceiptSearchWindow)):
             self.actionItemMaintance.setVisible(True)
-        elif isinstance(widget, (OrderMaintanceWindow,ReceiptMaintanceWindow)):
+        elif isinstance(widget, (OrderMaintanceWindow,ReceiptMaintanceWindow,ItemMaintanceDialog)):
             self.actionOrderLines.setVisible(True)
 
 

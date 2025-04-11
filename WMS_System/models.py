@@ -411,3 +411,53 @@ receipt_lines = Table(
     Column("custom_2", String(100)),
     Column("custom_3", String(100)),
 )
+
+
+item_maintance = Table(
+    "item_maintance",
+    metadata,
+
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("item_id", String(50), ForeignKey("items.item_id"), nullable=False),
+
+    # Flags
+    Column("is_default", Boolean, default=False),  # Solo una configuración por ítem puede ser predeterminada
+
+    # Dimensiones
+    Column("pallet_length", Float),
+    Column("pallet_width", Float),
+    Column("pallet_height", Float),
+
+    Column("case_length", Float),
+    Column("case_width", Float),
+    Column("case_height", Float),
+
+    Column("piece_length", Float),
+    Column("piece_width", Float),
+    Column("piece_height", Float),
+
+    Column("inner_length", Float),
+    Column("inner_width", Float),
+    Column("inner_height", Float),
+
+    # Pesos
+    Column("pallet_weight", Float),
+    Column("case_weight", Float),
+    Column("piece_weight", Float),
+    Column("inner_weight", Float),
+
+    # Cantidades por unidad
+    Column("boxes_per_pallet", Integer),
+    Column("pieces_per_case", Integer),
+    Column("inners_per_piece", Integer),
+
+    # UOM y códigos de barra
+    Column("unit_of_measure", String(20)),  # EA, BOX, INNER, etc.
+    Column("barcode_case", String(50)),
+    Column("barcode_pallet", String(50)),
+    Column("barcode_inner", String(50)),
+
+    # Información adicional
+    Column("configuration_name", String(100)),  # Ejemplo: Retail Config, Bulk Config
+    Column("notes", String(200)),
+)
