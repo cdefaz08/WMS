@@ -64,7 +64,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionOrder_Search.triggered.connect(self.open_Order_Search)
 
 
-    def open_mdi_window(self, widget_class, window_title, size=(600, 400), reuse_existing=True, extra_setup=None, check_existing=True):
+    def open_mdi_window(self, widget_class, window_title, size=(600, 400),
+                        reuse_existing=True, extra_setup=None, check_existing=True,
+                        min_size=(400, 300), max_size=(800, 600)):
         is_type = isinstance(widget_class, type)
 
         if check_existing and is_type:
@@ -82,7 +84,16 @@ class MainWindow(QtWidgets.QMainWindow):
                 widget = widget_class()  # fallback si no acepta el parámetro
         else:
             widget = widget_class
+
+        # ✅ Aplicar límites de tamaño al widget antes de insertarlo en el subwindow
+        widget.setMinimumSize(*min_size)
+        widget.setMaximumSize(*max_size)
+
+        # ✅ Crear y limitar el subwindow también
         sub_window = QtWidgets.QMdiSubWindow()
+        sub_window.setMinimumSize(*min_size)
+        sub_window.setMaximumSize(*max_size)
+
         sub_window.setWidget(widget)
         sub_window.setWindowTitle(window_title)
         sub_window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
@@ -97,9 +108,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.mdiArea.addSubWindow(sub_window)
         sub_window.show()
-        print(f"🪟 Opened MDI Subwindow: {window_title}")
-        print(f"   Size: {sub_window.size().width()} x {sub_window.size().height()}")
+
         return sub_window
+
 
 
 
@@ -126,14 +137,14 @@ class MainWindow(QtWidgets.QMainWindow):
             self.mdiArea.subWindowActivated.connect(self.handle_subwindow_focus_change)
             self.actionItemMaintance.setVisible(True)
             widget.destroyed.connect(self.hide_item_toolbar_action)
-        self.open_mdi_window(ItemSearchWindow, "Item Search", size=(1089, 720), extra_setup=setup)
+        self.open_mdi_window(ItemSearchWindow, "Item Search", size=(1089, 720), extra_setup=setup,min_size=(697, 459), max_size=(1140, 850))
 
     def open_Order_Search(self):
         def setup(widget, sub_window):
             self.mdiArea.subWindowActivated.connect(self.handle_subwindow_focus_change)
             self.actionItemMaintance.setVisible(True)
             widget.destroyed.connect(self.hide_item_toolbar_action)
-        self.open_mdi_window(OrderSearchWindow, "Order Search", size=(1089, 720), extra_setup=setup)
+        self.open_mdi_window(OrderSearchWindow, "Order Search", size=(1089, 720), extra_setup=setup,min_size=(697, 459), max_size=(1081, 874))
 
     def open_location_search(self):
         def setup(widget, sub_window):
@@ -141,7 +152,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.actionItemMaintance.setVisible(True)
             widget.destroyed.connect(self.hide_item_toolbar_action)
         self.open_mdi_window(
-            lambda: LocationSearchWindow(api_client=self.api_client), "Location Search", size=(1089, 720), extra_setup=setup)
+            lambda: LocationSearchWindow(api_client=self.api_client), "Location Search", size=(1089, 720), extra_setup=setup,min_size=(697, 459), max_size=(1135, 678))
 
     def open_vendorSearch_window(self):
         def setup(widget, sub_window):
@@ -321,7 +332,7 @@ class MainWindow(QtWidgets.QMainWindow):
                         item_data = response.json()
                         self.open_mdi_window(
                             lambda: ItemMaintanceDialog(item_data=item_data, parent=self),
-                            "Item Code Maintanance", size=(700, 600),
+                            "Item Code Maintanance", size=(700, 600),min_size=(697, 459), max_size=(799, 569),
                             extra_setup=lambda w, s: w.item_updated.connect(active_window.search_items)
                         )
                     else:
@@ -340,7 +351,7 @@ class MainWindow(QtWidgets.QMainWindow):
                         self.open_mdi_window(
                             lambda: OrderMaintanceWindow(order_data=order_data,api_client=self.api_client, parent=self),
                             "Order Maintanance",
-                            size=(1072, 617),
+                            size=(1072, 617) ,min_size=(697, 459), max_size=(1072, 617),
                             extra_setup=lambda w, s: setattr(w, "parent_subwindow", s)
                         )
                     else:
@@ -379,7 +390,7 @@ class MainWindow(QtWidgets.QMainWindow):
                         self.open_mdi_window(
                             lambda: LocationMaintance(api_client=self.api_client, location_data=location_data, parent=self),
                             "Location Maintanance",
-                            size=(700, 600),
+                            size=(700, 600),min_size=(940 , 376), max_size=(940, 376),
                             extra_setup=lambda w, s: setattr(w, "parent_subwindow", s)
                         )
                     else:
@@ -398,7 +409,7 @@ class MainWindow(QtWidgets.QMainWindow):
                         self.open_mdi_window(
                             lambda: VendorMaintanceDialog(vendor_data=vendor_data, parent=self),
                             "Vendor Maintanance",
-                            size=(800, 289),
+                            size=(800, 289),min_size=(810, 295), max_size=(810, 295),
                             extra_setup=lambda w, s: setattr(w, "parent_subwindow", s)
                         )
                     else:
@@ -420,7 +431,7 @@ class MainWindow(QtWidgets.QMainWindow):
                         self.open_mdi_window(
                             lambda: OrderLinesWindow(order_number=order_number, api_client=self.api_client, parent=self),
                             "Order Lines",
-                            size=(800,300),
+                            size=(800,300),min_size=(697, 459), max_size=(1265, 374),
                             extra_setup=lambda w, s: setattr(w, "parent_subwindow", s)
                         )
                     else:
