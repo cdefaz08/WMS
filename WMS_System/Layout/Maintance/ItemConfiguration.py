@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets, uic
+from PyQt5 import QtWidgets, uic, QtCore
 from Layout.UI_PY.UI_ItemConfigurations import Ui_Form  # Asegúrate de que la ruta sea correcta
 
 class ItemConfigurationWindow(QtWidgets.QWidget, Ui_Form):
@@ -9,6 +9,10 @@ class ItemConfigurationWindow(QtWidgets.QWidget, Ui_Form):
         self.item_name = item_name
         self.setWindowTitle(f"Item Configurations for {self.item_name}")
         self.config_blocks = [self.groupBox]  # Lista para manejar todos los bloques dinámicos
+        self.verticalLayout.setSizeConstraint(QtWidgets.QLayout.SetMinimumSize)
+        self.scrollAreaWidgetContents.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+
+
 
         # Aquí puedes cargar las configuraciones actuales del ítem desde la API
         # y agregarlas dinámicamente si hay más de una
@@ -19,51 +23,76 @@ class ItemConfigurationWindow(QtWidgets.QWidget, Ui_Form):
         self.verticalLayout.addWidget(new_block)
         self.config_blocks.append(new_block)
 
-
-
     def _clone_config_block(self):
-        clone_group = QtWidgets.QGroupBox("New Configuration")
-        layout = QtWidgets.QGridLayout(clone_group)
+        clone = QtWidgets.QGroupBox("New Configuration")
+        clone.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+        clone_layout = QtWidgets.QVBoxLayout(clone)
 
-        # 🧩 Frame 1: Basic Info
-        frame1 = QtWidgets.QFrame()
-        frame1.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        frame1.setFrameShadow(QtWidgets.QFrame.Raised)
-        frame1_layout = QtWidgets.QGridLayout(frame1)
-        frame1_layout.addWidget(QtWidgets.QLabel("Config Code:"), 0, 0)
-        frame1_layout.addWidget(QtWidgets.QLineEdit(), 0, 1)
-        frame1_layout.addWidget(QtWidgets.QCheckBox("Default Config"), 1, 0)
-        frame1_layout.addWidget(QtWidgets.QCheckBox("Cubiscaned"), 2, 0)
-        layout.addWidget(frame1, 0, 0, 1, 1)
+        # Sección superior
+        topLayout = QtWidgets.QGridLayout()
+        topLayout.addWidget(QtWidgets.QLabel("Config Code:"), 0, 0)
+        topLayout.addWidget(QtWidgets.QLineEdit(), 0, 1)
+        topLayout.addWidget(QtWidgets.QCheckBox("Default Config"), 1, 0)
+        topLayout.addWidget(QtWidgets.QCheckBox("Cubiscaned"), 2, 0)
+        topLayout.addWidget(QtWidgets.QLabel("Cases per Pallet:"), 0, 2)
+        topLayout.addWidget(QtWidgets.QLineEdit(), 0, 3)
+        topLayout.addWidget(QtWidgets.QLabel("Pieces per Case:"), 1, 2)
+        topLayout.addWidget(QtWidgets.QLineEdit(), 1, 3)
+        topLayout.addWidget(QtWidgets.QLabel("Inners per Piece:"), 2, 2)
+        topLayout.addWidget(QtWidgets.QLineEdit(), 2, 3)
 
-        # 🧩 Frame 2: Cases Info
-        frame2 = QtWidgets.QFrame()
-        frame2.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        frame2.setFrameShadow(QtWidgets.QFrame.Raised)
-        frame2_layout = QtWidgets.QGridLayout(frame2)
-        frame2_layout.addWidget(QtWidgets.QLabel("Cases per Pallet:"), 0, 0)
-        frame2_layout.addWidget(QtWidgets.QLineEdit(), 0, 1)
-        frame2_layout.addWidget(QtWidgets.QLabel("Pieces per Case:"), 1, 0)
-        frame2_layout.addWidget(QtWidgets.QLineEdit(), 1, 1)
-        frame2_layout.addWidget(QtWidgets.QLabel("Inners per Piece:"), 2, 0)
-        frame2_layout.addWidget(QtWidgets.QLineEdit(), 2, 1)
-        layout.addWidget(frame2, 0, 1, 1, 1)
+        clone_layout.addLayout(topLayout)
 
-        # 🧩 Frames 3–6: Repeated structures
-        for col in range(4):
-            frame = QtWidgets.QFrame()
-            frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
-            frame.setFrameShadow(QtWidgets.QFrame.Raised)
-            frame_layout = QtWidgets.QGridLayout(frame)
+        # Grid para Pallet, Case, Piece, Inner
+        main_grid = QtWidgets.QGridLayout()
+        group_titles = ["Pallet", "Case", "Piece", "Inner"]
+        value_labels = ["Weight", "Height", "Width", "Depth"]
 
-            for row in range(4):
-                frame_layout.addWidget(QtWidgets.QLabel("TextLabel"), row, 0)
-                frame_layout.addWidget(QtWidgets.QSpinBox(), row, 1)
-                frame_layout.addWidget(QtWidgets.QComboBox(), row, 2)
+        col = 0
+        for i, group_title in enumerate(group_titles):
+            column_layout = QtWidgets.QVBoxLayout()
 
-            layout.addWidget(frame, 1, col, 1, 1)
+            # Título del grupo
+            title = QtWidgets.QLabel(f"<b>{group_title}</b>")
+            title.setAlignment(QtCore.Qt.AlignCenter)
+            column_layout.addWidget(title)
 
-        return clone_group
+            # Campos por grupo
+            for value_label in value_labels:
+                label = QtWidgets.QLabel(value_label)
+                spin = QtWidgets.QSpinBox()
+                spin.setMinimumHeight(25)
+                combo = QtWidgets.QComboBox()
+                combo.setMinimumHeight(25)
+
+                column_layout.addWidget(label)
+                column_layout.addWidget(spin)
+                column_layout.addWidget(combo)
+
+            # Contenedor de columna
+            container = QtWidgets.QWidget()
+            container.setLayout(column_layout)
+            container.setMinimumWidth(160)
+            container.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.MinimumExpanding)
+
+            main_grid.addWidget(container, 0, col)
+            col += 1
+
+            # Línea vertical excepto al final
+            if i != len(group_titles) - 1:
+                vline = QtWidgets.QFrame()
+                vline.setFrameShape(QtWidgets.QFrame.VLine)
+                vline.setFrameShadow(QtWidgets.QFrame.Sunken)
+                main_grid.addWidget(vline, 0, col)
+                col += 1
+
+        clone_layout.addLayout(main_grid)
+
+        # 🧩 Asegura altura mínima basada en su contenido
+        clone.setMinimumHeight(clone.sizeHint().height())
+
+        return clone
+
 
 
     def validate_default_checkboxes(self):
