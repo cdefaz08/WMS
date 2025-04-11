@@ -347,7 +347,7 @@ class Ui_OrderMaintance(object):
         self.gridLayout_12.addWidget(self.tabWidget, 1, 0, 1, 1)
 
         self.retranslateUi(OrderMaintance)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(OrderMaintance)
 
     def retranslateUi(self, OrderMaintance):

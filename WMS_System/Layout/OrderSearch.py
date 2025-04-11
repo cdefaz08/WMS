@@ -150,4 +150,6 @@ class OrderSearchWindow(QtWidgets.QDialog, Ui_OrderSearch):
         order_number = model.index(selected_row, 11).data(QtCore.Qt.DisplayRole)  # columna 11 es "Order_id"
         
         return order_number.strip() if order_number else None
+    
+    
 

@@ -3,6 +3,7 @@ from Layout.UI_PY.UI_OrderMaintance import Ui_OrderMaintance
 import requests
 from config import API_BASE_URL
 from datetime import datetime
+from Layout.OrderLinesWindow import OrderLinesWindow
 
 class OrderMaintanceWindow(QtWidgets.QDialog, Ui_OrderMaintance):
     def __init__(self,api_client = None, order_data=None, parent=None):
@@ -14,6 +15,7 @@ class OrderMaintanceWindow(QtWidgets.QDialog, Ui_OrderMaintance):
 
         self.dateEdit_OrderDate.setDisplayFormat("MM/dd/yyyy")
         self.dateEdit_ShipDate.setDisplayFormat("MM/dd/yyyy")
+        self.init_order_lines_tab_if_ready()
 
         if not self.order_data:
             self.dateEdit_OrderDate.setDate(QtCore.QDate.currentDate())
@@ -28,6 +30,15 @@ class OrderMaintanceWindow(QtWidgets.QDialog, Ui_OrderMaintance):
 
 
         self.load_order_dropdowns()
+
+    def init_order_lines_tab_if_ready(self):
+        # Only show order lines if order_number exists
+        order_number = self.order_data.get("order_number")
+        if order_number:
+            self.order_lines_tab = OrderLinesWindow(order_number=order_number, api_client=self.api_client)
+            self.tabWidget.addTab(self.order_lines_tab, "Order Lines")
+        else:
+            self.tabWidget.setTabEnabled(self.tabWidget.count() - 1, False)  # Optional: disable last tab if unsaved
 
     def load_order_dropdowns(self):
         try:
@@ -197,6 +208,18 @@ class OrderMaintanceWindow(QtWidgets.QDialog, Ui_OrderMaintance):
                 self.close()  
         else:
             QtWidgets.QMessageBox.warning(self, "Error", f"Failed to save order: {response.text}")
+
+    def get_order_number(self):
+        """
+        Returns the current order number from the field.
+        If the window was loaded with order_data, it will return the saved value.
+        """
+        if self.order_data and "order_number" in self.order_data:
+            return self.order_data["order_number"]
+        
+        # Fallback: get from the input field (in case it's a new order)
+        return self.lineEdit_order_number.text().strip()
+
 
     def closeEvent(self, event):
         if self.get_updated_fields():

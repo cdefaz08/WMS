@@ -20,6 +20,7 @@ from Layout.order_type import OrderTypeWindow
 from Layout.label_forms_window import FormManager
 from Layout.OrderSearch import OrderSearchWindow
 from Layout.OrderMaintance import OrderMaintanceWindow
+from Layout.OrderLinesWindow import OrderLinesWindow
 from api_client import APIClient
 
 
@@ -48,6 +49,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionOrder_Search = self.findChild(QtWidgets.QAction, "actionOrder_Search")
 
 
+
         self.actionLogout.triggered.connect(self.logout)
         self.actionItem_Search.triggered.connect(self.open_item_search)
         self.actionUser_table.triggered.connect(self.open_user_table)
@@ -60,6 +62,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionOrder_Types.triggered.connect(self.open_order_type_window)
         self.actionForms.triggered.connect(self.open_forms_window)
         self.actionOrder_Search.triggered.connect(self.open_Order_Search)
+
 
     def open_mdi_window(self, widget_class, window_title, size=(600, 400), reuse_existing=True, extra_setup=None, check_existing=True):
         is_type = isinstance(widget_class, type)
@@ -113,6 +116,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.actionItemMaintance.setVisible(True)
             widget.destroyed.connect(self.hide_item_toolbar_action)
         self.open_mdi_window(LocationTypes, "Location Types", size=(500, 600), extra_setup=setup)
+
+
 
     def open_order_type_window(self):
         self.open_mdi_window(OrderTypeWindow, "Order Types", size = (700, 400))
@@ -175,13 +180,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self.refresh_button = self.findChild(QtWidgets.QAction, 'actionRefresh')
         self.actionItemMaintance = self.findChild(QtWidgets.QAction, "actionItemMaintance")
         self.delete_button = self.findChild(QtWidgets.QAction,"actionDelete")
+        self.actionOrderLines = self.findChild(QtWidgets.QAction,"actionOrderLines")
         self.actionItemMaintance.setVisible(False)
+        self.actionOrderLines.setVisible(False)
         self.new_button.triggered.connect(self.toolbar_new)
         self.save_button.triggered.connect(self.toolbar_save)
         self.refresh_button.triggered.connect(self.toolbar_refresh)
         self.delete_button.triggered.connect(self.toolbar_delete)
         self.discard_button.triggered.connect(self.toolbar_discard)
         self.actionItemMaintance.triggered.connect(self.open_maintance_window)
+        self.actionOrderLines.triggered.connect(self.open_OrderLines_window)
 
     def toolbar_new(self):
         active_window = self.get_active_window()
@@ -205,6 +213,8 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.add_new_row()
         elif isinstance(active_window, OrderSearchWindow):
             self.open_mdi_window(OrderMaintanceWindow, "Add New Order", size=(1072, 617))
+        elif isinstance(active_window,OrderMaintanceWindow):
+            active_window.add_row()
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
 
@@ -236,6 +246,8 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.save_changes()
         elif isinstance(active_window, OrderMaintanceWindow):
             active_window.save_order()
+        elif isinstance(active_window,OrderLinesWindow):
+            active_window.save_changes()
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
 
@@ -256,6 +268,8 @@ class MainWindow(QtWidgets.QMainWindow):
         elif isinstance(active_window, OrderTypeWindow):
             active_window.delete_selected_row()
         elif isinstance(active_window, FormManager):
+            active_window.delete_selected_row()
+        elif isinstance(active_window,OrderMaintanceWindow):
             active_window.delete_selected_row()
         else:
             QtWidgets.QMessageBox.warning(self,"No Active Window", "Please select a window First")
@@ -284,6 +298,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def hide_item_toolbar_action(self):
         self.actionItemMaintance.setVisible(False)
+        self.actionOrderLines.setVisible(False)
 
     def open_maintance_window(self):
         active_window = self.get_active_window()
@@ -383,15 +398,45 @@ class MainWindow(QtWidgets.QMainWindow):
             else:
                 QtWidgets.QMessageBox.warning(self, "No Selection", "Please select an item from the table.")                
 
-    def handle_subwindow_focus_change(self, active_window):
-        if active_window is None:
-            self.actionItemMaintance.setVisible(False)
+    
+    def open_OrderLines_window(self):
+        active_window = self.get_active_window()
+        if isinstance(active_window, OrderMaintanceWindow):
+            order_number = active_window.get_order_number()
+            if order_number:
+                try:
+                    response = self.api_client.get(f"/order-lines/by-order/{order_number}")
+                    if response.status_code == 200:
+                        self.open_mdi_window(
+                            lambda: OrderLinesWindow(order_number=order_number, api_client=self.api_client, parent=self),
+                            "Order Lines",
+                            size=(800,300),
+                            extra_setup=lambda w, s: setattr(w, "parent_subwindow", s)
+                        )
+                    else:
+                        QtWidgets.QMessageBox.warning(self, "Error", "Could not load item from server.")
+                except requests.exceptions.RequestException:
+                    QtWidgets.QMessageBox.critical(self, "Error", "Could not connect to the server.")
+            else:
+                QtWidgets.QMessageBox.warning(self, "No Selection", "Please select an item from the table.")       
+
+
+
+
+    def handle_subwindow_focus_change(self, active_subwindow):
+        self.actionItemMaintance.setVisible(False)
+        self.actionOrderLines.setVisible(False)
+
+        if not active_subwindow:
             return
-        widget = active_window.widget()
-        if isinstance(widget, (ItemSearchWindow, LocationTypes, LocationSearchWindow,VendorSearchWindow,OrderSearchWindow)):
+
+        widget = active_subwindow.widget()
+
+        if isinstance(widget, (ItemSearchWindow, LocationTypes, LocationSearchWindow, VendorSearchWindow, OrderSearchWindow)):
             self.actionItemMaintance.setVisible(True)
-        else:
-            self.actionItemMaintance.setVisible(False)
+        elif isinstance(widget, OrderMaintanceWindow):
+            self.actionOrderLines.setVisible(True)
+
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)

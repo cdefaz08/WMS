@@ -25,9 +25,10 @@ async def get_order_line_by_id(line_id: int):
     return await order_line_crud.get_order_line_by_id(line_id)
 
 
-@router.get("/by-order/{order_id}", response_model=List[OrderLine])
-async def get_lines_by_order(order_id: int):
-    return await order_line_crud.get_lines_by_order_id(order_id)
+@router.get("/by-order/{order_number}")
+async def get_lines_by_order(order_number: str):
+    return await order_line_crud.get_lines_by_order_number(order_number)
+
 
 
 @router.put("/{line_id}", response_model=OrderLine)

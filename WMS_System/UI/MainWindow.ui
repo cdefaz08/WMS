@@ -147,6 +147,7 @@
    <addaction name="actionDiscard"/>
    <addaction name="separator"/>
    <addaction name="actionItemMaintance"/>
+   <addaction name="actionOrderLines"/>
   </widget>
   <action name="actionItem_Search">
    <property name="text">
@@ -337,6 +338,18 @@
   <action name="actionProximity">
    <property name="text">
     <string>Proximities</string>
+   </property>
+  </action>
+  <action name="actionOrderLines">
+   <property name="icon">
+    <iconset>
+     <normaloff>../icons/icons8-info-128 (1).png</normaloff>../icons/icons8-info-128 (1).png</iconset>
+   </property>
+   <property name="text">
+    <string>Order Lines</string>
+   </property>
+   <property name="toolTip">
+    <string>OrderLines</string>
    </property>
   </action>
  </widget>

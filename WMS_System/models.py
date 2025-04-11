@@ -304,13 +304,16 @@ orders = Table(
 order_lines = Table(
     "order_lines",
     metadata,
-    Column("id", Integer, primary_key=True, autoincrement=True),
-    Column("order_id", Integer, nullable=False),     # FK to orders
-    Column("item_id", Integer, nullable=False),      # FK to items
+    Column("id", Integer, primary_key=True),
+    Column("order_number", String(50), nullable=False),
+    Column("item_code", String(100), nullable=False),
+    Column("upc",Integer),
+    Column("alt_item_id1", Integer),
+    Column("alt_item_id2", Integer),
     Column("quantity", Integer, nullable=False),
-    Column("unit_price", Float),
-    Column("line_total", Float),  # Optional: calculated as quantity * unit_price
-    Column("comments", String(200)),
+    Column("unit_price", Float, nullable=False),
+    Column("line_total", Float, nullable=False),
+    Column("comments", String(200))
 )
 
 

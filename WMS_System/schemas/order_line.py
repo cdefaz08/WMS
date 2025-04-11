@@ -1,26 +1,22 @@
 from pydantic import BaseModel
 from typing import Optional
 
-
 class OrderLineBase(BaseModel):
-    order_id: int
-    item_id: int
+    order_number: str
+    item_code: str
+    upc: Optional[int]
+    alt_item_id1: Optional[int] = None
+    alt_item_id2: Optional[int]= None
     quantity: int
-    unit_price: Optional[float] = 0.0
-    line_total: Optional[float] = 0.0
+    unit_price: float
+    line_total: float
     comments: Optional[str] = None
-
 
 class OrderLineCreate(OrderLineBase):
     pass
 
-
-class OrderLineUpdate(BaseModel):
-    quantity: Optional[int]
-    unit_price: Optional[float]
-    line_total: Optional[float]
-    comments: Optional[str]
-
+class OrderLineUpdate(OrderLineBase):
+    pass
 
 class OrderLine(OrderLineBase):
     id: int

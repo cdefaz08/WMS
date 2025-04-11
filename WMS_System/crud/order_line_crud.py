@@ -7,16 +7,18 @@ from schemas.order_line import OrderLineCreate, OrderLineUpdate
 
 async def create_order_line(line_data: OrderLineCreate):
     data = line_data.dict()
-    if data["line_total"] == 0 and data["unit_price"]:
+
+    # Calcula line_total si aún no está definido
+    if data.get("line_total", 0) == 0 and data.get("unit_price"):
         data["line_total"] = data["quantity"] * data["unit_price"]
 
-    insert_query = insert(order_lines).values(**data)
-    await database.execute(insert_query)
-    return {"message": "Order line created successfully."}
+    query = insert(order_lines).values(**data).returning(order_lines)
+    return await database.fetch_one(query)
 
 
 async def get_order_lines():
-    return await database.fetch_all(select(order_lines))
+    query = select(order_lines)
+    return await database.fetch_all(query)
 
 
 async def get_order_line_by_id(line_id: int):
@@ -27,8 +29,8 @@ async def get_order_line_by_id(line_id: int):
     return result
 
 
-async def get_lines_by_order_id(order_id: int):
-    query = select(order_lines).where(order_lines.c.order_id == order_id)
+async def get_lines_by_order_number(order_number: str):
+    query = select(order_lines).where(order_lines.c.order_number == order_number)
     return await database.fetch_all(query)
 
 

@@ -1,4 +1,5 @@
 from database import database
+from sqlalchemy import select
 from models import items
 from schemas.Items import ItemCreate
 from fastapi import HTTPException
@@ -119,5 +120,7 @@ async def delete_item(item_id: int):
         raise HTTPException(status_code=404, detail="Item not found")
     return {"message": "Item successfully deleted!"}
 
-
+async def get_item_by_upc(upc: int):
+    query = select(items).where(items.c.upc == upc)
+    return await database.fetch_all(query)
     
