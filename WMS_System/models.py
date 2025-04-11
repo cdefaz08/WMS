@@ -1,4 +1,4 @@
-from sqlalchemy import Table, Column, Integer, String, Float, Boolean, DateTime,Time
+from sqlalchemy import Table, Column, Integer, String, Float, Boolean, DateTime,Time, ForeignKey
 from database import metadata , Base
 
 # Define the "items" table
@@ -318,6 +318,7 @@ order_lines = Table(
 
 
 
+
 receipts = Table(
     "receipts",
     metadata,
@@ -329,4 +330,82 @@ receipts = Table(
     Column("receipt_date", DateTime, nullable=False),
     Column("total_received_items", Integer),
     Column("comments", String(200)),
+
+    # 🔽 Nuevas columnas
+    Column("vendor_name", String(100)),
+    Column("release_num", String(50)),
+    Column("invoice_num", String(50)),
+    Column("status", String(50)),
+    Column("date_shipped", DateTime),
+    Column("date_expected", DateTime),
+    Column("date_received", DateTime),
+    Column("label_form", String(50)),
+    Column("document_form", String(50)),
+    Column("close_receipt", Boolean, default=False),
+    Column("carrier", String(100)),
+    Column("seal_num", String(50)),
+    Column("created_by", Integer),  # Foreign key to users
+    Column("created_date", DateTime),
+
+    # Ship From
+    Column("ship_from_company", String(100)),
+    Column("ship_from_address", String(150)),
+    Column("ship_from_address2", String(150)),
+    Column("ship_from_city", String(50)),
+    Column("ship_from_state", String(50)),
+    Column("ship_from_zip", String(20)),
+    Column("ship_from_country", String(50)),
+    Column("ship_from_contact_name", String(100)),
+    Column("ship_from_contact_phone", String(30)),
+    Column("ship_from_tax_id", String(30)),
+
+    # Bill To
+    Column("bill_to_company", String(100)),
+    Column("bill_to_address", String(150)),
+    Column("bill_to_address2", String(150)),
+    Column("bill_to_city", String(50)),
+    Column("bill_to_state", String(50)),
+    Column("bill_to_zip", String(20)),
+    Column("bill_to_country", String(50)),
+    Column("bill_to_contact_name", String(100)),
+    Column("bill_to_contact_phone", String(30)),
+    Column("bill_to_tax_id", String(30)),
+
+    # Custom fields
+    Column("custom_1", String(100)),
+    Column("custom_2", String(100)),
+    Column("custom_3", String(100)),
+    Column("custom_4", String(100)),
+    Column("custom_5", String(100)),
+    Column("custom_6", String(100)),
+    Column("custom_7", String(100)),
+    Column("custom_8", String(100)),
+    Column("custom_9", String(100)),
+    Column("custom_10", String(100)),
+)
+
+receipt_lines = Table(
+    "receipt_lines",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+
+    # 👇 Foreign key using receipt_number instead of receipt_id
+    Column("receipt_number", String(50), ForeignKey("receipts.receipt_number"), nullable=False),
+
+    Column("line_number", Integer),
+    Column("item_code", String(50), nullable=False),
+    Column("description", String(200)),
+    Column("upc", String(50)),
+    Column("quantity_received", Integer, nullable=False),
+    Column("unit_of_measure", String(20)),
+    Column("unit_price", Float),
+    Column("total_price", Float),
+    Column("lot_number", String(50)),
+    Column("expiration_date", DateTime),
+    Column("location_received", String(50)),
+    Column("comments", String(200)),
+
+    Column("custom_1", String(100)),
+    Column("custom_2", String(100)),
+    Column("custom_3", String(100)),
 )

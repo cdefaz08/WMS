@@ -24,7 +24,8 @@ order_line_routes,
 proximity,
 order_type,
 document_form,
-label_form)
+label_form,receipt,
+receipt_line)
 
 # Initialize FastAPI
 app = FastAPI()
@@ -91,4 +92,6 @@ app.include_router(proximity.router)
 app.include_router(order_type.router)
 app.include_router(document_form.router)
 app.include_router(label_form.router)
+app.include_router(receipt.router)
+app.include_router(receipt_line.router)
 

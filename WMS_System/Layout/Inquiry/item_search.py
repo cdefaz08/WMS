@@ -110,7 +110,7 @@ class ItemSearchWindow(QtWidgets.QDialog, Ui_ItemSearch):
         self.tableViewItemSearch.setColumnWidth(0, 160)   # Item ID
         self.tableViewItemSearch.setColumnWidth(1, 200)   # Description
         self.tableViewItemSearch.setColumnWidth(2, 120)   # UPC
-        self.tableViewItemSearch.setColumnWidth(3, 80)    # Price
+        self.tableViewItemSearch.setColumnWidth(3, 100)    # Price
         self.tableViewItemSearch.setColumnWidth(4, 80)    # Active
         self.tableViewItemSearch.setColumnWidth(5, 120)   # Item Class
         self.tableViewItemSearch.setColumnWidth(6, 130)   # Alt Item id1
