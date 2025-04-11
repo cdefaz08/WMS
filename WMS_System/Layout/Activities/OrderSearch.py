@@ -21,11 +21,15 @@ class OrderSearchWindow(QtWidgets.QDialog, Ui_OrderSearch):
             self.dateEdit_OrderDateFrom,
             self.dateEdit_OrderDateTo,
             self.dateEdit_ShipDateFrom,
-            self.dateEdit_ShipDateTo
+            self.dateEdit_ShipDateTo,
         ]:
             date_edit.setDisplayFormat("MM/dd/yy")
             date_edit.setSpecialValueText("")
-            date_edit.setDate(QtCore.QDate(2000, 1, 1))
+            current_year = QtCore.QDate.currentDate().year()
+            date_edit.setDate(QtCore.QDate(current_year, 1, 1))
+
+            date_edit.setCalendarPopup(True)  # ✅ ← Añade esta línea
+
 
     def search_orders(self):
         filters = {
@@ -43,7 +47,11 @@ class OrderSearchWindow(QtWidgets.QDialog, Ui_OrderSearch):
         ship_from = self.dateEdit_ShipDateFrom.date().toPyDate()
         ship_to = self.dateEdit_ShipDateTo.date().toPyDate()
 
-        default_date = QtCore.QDate(2000, 1, 1).toPyDate()
+        # Año actual como referencia de fecha por defecto
+        current_year = QtCore.QDate.currentDate().year()
+        default_date = QtCore.QDate(current_year, 1, 1).toPyDate()
+
+        # Limpiar filtros si no fueron modificados
         order_from = None if order_from == default_date else order_from
         order_to = None if order_to == default_date else order_to
         ship_from = None if ship_from == default_date else ship_from

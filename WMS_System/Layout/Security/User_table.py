@@ -1,7 +1,7 @@
 from PyQt5 import QtWidgets, uic , QtCore
 from config import API_BASE_URL
 import requests
-from Layout.Create_NewUser import NewUserDialog  # Import the new dialog
+from Layout.Security.Create_NewUser import NewUserDialog  # Import the new dialog
 
 class UsersTableWindow(QtWidgets.QDialog):
     def __init__(self,api_client = None,parent=None):

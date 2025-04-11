@@ -2,25 +2,25 @@ from PyQt5 import QtWidgets, uic, QtCore
 from config import API_BASE_URL
 import requests
 import sys
-from Layout.item_search import ItemSearchWindow
-from Layout.Location_search import LocationSearchWindow
-from Layout.User_table import UsersTableWindow
-from Layout.itemMaintanceDialog import ItemMaintanceDialog
-from Layout.add_item_dialog import AddItemDialog
-from Layout.LocationType_Win import LocationTypes
-from Layout.LocationType_Maintance import LocationType_Maintance
-from Layout.AddLocationType import AddLocationType
-from Layout.RuleClases import RuleClases
-from Layout.LocationMaintance import LocationMaintance
-from Layout.add_location import AddLocationDialog
-from Layout.Proximities import ProximityWindow
-from Layout.Vendors import VendorSearchWindow
-from Layout.VendorMaintane import VendorMaintanceDialog
-from Layout.order_type import OrderTypeWindow
-from Layout.label_forms_window import FormManager
-from Layout.OrderSearch import OrderSearchWindow
-from Layout.OrderMaintance import OrderMaintanceWindow
-from Layout.OrderLinesWindow import OrderLinesWindow
+from Layout.Inquiry.item_search import ItemSearchWindow
+from Layout.Inquiry.Location_search import LocationSearchWindow
+from Layout.Security.User_table import UsersTableWindow
+from Layout.Maintance.itemMaintanceDialog import ItemMaintanceDialog
+from Layout.Maintance.add_item_dialog import AddItemDialog
+from Layout.configurations.LocationType_Win import LocationTypes
+from Layout.Maintance.LocationType_Maintance import LocationType_Maintance
+from Layout.Maintance.AddLocationType import AddLocationType
+from Layout.configurations.RuleClases import RuleClases
+from Layout.Maintance.LocationMaintance import LocationMaintance
+from Layout.Maintance.add_location import AddLocationDialog
+from Layout.configurations.Proximities import ProximityWindow
+from Layout.configurations.Vendors import VendorSearchWindow
+from Layout.configurations.VendorMaintane import VendorMaintanceDialog
+from Layout.configurations.order_type import OrderTypeWindow
+from Layout.configurations.label_forms_window import FormManager
+from Layout.Activities.OrderSearch import OrderSearchWindow
+from Layout.Activities.OrderMaintance import OrderMaintanceWindow
+from Layout.Activities.OrderLinesWindow import OrderLinesWindow
 from api_client import APIClient
 
 
@@ -213,8 +213,12 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.add_new_row()
         elif isinstance(active_window, OrderSearchWindow):
             self.open_mdi_window(OrderMaintanceWindow, "Add New Order", size=(1072, 617))
-        elif isinstance(active_window,OrderMaintanceWindow):
-            active_window.add_row()
+        elif isinstance(active_window, OrderMaintanceWindow):
+            current_tab = active_window.tabWidget.currentWidget()
+            if isinstance(current_tab, OrderLinesWindow):
+                current_tab.add_new_blank_row()
+            else:
+                active_window.add_new_row()
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
 
@@ -245,9 +249,12 @@ class MainWindow(QtWidgets.QMainWindow):
         elif isinstance(active_window, FormManager):
             active_window.save_changes()
         elif isinstance(active_window, OrderMaintanceWindow):
-            active_window.save_order()
-        elif isinstance(active_window,OrderLinesWindow):
-            active_window.save_changes()
+            current_tab = active_window.tabWidget.currentWidget()
+            if isinstance(current_tab, OrderLinesWindow):
+                current_tab.save_changes()
+            else:
+                active_window.save_order()
+
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
 
@@ -269,8 +276,12 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.delete_selected_row()
         elif isinstance(active_window, FormManager):
             active_window.delete_selected_row()
-        elif isinstance(active_window,OrderMaintanceWindow):
-            active_window.delete_selected_row()
+        elif isinstance(active_window, OrderMaintanceWindow):
+            current_tab = active_window.tabWidget.currentWidget()
+            if isinstance(current_tab, OrderLinesWindow):
+                current_tab.delete_selected_row()
+            else:
+                active_window.delete_selected()
         else:
             QtWidgets.QMessageBox.warning(self,"No Active Window", "Please select a window First")
 
@@ -367,7 +378,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     if response.status_code == 200:
                         location_data = response.json()
                         self.open_mdi_window(
-                            lambda: LocationMaintance(location_data=location_data, parent=self),
+                            lambda: LocationMaintance(api_client=self.api_client, location_data=location_data, parent=self),
                             "Location Maintanance",
                             size=(700, 600),
                             extra_setup=lambda w, s: setattr(w, "parent_subwindow", s)

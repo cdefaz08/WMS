@@ -12,6 +12,14 @@ class OrderLinesWindow(QtWidgets.QWidget, Ui_Form):
         self.headers = ["id", "upc", "item_code", "quantity", "unit_price", "line_total", "comments"]
         self.tableWidget_OrderLines.setColumnCount(len(self.headers))
         self.tableWidget_OrderLines.setHorizontalHeaderLabels([h.upper().replace("_", " ") for h in self.headers])
+        self.tableWidget_OrderLines.setColumnHidden(0, True) #ID
+        self.tableWidget_OrderLines.setColumnWidth(1, 180)   # UPC
+        self.tableWidget_OrderLines.setColumnWidth(2, 180)  # ITEM CODE
+        self.tableWidget_OrderLines.setColumnWidth(3, 100)   # QUANTITY
+        self.tableWidget_OrderLines.setColumnWidth(4, 110)   # UNIT PRICE
+        self.tableWidget_OrderLines.setColumnWidth(5, 100)  # LINE TOTAL
+        self.tableWidget_OrderLines.setColumnWidth(6, 200)  # COMMENTS
+
         self.tableWidget_OrderLines.verticalHeader().setVisible(False)
         self.tableWidget_OrderLines.horizontalHeader().setStretchLastSection(True)
 
@@ -23,11 +31,14 @@ class OrderLinesWindow(QtWidgets.QWidget, Ui_Form):
         response = self.api_client.get(url)
         if response.status_code == 200:
             self.original_data = response.json()
+            self.tableWidget_OrderLines.blockSignals(True)  # 👈 Bloquear señales
             self.tableWidget_OrderLines.setRowCount(0)
             for row_data in self.original_data:
                 self.add_row(row_data)
+            self.tableWidget_OrderLines.blockSignals(False)  # 👈 Habilitar señales
         else:
             QtWidgets.QMessageBox.critical(self, "Error", "Failed to load order lines.")
+
 
     def add_row(self, data=None):
         row = self.tableWidget_OrderLines.rowCount()
@@ -67,6 +78,16 @@ class OrderLinesWindow(QtWidgets.QWidget, Ui_Form):
         col = item.column()
         key = self.headers[col]
 
+        # 🚫 Evitar edición manual en ITEM CODE
+        if key == "item_code":
+            QtWidgets.QMessageBox.warning(self, "No permitido", "No puedes modificar directamente el ITEM CODE.")
+            self.tableWidget_OrderLines.blockSignals(True)
+            original_value = self.tableWidget_OrderLines.item(row, col)
+            if original_value:
+                original_value.setText("")  # o puedes volver a poner el valor original si lo tienes guardado
+            self.tableWidget_OrderLines.blockSignals(False)
+            return
+
         if key == "upc":
             self.handle_upc_change(item, row)
         elif key == "quantity":
@@ -95,7 +116,9 @@ class OrderLinesWindow(QtWidgets.QWidget, Ui_Form):
 
         self.tableWidget_OrderLines.blockSignals(True)
 
-        self.tableWidget_OrderLines.setItem(row, 2, QtWidgets.QTableWidgetItem(str(item_code)))
+        item_code_item = QtWidgets.QTableWidgetItem(str(item_code))
+        item_code_item.setFlags(item_code_item.flags() & ~QtCore.Qt.ItemIsEditable)
+        self.tableWidget_OrderLines.setItem(row, 2, item_code_item)
 
         price_item = QtWidgets.QTableWidgetItem(str(unit_price))
         price_item.setFlags(price_item.flags() & ~QtCore.Qt.ItemIsEditable)
@@ -109,16 +132,27 @@ class OrderLinesWindow(QtWidgets.QWidget, Ui_Form):
         try:
             original = self.original_data[row_index]
         except IndexError:
-            return True  # New row that didn’t exist before
+            return True  # Nueva fila que no existía antes
 
         for key in self.headers:
             if key == "id":
-                continue  # Skip id in comparison
+                continue  # Saltar ID
+
             new_value = str(new_row.get(key, "")).strip()
             original_value = str(original.get(key, "")).strip()
-            if new_value != original_value:
-                return True
-        return False
+
+            # 🧽 Normalización para comparar números iguales como strings
+            try:
+                if float(new_value) == float(original_value):
+                    continue
+            except ValueError:
+                if new_value == original_value:
+                    continue
+
+            return True  # Diferente
+
+        return False  # Sin cambios
+
 
     def update_line_total(self, row, unit_price=None):
         quantity_item = self.tableWidget_OrderLines.item(row, 3)

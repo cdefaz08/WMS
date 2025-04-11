@@ -20,6 +20,20 @@ QLineEdit:focus, QTextEdit:focus, QPlainTextEdit:focus {
     background-color: #fffaf2;
 }
 
+QDateEdit {
+    background-color: #ffffff;
+    color: #222831;
+    border: 1px solid #cccccc;
+    border-radius: 3px;
+    padding: 3px;
+}
+
+QDateEdit:focus {
+    border: 1px solid #fd7014;
+    background-color: #fffaf2;
+}
+
+
 /* ========== COMBOBOX ========== */
 QComboBox {
     background-color: #ffffff;

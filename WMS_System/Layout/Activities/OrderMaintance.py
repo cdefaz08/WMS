@@ -3,7 +3,7 @@ from Layout.UI_PY.UI_OrderMaintance import Ui_OrderMaintance
 import requests
 from config import API_BASE_URL
 from datetime import datetime
-from Layout.OrderLinesWindow import OrderLinesWindow
+from Layout.Activities.OrderLinesWindow import OrderLinesWindow
 
 class OrderMaintanceWindow(QtWidgets.QDialog, Ui_OrderMaintance):
     def __init__(self,api_client = None, order_data=None, parent=None):
@@ -11,6 +11,15 @@ class OrderMaintanceWindow(QtWidgets.QDialog, Ui_OrderMaintance):
         self.setupUi(self)
         self.api_client = api_client
         self.order_data = order_data
+        self.lineEdit_CreatedBy.setReadOnly(True)
+        self.lineEdit_Status.setReadOnly(True)
+        self.lineEdit_CreatedBy.setStyleSheet("background-color: #f0f0f0;")
+        self.lineEdit_Status.setStyleSheet("background-color: #f0f0f0;")
+        self.dateEdit_OrderDate.setCalendarPopup(True)
+        self.dateEdit_ShipDate.setCalendarPopup(True)
+
+
+
         self.original_data = order_data.copy() if order_data else {}
 
         self.dateEdit_OrderDate.setDisplayFormat("MM/dd/yyyy")
@@ -32,13 +41,17 @@ class OrderMaintanceWindow(QtWidgets.QDialog, Ui_OrderMaintance):
         self.load_order_dropdowns()
 
     def init_order_lines_tab_if_ready(self):
-        # Only show order lines if order_number exists
+        if not self.order_data:
+            self.tabWidget.setTabEnabled(self.tabWidget.count() - 1, False)
+            return  # ⛔️ No hay datos aún, no hagas nada
+
         order_number = self.order_data.get("order_number")
         if order_number:
             self.order_lines_tab = OrderLinesWindow(order_number=order_number, api_client=self.api_client)
             self.tabWidget.addTab(self.order_lines_tab, "Order Lines")
         else:
-            self.tabWidget.setTabEnabled(self.tabWidget.count() - 1, False)  # Optional: disable last tab if unsaved
+            self.tabWidget.setTabEnabled(self.tabWidget.count() - 1, False)
+
 
     def load_order_dropdowns(self):
         try:
@@ -119,6 +132,26 @@ class OrderMaintanceWindow(QtWidgets.QDialog, Ui_OrderMaintance):
         self.lineEdit_custom_4.setText(data.get("custom_4", ""))
         self.lineEdit_custom_5.setText(data.get("custom_5", ""))
 
+    def has_unsaved_changes(self):
+        current = self.collect_form_data()
+        original = self.original_data or {}
+
+        for key in current:
+            current_value = str(current.get(key, "")).strip()
+            original_value = str(original.get(key, "")).strip()
+
+            # ✅ Normalizar fechas con hora tipo ISO
+            if "date" in key.lower() and "T" in original_value:
+                original_value = original_value.split("T")[0]
+
+            if current_value != original_value:
+                print(f"🔄 Diferencia en '{key}': '{original_value}' vs '{current_value}'")
+                return True
+
+        return False
+
+
+
     def safe_parse_date(self, date_str):
         if date_str:
             try:
@@ -128,7 +161,10 @@ class OrderMaintanceWindow(QtWidgets.QDialog, Ui_OrderMaintance):
         return QtCore.QDate.currentDate()
 
     def collect_form_data(self):
-        def get(field): return getattr(self, f"lineEdit_{field}", None).text().strip()
+        def get(field):
+            widget = getattr(self, f"lineEdit_{field}", None)
+            return widget.text().strip() if widget else ""
+
         def get_combo(field): return getattr(self, f"comboBox_{field}", None).currentText().strip()
         def get_date(widget): return widget.date().toString("yyyy-MM-dd")
 
@@ -222,7 +258,7 @@ class OrderMaintanceWindow(QtWidgets.QDialog, Ui_OrderMaintance):
 
 
     def closeEvent(self, event):
-        if self.get_updated_fields():
+        if self.has_unsaved_changes():
             reply = QtWidgets.QMessageBox.question(
                 self,
                 "Unsaved Changes",
@@ -230,7 +266,9 @@ class OrderMaintanceWindow(QtWidgets.QDialog, Ui_OrderMaintance):
                 QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
                 QtWidgets.QMessageBox.No
             )
-            if reply == QtWidgets.QMessageBox.No:
+            if reply == QtWidgets.QMessageBox.Yes:
+                event.accept()
+            else:
                 event.ignore()
-                return
-        event.accept()
+        else:
+            event.accept()
