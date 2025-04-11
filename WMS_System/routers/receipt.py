@@ -9,8 +9,11 @@ router = APIRouter(prefix="/receipts", tags=["Receipts"],
 
 # 🔹 Crear un nuevo recibo
 @router.post("/", response_model=dict)
-async def create_receipt_endpoint(receipt: ReceiptCreate):
-    return await receipt_crud.create_receipt(receipt)
+async def create_receipt_endpoint(
+    receipt: ReceiptCreate,
+    current_user: dict = Depends(get_current_user)
+):
+    return await receipt_crud.create_receipt(receipt, created_by=current_user["sub"])
 
 
 # 🔹 Obtener todos los recibos
@@ -20,9 +23,10 @@ async def get_all_receipts_endpoint():
 
 
 # 🔹 Obtener recibo por ID
-@router.get("/id/{receipt_id}", response_model=Receipt)
+@router.get("/{receipt_id}", response_model=Receipt)
 async def get_receipt_by_id_endpoint(receipt_id: int):
     return await receipt_crud.get_receipt_by_id(receipt_id)
+
 
 
 # 🔹 Obtener recibo por número

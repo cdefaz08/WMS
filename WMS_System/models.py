@@ -326,7 +326,7 @@ receipts = Table(
     Column("receipt_number", String(50), nullable=False, unique=True),
     Column("po_id", Integer, nullable=False),  # Foreign key to purchase_orders
     Column("vendor_id", Integer, nullable=False),  # Foreign key to vendors
-    Column("received_by", Integer),  # Foreign key to users
+    Column("received_by", String(50)),  # Foreign key to users
     Column("receipt_date", DateTime, nullable=False),
     Column("total_received_items", Integer),
     Column("comments", String(200)),
@@ -344,7 +344,7 @@ receipts = Table(
     Column("close_receipt", Boolean, default=False),
     Column("carrier", String(100)),
     Column("seal_num", String(50)),
-    Column("created_by", Integer),  # Foreign key to users
+    Column("created_by", String(50)),
     Column("created_date", DateTime),
 
     # Ship From
@@ -396,8 +396,10 @@ receipt_lines = Table(
     Column("item_code", String(50), nullable=False),
     Column("description", String(200)),
     Column("upc", String(50)),
+    Column("quantity_ordered", Integer, nullable=False),
+    Column("quantity_expected", Integer, nullable=False),
     Column("quantity_received", Integer, nullable=False),
-    Column("unit_of_measure", String(20)),
+    Column("uom", String(20)),
     Column("unit_price", Float),
     Column("total_price", Float),
     Column("lot_number", String(50)),

@@ -21,6 +21,9 @@ from Layout.configurations.label_forms_window import FormManager
 from Layout.Activities.OrderSearch import OrderSearchWindow
 from Layout.Activities.OrderMaintance import OrderMaintanceWindow
 from Layout.Activities.OrderLinesWindow import OrderLinesWindow
+from Layout.Activities.ReceiptSearchWindow import ReceiptSearchWindow
+from Layout.Activities.ReceiptMaintance import ReceiptMaintanceWindow
+from Layout.Activities.ReceiptLinesWindow import ReceiptLinesWindow
 from api_client import APIClient
 
 
@@ -47,6 +50,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionOrder_Types = self.findChild(QtWidgets.QAction, "actionOrder_Types")
         self.actionForms = self.findChild(QtWidgets.QAction, "actionForms")
         self.actionOrder_Search = self.findChild(QtWidgets.QAction, "actionOrder_Search")
+        self.actionReceipt_Search = self.findChild(QtWidgets.QAction, "actionReceipt_Search")
 
 
 
@@ -62,6 +66,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionOrder_Types.triggered.connect(self.open_order_type_window)
         self.actionForms.triggered.connect(self.open_forms_window)
         self.actionOrder_Search.triggered.connect(self.open_Order_Search)
+        self.actionReceipt_Search.triggered.connect(self.open_Receipt_Search_window)
 
 
     def open_mdi_window(self, widget_class, window_title, size=(600, 400),
@@ -146,6 +151,14 @@ class MainWindow(QtWidgets.QMainWindow):
             widget.destroyed.connect(self.hide_item_toolbar_action)
         self.open_mdi_window(OrderSearchWindow, "Order Search", size=(1089, 720), extra_setup=setup,min_size=(697, 459), max_size=(1081, 874))
 
+    def open_Receipt_Search_window(self):
+        def setup(widget, sub_window):
+            self.mdiArea.subWindowActivated.connect(self.handle_subwindow_focus_change)
+            self.actionItemMaintance.setVisible(True)
+            widget.destroyed.connect(self.hide_item_toolbar_action)
+        self.open_mdi_window(ReceiptSearchWindow, "Receipt Search", size=(1089, 720), extra_setup=setup,min_size=(697, 459), max_size=(1081, 874))
+
+
     def open_location_search(self):
         def setup(widget, sub_window):
             self.mdiArea.subWindowActivated.connect(self.handle_subwindow_focus_change)
@@ -229,6 +242,14 @@ class MainWindow(QtWidgets.QMainWindow):
                 current_tab.add_new_blank_row()
             else:
                 active_window.add_new_row()
+        elif isinstance(active_window, ReceiptSearchWindow):
+            self.open_mdi_window(ReceiptMaintanceWindow, "Add New Receipt", size=(1072, 700),min_size=(697, 459), max_size=(1072, 700),)
+        elif isinstance(active_window, ReceiptMaintanceWindow):
+            current_tab = active_window.tabWidget.currentWidget()
+            if isinstance(current_tab, ReceiptLinesWindow):
+                current_tab.add_new_blank_row()
+            else:
+                active_window.add_new_row()
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
 
@@ -264,6 +285,12 @@ class MainWindow(QtWidgets.QMainWindow):
                 current_tab.save_changes()
             else:
                 active_window.save_order()
+        elif isinstance(active_window, ReceiptMaintanceWindow):
+            current_tab = active_window.tabWidget.currentWidget()
+            if isinstance(current_tab, ReceiptLinesWindow):
+                current_tab.save_changes()
+            else:
+                active_window.save_receipt()
 
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
@@ -292,6 +319,14 @@ class MainWindow(QtWidgets.QMainWindow):
                 current_tab.delete_selected_row()
             else:
                 active_window.delete_selected()
+        elif isinstance(active_window, ReceiptMaintanceWindow):
+            current_tab = active_window.tabWidget.currentWidget()
+            if isinstance(current_tab, ReceiptLinesWindow):
+                current_tab.delete_selected_row()
+            else:
+                active_window.delete_row()
+        elif isinstance(active_window,ReceiptSearchWindow):
+            active_window.delete_selected_receipt()
         else:
             QtWidgets.QMessageBox.warning(self,"No Active Window", "Please select a window First")
 
@@ -352,6 +387,25 @@ class MainWindow(QtWidgets.QMainWindow):
                             lambda: OrderMaintanceWindow(order_data=order_data,api_client=self.api_client, parent=self),
                             "Order Maintanance",
                             size=(1072, 617) ,min_size=(697, 459), max_size=(1072, 617),
+                            extra_setup=lambda w, s: setattr(w, "parent_subwindow", s)
+                        )
+                    else:
+                        QtWidgets.QMessageBox.warning(self, "Error", "Could not load item from server.")
+                except requests.exceptions.RequestException:
+                    QtWidgets.QMessageBox.critical(self, "Error", "Could not connect to the server.")
+            else:
+                QtWidgets.QMessageBox.warning(self, "No Selection", "Please select an item from the table.")
+        elif isinstance(active_window, ReceiptSearchWindow):
+            receipt_id = active_window.get_selected_receipt_id()
+            if receipt_id:
+                try:
+                    response = self.api_client.get(f"/receipts/{receipt_id}")
+                    if response.status_code == 200:
+                        receipt_data = response.json()
+                        self.open_mdi_window(
+                            lambda: ReceiptMaintanceWindow(receipt_data=receipt_data, api_client=self.api_client, parent=self),
+                            "Receipt Maintanance",
+                            size=(1072, 700),min_size=(697, 459), max_size=(1072, 700),
                             extra_setup=lambda w, s: setattr(w, "parent_subwindow", s)
                         )
                     else:
@@ -440,9 +494,24 @@ class MainWindow(QtWidgets.QMainWindow):
                     QtWidgets.QMessageBox.critical(self, "Error", "Could not connect to the server.")
             else:
                 QtWidgets.QMessageBox.warning(self, "No Selection", "Please select an item from the table.")       
-
-
-
+        elif isinstance(active_window, ReceiptMaintanceWindow):
+            receipt_number = active_window.get_receipt_number()
+            if receipt_number:
+                try:
+                    response = self.api_client.get(f"/receipt-lines/by-receipt/{receipt_number}")
+                    if response.status_code == 200:
+                        self.open_mdi_window(
+                            lambda: ReceiptLinesWindow(receipt_number=receipt_number, api_client=self.api_client, parent=self),
+                            "Receipt Lines",
+                            size=(800,300),min_size=(697, 459), max_size=(1265, 374),
+                            extra_setup=lambda w, s: setattr(w, "parent_subwindow", s)
+                        )
+                    else:
+                        QtWidgets.QMessageBox.warning(self, "Error", "Could not load item from server.")
+                except requests.exceptions.RequestException:
+                    QtWidgets.QMessageBox.critical(self, "Error", "Could not connect to the server.")
+            else:
+                QtWidgets.QMessageBox.warning(self, "No Selection", "Please select an item from the table.")
 
     def handle_subwindow_focus_change(self, active_subwindow):
         self.actionItemMaintance.setVisible(False)
@@ -453,9 +522,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
         widget = active_subwindow.widget()
 
-        if isinstance(widget, (ItemSearchWindow, LocationTypes, LocationSearchWindow, VendorSearchWindow, OrderSearchWindow)):
+        if isinstance(widget, (ItemSearchWindow, LocationTypes, LocationSearchWindow, VendorSearchWindow, OrderSearchWindow,ReceiptSearchWindow)):
             self.actionItemMaintance.setVisible(True)
-        elif isinstance(widget, OrderMaintanceWindow):
+        elif isinstance(widget, (OrderMaintanceWindow,ReceiptMaintanceWindow)):
             self.actionOrderLines.setVisible(True)
 
 

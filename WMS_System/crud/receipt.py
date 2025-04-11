@@ -3,18 +3,22 @@ from sqlalchemy import select, insert, update, delete
 from models import receipts
 from schemas.receipt_schema import ReceiptCreate
 from database import database
+from datetime import datetime
 
 
-# ✅ Crear un nuevo recibo
-async def create_receipt(new_receipt: ReceiptCreate):
+# Crear un nuevo recibo
+async def create_receipt(new_receipt: ReceiptCreate, created_by: int):
     # Validar que no exista un recibo con el mismo número
     query = select(receipts).where(receipts.c.receipt_number == new_receipt.receipt_number)
     existing = await database.fetch_one(query)
-
     if existing:
         raise HTTPException(status_code=400, detail="Receipt number already exists.")
 
-    insert_query = insert(receipts).values(**new_receipt.dict())
+    insert_query = insert(receipts).values({
+        **new_receipt.dict(),
+        "created_by": created_by,
+        "created_date": datetime.utcnow()  # ✅ Add created date here
+    })
     inserted_id = await database.execute(insert_query)
 
     return {"id": inserted_id, "message": "Receipt created successfully."}
