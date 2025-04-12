@@ -236,7 +236,7 @@ class MainWindow(QtWidgets.QMainWindow):
         elif isinstance(active_window, FormManager):
             active_window.add_new_row()
         elif isinstance(active_window, OrderSearchWindow):
-            self.open_mdi_window(OrderMaintanceWindow, "Add New Order", size=(1072, 617))
+            self.open_mdi_window(OrderMaintanceWindow, "Add New Order", size=(1200, 612))
         elif isinstance(active_window, OrderMaintanceWindow):
             current_tab = active_window.tabWidget.currentWidget()
             if isinstance(current_tab, OrderLinesWindow):
