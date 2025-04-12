@@ -85,12 +85,17 @@ class ItemConfigurationWindow(QtWidgets.QWidget):
         def input(name):
             w = QtWidgets.QLineEdit()
             w.setObjectName(name)
-            w.setValidator(QtGui.QIntValidator(0, 999999))
-            w.setMaxLength(6)  # Asegúrate de que el límite no sea 2  # 💡 Allow up to 6-digit numbers
-            return w
+            if name != "input_config":  # ✅ Permitir texto libre en 'Config Code'
+                w.setValidator(QtGui.QIntValidator(0, 999999))
+            return w  # Asegúrate de que el límite no sea 2  # 💡 Allow up to 6-digit numbers
         formLayout.addWidget(QtWidgets.QLabel("Config Code:"), 0, 0)
         formLayout.addWidget(input("input_config"), 0, 1)
-        formLayout.addWidget(QtWidgets.QCheckBox("Default Config"), 1, 0)
+        default_checkbox = QtWidgets.QCheckBox("Default Config")
+        default_checkbox.toggled.connect(
+            lambda checked, box=group_box, cb=default_checkbox: self.handle_default_checkbox_change(cb, checked)
+        )
+
+        formLayout.addWidget(default_checkbox, 1, 0)
         formLayout.addWidget(QtWidgets.QCheckBox("Cubiscaned"), 2, 0)
         formLayout.addWidget(QtWidgets.QLabel("Cases per Pallet:"), 0, 2)
         formLayout.addWidget(input("input_cases"), 0, 3)
@@ -99,6 +104,7 @@ class ItemConfigurationWindow(QtWidgets.QWidget):
         formLayout.addWidget(QtWidgets.QLabel("Inners per Piece:"), 2, 2)
         formLayout.addWidget(input("input_inners"), 2, 3)
         layout.addLayout(formLayout)
+
 
         grid = QtWidgets.QGridLayout()
         group_titles = ["Pallet", "Case", "Piece", "Inner"]
@@ -156,6 +162,18 @@ class ItemConfigurationWindow(QtWidgets.QWidget):
         self.update_block_style(group_box, selected=False)
         return group_box
     
+    def handle_default_checkbox_change(self, checked_box, checked):
+        if checked:
+            for block in self.config_blocks:
+                default_checkbox = block.findChildren(QtWidgets.QCheckBox)[0]  # Asegúrate de que este sea el de "Default Config"
+                if default_checkbox is not checked_box:
+                    default_checkbox.blockSignals(True)
+                    default_checkbox.setChecked(False)
+                    default_checkbox.blockSignals(False)
+                    print(f"Selected default checkbox: {checked_box} → {checked}")
+
+
+
     def select_config_block(self, selected_box):
         for block in self.config_blocks:
             is_selected = block == selected_box
@@ -183,14 +201,6 @@ class ItemConfigurationWindow(QtWidgets.QWidget):
 
 
     def save_all_configurations(self):
-        has_default = any(
-            block.findChildren(QtWidgets.QCheckBox)[0].isChecked() for block in self.config_blocks
-        )
-
-        if not has_default:
-            QtWidgets.QMessageBox.warning(self, "Warning", "At least one configuration must be marked as Default.")
-            return
-
         for block in self.config_blocks:
             data = self.extract_data_from_block(block)
             config_id = getattr(block, "config_id", None)
@@ -199,14 +209,31 @@ class ItemConfigurationWindow(QtWidgets.QWidget):
                 if config_id:
                     response = self.api_client.put(f"/item-config/{config_id}", json=data)
                 else:
+                    print("📤 Sending data to API:", data)
                     response = self.api_client.post(f"/item-config", json=data)
 
                 if response.status_code in (200, 201):
                     QtWidgets.QMessageBox.information(self, "Success", "Configuration saved successfully.")
+                    
+                    # Si esta configuración está marcada como default, actualiza el item
+                    if data.get("is_default"):
+                        try:
+                            update_response = self.api_client.put(
+                                f"/items/{self.item_name}",
+                                json={"default_cfg": data.get("configuration_name")}
+                            )
+                            if update_response.status_code != 200:
+                                QtWidgets.QMessageBox.warning(self, "Warning", "Failed to update default config on item.")
+                        except Exception as e:
+                            QtWidgets.QMessageBox.critical(self, "Error", f"Error updating item default config: {e}")
+
                 else:
                     QtWidgets.QMessageBox.warning(self, "Failed", "Error saving configuration.")
+
             except Exception as e:
                 QtWidgets.QMessageBox.critical(self, "Error", str(e))
+
+
 
 
 
