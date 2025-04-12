@@ -64,7 +64,7 @@ class Ui_Form(object):
 
                 combo = QtWidgets.QComboBox()
                 combo.setMinimumHeight(25)
-                column_layout.addWidget(combo)
+                combo.setObjectName(f"{group_title.lower()}_{label_text.lower()}_uom")  # Ej: pallet_weight_uom
 
             column_widget = QtWidgets.QWidget()
             column_widget.setLayout(column_layout)

@@ -294,6 +294,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 current_tab.save_changes()
             else:
                 active_window.save_receipt()
+        elif isinstance(active_window,ItemConfigurationWindow):
+            active_window.save_all_configurations()
 
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
@@ -330,6 +332,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 active_window.delete_row()
         elif isinstance(active_window,ReceiptSearchWindow):
             active_window.delete_selected_receipt()
+        elif isinstance(active_window,ItemConfigurationWindow):
+            active_window.delete_selected_configuration()
         else:
             QtWidgets.QMessageBox.warning(self,"No Active Window", "Please select a window First")
 
@@ -520,18 +524,33 @@ class MainWindow(QtWidgets.QMainWindow):
             if item_id:
                 try:
                     response = self.api_client.get(f"/item-config/items/{item_id}/configurations")
+
                     if response.status_code == 200:
-                        item_data = response.json()
-                        self.open_mdi_window(
-                            lambda: ItemConfigurationWindow(item_name=item_id, api_client=self.api_client, parent=self),
-                            "Item Configurations",
-                            size=(700, 600),min_size=(697, 459), max_size=(1047, 1000),
-                            extra_setup=lambda w, s: setattr(w, "parent_subwindow", s)
-                        )
+                        item_config = response.json()
+                    elif response.status_code == 404:
+                        # No configurations found for this item → abrimos ventana vacía
+                        item_config = []
                     else:
                         QtWidgets.QMessageBox.warning(self, "Error", "Could not load item from server.")
+                        return
+
+                    self.open_mdi_window(
+                        lambda: ItemConfigurationWindow(
+                            item_config=item_config,
+                            item_name=item_id,
+                            api_client=self.api_client,
+                            parent=self
+                        ),
+                        "Item Configurations",
+                        size=(1100, 700),
+                        min_size=(697, 459),
+                        max_size=(1047, 1000),
+                        extra_setup=lambda w, s: setattr(w, "parent_subwindow", s)
+                    )
+
                 except requests.exceptions.RequestException:
                     QtWidgets.QMessageBox.critical(self, "Error", "Could not connect to the server.")
+
             else:
                 QtWidgets.QMessageBox.warning(self, "No Selection", "Please select an item from the table.")
 
