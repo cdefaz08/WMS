@@ -3,6 +3,10 @@ from sqlalchemy import select, insert, update, delete
 from models import vendors
 from database import database
 from schemas.vendor import VendorCreate, VendorUpdate
+from typing import Optional
+from sqlalchemy import select, and_
+from models import vendors
+from database import database
 
 
 async def create_vendor(vendor: VendorCreate):
@@ -62,3 +66,46 @@ async def delete_vendor(vendor_id: int):
     if not deleted:
         raise HTTPException(status_code=404, detail="Vendor not found.")
     return deleted
+
+
+
+async def search_vendors(
+    vendor_code: Optional[str] = None,
+    vendor_name: Optional[str] = None,
+    contact_name: Optional[str] = None,
+    phone: Optional[str] = None,
+    email: Optional[str] = None,
+    tax_id: Optional[str] = None,
+    city: Optional[str] = None,
+    state: Optional[str] = None,
+    country: Optional[str] = None,
+    zip_code: Optional[str] = None
+):
+    query = select(vendors)
+    filters = []
+
+    if vendor_code:
+        filters.append(vendors.c.vendor_code.ilike(f"%{vendor_code}%"))
+    if vendor_name:
+        filters.append(vendors.c.vendor_name.ilike(f"%{vendor_name}%"))
+    if contact_name:
+        filters.append(vendors.c.contact_name.ilike(f"%{contact_name}%"))
+    if phone:
+        filters.append(vendors.c.phone.ilike(f"%{phone}%"))
+    if email:
+        filters.append(vendors.c.email.ilike(f"%{email}%"))
+    if tax_id:
+        filters.append(vendors.c.tax_id.ilike(f"%{tax_id}%"))
+    if city:
+        filters.append(vendors.c.city.ilike(f"%{city}%"))
+    if state:
+        filters.append(vendors.c.state.ilike(f"%{state}%"))
+    if country:
+        filters.append(vendors.c.country.ilike(f"%{country}%"))
+    if zip_code:
+        filters.append(vendors.c.zip_code.ilike(f"%{zip_code}%"))
+
+    if filters:
+        query = query.where(and_(*filters))
+
+    return await database.fetch_all(query)

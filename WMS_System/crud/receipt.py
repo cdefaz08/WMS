@@ -62,3 +62,52 @@ async def delete_receipt(receipt_id: int):
     query = delete(receipts).where(receipts.c.id == receipt_id)
     await database.execute(query)
     return {"message": "Receipt deleted successfully."}
+
+
+from typing import Optional
+from sqlalchemy import and_
+from datetime import date
+
+async def search_receipts(
+    receipt_number: Optional[str] = None,
+    release_num: Optional[str] = None,
+    vendor_name: Optional[str] = None,
+    invoice_num: Optional[str] = None,
+    po_id: Optional[str] = None,
+    status: Optional[str] = None,
+    created_by: Optional[str] = None,
+    expected_from: Optional[date] = None,
+    expected_to: Optional[date] = None,
+    received_from: Optional[date] = None,
+    received_to: Optional[date] = None,
+):
+    query = select(receipts)
+    filters = []
+
+    if receipt_number:
+        filters.append(receipts.c.receipt_number.ilike(f"%{receipt_number}%"))
+    if release_num:
+        filters.append(receipts.c.release_num.ilike(f"%{release_num}%"))
+    if vendor_name:
+        filters.append(receipts.c.vendor_name.ilike(f"%{vendor_name}%"))
+    if invoice_num:
+        filters.append(receipts.c.invoice_num.ilike(f"%{invoice_num}%"))
+    if po_id:
+        filters.append(receipts.c.po_id.ilike(f"%{po_id}%"))
+    if status:
+        filters.append(receipts.c.status.ilike(f"%{status}%"))
+    if created_by:
+        filters.append(receipts.c.created_by.ilike(f"%{created_by}%"))
+    if expected_from:
+        filters.append(receipts.c.date_expected >= expected_from)
+    if expected_to:
+        filters.append(receipts.c.date_expected <= expected_to)
+    if received_from:
+        filters.append(receipts.c.date_received >= received_from)
+    if received_to:
+        filters.append(receipts.c.date_received <= received_to)
+
+    if filters:
+        query = query.where(and_(*filters))
+
+    return await database.fetch_all(query)

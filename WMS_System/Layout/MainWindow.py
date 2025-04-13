@@ -183,7 +183,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.mdiArea.subWindowActivated.connect(self.handle_subwindow_focus_change)
             self.actionItemMaintance.setVisible(True)
             widget.destroyed.connect(self.hide_item_toolbar_action)
-        self.open_mdi_window(VendorSearchWindow, "Vendor Search", size=(1089, 720), extra_setup=setup)
+        self.open_mdi_window(
+            lambda: VendorSearchWindow(api_client=self.api_client), "Vendor Search", size=(1089, 720), extra_setup=setup,min_size=(697, 459), max_size=(1135, 678))
 
     def open_RuleClases(self):
         self.open_mdi_window(RuleClases, "Rule Clases", size=(600, 500))

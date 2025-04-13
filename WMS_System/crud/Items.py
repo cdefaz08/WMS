@@ -124,3 +124,34 @@ async def get_item_by_upc(upc: int):
     query = select(items).where(items.c.upc == upc)
     return await database.fetch_all(query)
     
+async def search_items(
+    item_id=None,
+    upc=None,
+    alt_item_id1=None,
+    alt_item_id2=None,
+    item_class=None,
+    color=None,
+    size=None,
+    brand=None
+):
+    query = items.select()
+
+    # Apply filters dynamically
+    if item_id:
+        query = query.where(items.c.item_id.ilike(f"%{item_id}%"))
+    if upc:
+        query = query.where(items.c.upc.ilike(f"%{upc}%"))
+    if alt_item_id1:
+        query = query.where(items.c.alt_item_id1.ilike(f"%{alt_item_id1}%"))
+    if alt_item_id2:
+        query = query.where(items.c.alt_item_id2.ilike(f"%{alt_item_id2}%"))
+    if item_class:
+        query = query.where(items.c.item_class.ilike(f"%{item_class}%"))
+    if color:
+        query = query.where(items.c.color.ilike(f"%{color}%"))
+    if size:
+        query = query.where(items.c.size.ilike(f"%{size}%"))
+    if brand:
+        query = query.where(items.c.brand.ilike(f"%{brand}%"))
+
+    return await database.fetch_all(query)

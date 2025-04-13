@@ -12,6 +12,15 @@ class ReceiptSearchWindow(QtWidgets.QDialog, Ui_ReceiptSearch):
         self.api_client = api_client
 
         self.pushButton_Search.clicked.connect(self.search_receipts)
+        # Conectar Enter en todos los lineEdit
+        self.lineEdit_Receip_num.returnPressed.connect(self.search_receipts)
+        self.lineEdit_Realease_num.returnPressed.connect(self.search_receipts)
+        self.lineEdit_VendorName.returnPressed.connect(self.search_receipts)
+        self.lineEdit_InvoiceNum.returnPressed.connect(self.search_receipts)
+        self.lineEdit_PO.returnPressed.connect(self.search_receipts)
+        self.lineEdit_Status.returnPressed.connect(self.search_receipts)
+        self.lineEdit_CreatedBy.returnPressed.connect(self.search_receipts)
+
         self.tableViewReceipts.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.tableViewReceipts.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
         self.tableViewReceipts.verticalHeader().setVisible(False)
@@ -54,7 +63,15 @@ class ReceiptSearchWindow(QtWidgets.QDialog, Ui_ReceiptSearch):
         received_to = None if received_to == default_date else received_to
 
         try:
-            response = self.api_client.get(f"/receipts")
+            filters.update({
+                "expected_from": expected_from.isoformat() if expected_from else None,
+                "expected_to": expected_to.isoformat() if expected_to else None,
+                "received_from": received_from.isoformat() if received_from else None,
+                "received_to": received_to.isoformat() if received_to else None,
+            })
+
+            clean_filters = {k: v for k, v in filters.items() if v}
+            response = self.api_client.get("/receipts", params=clean_filters)
             if response.status_code == 200:
                 receipts = response.json()
                 filtered = []

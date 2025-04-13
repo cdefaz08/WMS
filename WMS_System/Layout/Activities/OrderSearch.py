@@ -10,6 +10,17 @@ class OrderSearchWindow(QtWidgets.QDialog, Ui_OrderSearch):
         super().__init__(parent)
         self.setupUi(self)
         self.api_client = api_client
+        # Conectar Enter en campos de texto
+        self.lineEdit_Order.returnPressed.connect(self.search_orders)
+        self.lineEdit_CustomerName.returnPressed.connect(self.search_orders)
+        self.lineEdit_Status.returnPressed.connect(self.search_orders)
+        self.lineEdit_CreatedBy.returnPressed.connect(self.search_orders)
+        self.lineEdit_DocForm.returnPressed.connect(self.search_orders)
+        self.lineEdit_LabelFrom.returnPressed.connect(self.search_orders)
+
+        # Conectar cambio en ComboBox (cuando se pierde foco)
+        self.comboBox_OrderType.editTextChanged.connect(self.search_orders)
+
 
         self.pushButton_Search.clicked.connect(self.search_orders)
         self.tableViewOrders.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
@@ -58,7 +69,15 @@ class OrderSearchWindow(QtWidgets.QDialog, Ui_OrderSearch):
         ship_to = None if ship_to == default_date else ship_to
 
         try:
-            response = self.api_client.get(f"/orders")
+            filters.update({
+                "order_date_from": order_from.isoformat() if order_from else None,
+                "order_date_to": order_to.isoformat() if order_to else None,
+                "ship_date_from": ship_from.isoformat() if ship_from else None,
+                "ship_date_to": ship_to.isoformat() if ship_to else None,
+            })
+
+            clean_filters = {k: v for k, v in filters.items() if v}
+            response = self.api_client.get("/orders", params=clean_filters)
             if response.status_code == 200:
                 orders = response.json()
                 filtered = []

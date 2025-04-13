@@ -42,7 +42,8 @@ class ItemSearchWindow(QtWidgets.QDialog, Ui_ItemSearch):
         }
 
         try:
-            response = self.api_client.get(f"/items/")
+            search_data = {k: v for k, v in search_data.items() if v}
+            response = self.api_client.get("/items/", params=search_data)
             if response.status_code == 200:
                 items = response.json()
 

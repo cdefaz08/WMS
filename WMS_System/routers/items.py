@@ -2,9 +2,11 @@ from fastapi import APIRouter , Body, Query
 
 from schemas.Items import ItemCreate, ItemUpdate
 from crud import Items as crud_items
+from typing import Optional
 
 
 router = APIRouter()
+
 #Create Item
 @router.post("/", response_model=dict)
 async def create_item(item: ItemCreate):
@@ -33,3 +35,26 @@ async def read_items(upc: int = Query(None)):
     if upc is not None:
         return await crud_items.get_item_by_upc(upc)
     return await crud_items.read_items()
+
+
+@router.get("/")
+async def read_items(
+    item_id: Optional[str] = Query(None),
+    upc: Optional[str] = Query(None),
+    alt_item_id1: Optional[str] = Query(None),
+    alt_item_id2: Optional[str] = Query(None),
+    item_class: Optional[str] = Query(None),
+    color: Optional[str] = Query(None),
+    size: Optional[str] = Query(None),
+    brand: Optional[str] = Query(None)
+):
+    return await crud_items.search_items(
+        item_id=item_id,
+        upc=upc,
+        alt_item_id1=alt_item_id1,
+        alt_item_id2=alt_item_id2,
+        item_class=item_class,
+        color=color,
+        size=size,
+        brand=brand
+    )

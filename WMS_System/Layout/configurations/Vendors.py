@@ -46,7 +46,9 @@ class VendorSearchWindow(QtWidgets.QDialog, Ui_VendorSearch):
         }
 
         try:
-            response = self.api_client.get(f"/vendors/")
+            clean_data = {k: v for k, v in search_data.items() if v}
+            response = self.api_client.get("/vendors/", params=clean_data)
+
             if response.status_code == 200:
                 vendors = response.json()
 

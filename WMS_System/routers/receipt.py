@@ -2,6 +2,10 @@ from fastapi import APIRouter, HTTPException ,Depends
 from Security.dependencies import get_current_user
 from schemas.receipt_schema import ReceiptCreate, Receipt
 import crud.receipt as receipt_crud
+from typing import Optional
+from fastapi import Query
+from datetime import date
+from crud.receipt import search_receipts
 
 router = APIRouter(prefix="/receipts", tags=["Receipts"],
     dependencies=[Depends(get_current_user)])
@@ -16,10 +20,34 @@ async def create_receipt_endpoint(
     return await receipt_crud.create_receipt(receipt, created_by=current_user["sub"])
 
 
-# 🔹 Obtener todos los recibos
-@router.get("/", response_model=list[Receipt])
-async def get_all_receipts_endpoint():
-    return await receipt_crud.get_all_receipts()
+@router.get("/")
+async def search_receipts_route(
+    receipt_number: Optional[str] = None,
+    release_num: Optional[str] = None,
+    vendor_name: Optional[str] = None,
+    invoice_num: Optional[str] = None,
+    po_id: Optional[str] = None,
+    status: Optional[str] = None,
+    created_by: Optional[str] = None,
+    expected_from: Optional[date] = Query(None, alias="expected_from"),
+    expected_to: Optional[date] = Query(None, alias="expected_to"),
+    received_from: Optional[date] = Query(None, alias="received_from"),
+    received_to: Optional[date] = Query(None, alias="received_to"),
+):
+    return await search_receipts(
+        receipt_number=receipt_number,
+        release_num=release_num,
+        vendor_name=vendor_name,
+        invoice_num=invoice_num,
+        po_id=po_id,
+        status=status,
+        created_by=created_by,
+        expected_from=expected_from,
+        expected_to=expected_to,
+        received_from=received_from,
+        received_to=received_to,
+    )
+
 
 
 # 🔹 Obtener recibo por ID

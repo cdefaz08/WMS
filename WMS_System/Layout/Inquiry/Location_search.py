@@ -85,7 +85,8 @@ class LocationSearchWindow(QtWidgets.QDialog, Ui_LocationSearch):
         }
 
         try:
-            response = self.api_client.get(f"/locations")
+            clean_filters = {k: v for k, v in filters.items() if v}
+            response = self.api_client.get("/locations", params=clean_filters)
             if response.status_code == 200:
                 locations = response.json()
 
