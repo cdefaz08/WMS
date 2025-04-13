@@ -148,6 +148,7 @@
    <addaction name="separator"/>
    <addaction name="actionItemMaintance"/>
    <addaction name="actionOrderLines"/>
+   <addaction name="actionAdjustment"/>
   </widget>
   <action name="actionItem_Search">
    <property name="text">
@@ -350,6 +351,18 @@
    </property>
    <property name="toolTip">
     <string>OrderLines</string>
+   </property>
+  </action>
+  <action name="actionAdjustment">
+   <property name="icon">
+    <iconset>
+     <normaloff>../icons/icons8-modify-50.png</normaloff>../icons/icons8-modify-50.png</iconset>
+   </property>
+   <property name="text">
+    <string>Adjutment</string>
+   </property>
+   <property name="toolTip">
+    <string>Adjustment</string>
    </property>
   </action>
  </widget>

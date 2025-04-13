@@ -26,6 +26,7 @@ from Layout.Activities.ReceiptMaintance import ReceiptMaintanceWindow
 from Layout.Activities.ReceiptLinesWindow import ReceiptLinesWindow
 from Layout.Maintance.ItemConfiguration import ItemConfigurationWindow
 from Layout.Inquiry.InventorySearchWindow import InventorySearchWindow
+from Layout.AdjustmentWindow import AdjustmentWindow
 from api_client import APIClient
 
 
@@ -219,8 +220,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionItemMaintance = self.findChild(QtWidgets.QAction, "actionItemMaintance")
         self.delete_button = self.findChild(QtWidgets.QAction,"actionDelete")
         self.actionOrderLines = self.findChild(QtWidgets.QAction,"actionOrderLines")
+        self.actionAdjustment = self.findChild(QtWidgets.QAction,"actionAdjustment")
+        self.actionAdjustment.setVisible(False)
         self.actionItemMaintance.setVisible(False)
         self.actionOrderLines.setVisible(False)
+        self.actionAdjustment.triggered.connect(self.toolbar_adjustment)
         self.new_button.triggered.connect(self.toolbar_new)
         self.save_button.triggered.connect(self.toolbar_save)
         self.refresh_button.triggered.connect(self.toolbar_refresh)
@@ -228,6 +232,48 @@ class MainWindow(QtWidgets.QMainWindow):
         self.discard_button.triggered.connect(self.toolbar_discard)
         self.actionItemMaintance.triggered.connect(self.open_maintance_window)
         self.actionOrderLines.triggered.connect(self.open_OrderLines_window)
+
+    def toolbar_adjustment(self):
+        active_window = self.get_active_window()
+
+        if isinstance(active_window, LocationSearchWindow):
+            location_id = active_window.get_selected_location_id()
+            if location_id:
+                try:
+                    # ✅ Consumimos el endpoint de filtro con location_id como parámetro
+                    response = self.api_client.get(
+                        f"/a-contents/?location_id={location_id}"
+                    )
+
+                    if response.status_code == 200:
+                        adjustments_data = response.json()
+
+                        self.open_mdi_window(
+                            lambda: AdjustmentWindow(
+                                adjustments_data=adjustments_data,
+                                api_client=self.api_client,
+                                parent=self,
+                            ),
+                            "Inventory Adjustments",
+                            size=(800, 600),
+                            min_size=(697, 459),
+                            max_size=(799, 569),
+                            extra_setup=lambda w, s: setattr(w, "parent_subwindow", s),
+                        )
+                    else:
+                        QtWidgets.QMessageBox.warning(
+                            self, "Error", "Could not load adjustments from server."
+                        )
+                except requests.exceptions.RequestException:
+                    QtWidgets.QMessageBox.critical(
+                        self, "Error", "Could not connect to the server."
+                    )
+            else:
+                QtWidgets.QMessageBox.warning(
+                    self, "No Selection", "Please select a location from the table."
+                )
+
+
 
     def toolbar_new(self):
         active_window = self.get_active_window()
@@ -571,16 +617,20 @@ class MainWindow(QtWidgets.QMainWindow):
     def handle_subwindow_focus_change(self, active_subwindow):
         self.actionItemMaintance.setVisible(False)
         self.actionOrderLines.setVisible(False)
+        self.actionAdjustment.setVisible(False)
 
         if not active_subwindow:
             return
 
         widget = active_subwindow.widget()
 
-        if isinstance(widget, (ItemSearchWindow, LocationTypes, LocationSearchWindow, VendorSearchWindow, OrderSearchWindow,ReceiptSearchWindow)):
+        if isinstance(widget, (ItemSearchWindow, LocationTypes, VendorSearchWindow, OrderSearchWindow,ReceiptSearchWindow)):
             self.actionItemMaintance.setVisible(True)
         elif isinstance(widget, (OrderMaintanceWindow,ReceiptMaintanceWindow,ItemMaintanceDialog)):
             self.actionOrderLines.setVisible(True)
+        elif isinstance(widget, (LocationSearchWindow)):
+            self.actionItemMaintance.setVisible(True)
+            self.actionAdjustment.setVisible(True)
 
 
 if __name__ == "__main__":
