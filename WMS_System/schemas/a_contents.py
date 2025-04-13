@@ -4,9 +4,9 @@ from datetime import datetime
 
 # Shared base schema
 class AContentsBase(BaseModel):
-    location_id: int
-    pallet_id: Optional[int] = None
-    item_code: str
+    location_id: str
+    pallet_id: Optional[str] = None
+    item_id: str
     pieces_on_hand: int = 0
     receipt_info: Optional[str] = None
     receipt_release_num: Optional[str] = None
@@ -19,9 +19,9 @@ class AContentsCreate(AContentsBase):
 
 # Schema for update (input)
 class AContentsUpdate(BaseModel):
-    location_id: Optional[int] = None
-    pallet_id: Optional[int] = None
-    item_code: Optional[str] = None
+    location_id: Optional[str] = None
+    pallet_id: Optional[str] = None
+    item_id: Optional[str] = None
     pieces_on_hand: Optional[int] = None
     receipt_info: Optional[str] = None
     receipt_release_num: Optional[str] = None

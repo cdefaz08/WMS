@@ -1,5 +1,4 @@
-# UI_AdjustmentWindow.py
-from PyQt5 import QtWidgets, QtGui, QtCore
+from PyQt5 import QtWidgets, QtCore
 
 class Ui_AdjustmentWindow(object):
     def setupUi(self, Form):
@@ -9,10 +8,11 @@ class Ui_AdjustmentWindow(object):
         self.horizontalLayout = QtWidgets.QHBoxLayout(Form)
         self.horizontalLayout.setObjectName("horizontalLayout")
 
-        # Tree View for pallets and items
-        self.treeView = QtWidgets.QTreeView(Form)
-        self.treeView.setObjectName("treeView")
-        self.horizontalLayout.addWidget(self.treeView, 2)
+        # Tree Widget (QTreeWidget instead of QTreeView to allow top-level items)
+        self.tree_widget = QtWidgets.QTreeWidget(Form)
+        self.tree_widget.setColumnCount(3)
+        self.tree_widget.setHeaderLabels(["PALLET ID", "ITEM CODE", "QTY"])
+        self.horizontalLayout.addWidget(self.tree_widget, 3)
 
         # Scrollable area with detail panel
         self.scrollArea = QtWidgets.QScrollArea(Form)
@@ -32,4 +32,4 @@ class Ui_AdjustmentWindow(object):
         self.scrollLayout.addWidget(self.groupBoxDetails)
         self.scrollArea.setWidget(self.scrollContent)
 
-        self.horizontalLayout.addWidget(self.scrollArea, 3)
+        self.horizontalLayout.addWidget(self.scrollArea,3 )

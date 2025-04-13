@@ -38,14 +38,14 @@ async def delete_content(content_id: int):
 async def get_filtered_contents(
     location_id: Optional[str] = None,
     pallet_id: Optional[str] = None,
-    item_code: Optional[str] = None,
+    item_id: Optional[str] = None,
     receipt_info: Optional[str] = None,
     receipt_release_num: Optional[str] = None,
 ):
     return await crud.get_filtered_a_contents(
         location_id=location_id,
         pallet_id=pallet_id,
-        item_code=item_code,
+        item_id=item_id,
         receipt_info=receipt_info,
         receipt_release_num=receipt_release_num
     )

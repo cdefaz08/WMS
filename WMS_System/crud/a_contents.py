@@ -54,7 +54,7 @@ from typing import Optional, List
 async def get_filtered_a_contents(
     location_id: Optional[str] = None,
     pallet_id: Optional[str] = None,
-    item_code: Optional[str] = None,
+    item_id: Optional[str] = None,
     receipt_info: Optional[str] = None,
     receipt_release_num: Optional[str] = None,
 ) -> List[dict]:
@@ -64,8 +64,8 @@ async def get_filtered_a_contents(
         query = query.where(a_contents.c.location_id == location_id)
     if pallet_id:
         query = query.where(a_contents.c.pallet_id == pallet_id)
-    if item_code:
-        query = query.where(a_contents.c.item_code.ilike(f"%{item_code}%"))
+    if item_id:
+        query = query.where(a_contents.c.item_id.ilike(f"%{item_id}%"))
     if receipt_info:
         query = query.where(a_contents.c.receipt_info.ilike(f"%{receipt_info}%"))
     if receipt_release_num:
