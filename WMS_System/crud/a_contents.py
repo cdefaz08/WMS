@@ -72,3 +72,9 @@ async def get_filtered_a_contents(
         query = query.where(a_contents.c.receipt_release_num.ilike(f"%{receipt_release_num}%"))
 
     return await database.fetch_all(query)
+
+async def get_by_exact_location_id(location_id: str) -> List[dict]:
+    query = select(a_contents).where(a_contents.c.location_id == location_id)
+    results = await database.fetch_all(query)
+    return [dict(row) for row in results]
+

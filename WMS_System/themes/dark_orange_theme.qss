@@ -198,24 +198,20 @@ QHeaderView::section {
     color: white;
     font-weight: bold;
     padding: 4px;
-    border: 1px solid #2c2f34;
 }
 
 /* Items */
 QTreeWidget::item {
     padding: 6px;
-    border: 1px solid transparent;
 }
 
 QTreeWidget::item:hover {
     background-color: #e6f2ff;
-    border: 1px solid #b3d7ff;
 }
 
 QTreeWidget::item:selected {
     background-color: #ffd580;
     color: #222831;
-    border: 1px solid #f6ae2d;
 }
 
 /* Alternating rows */

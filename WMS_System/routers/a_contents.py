@@ -49,3 +49,8 @@ async def get_filtered_contents(
         receipt_info=receipt_info,
         receipt_release_num=receipt_release_num
     )
+
+
+@router.get("/by-location/", response_model=List[dict])
+async def get_by_location(location_id: str):
+    return await crud.get_by_exact_location_id(location_id)

@@ -1,5 +1,4 @@
 from PyQt5 import QtWidgets, uic, QtCore
-from config import API_BASE_URL
 import requests
 import sys
 from Layout.Inquiry.item_search import ItemSearchWindow
@@ -242,7 +241,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 try:
                     # ✅ Consumimos el endpoint de filtro con location_id como parámetro
                     response = self.api_client.get(
-                        f"/a-contents/?location_id={location_id}"
+                        f"/a-contents/by-location/?location_id={location_id}"
                     )
 
                     if response.status_code == 200:
@@ -278,7 +277,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 try:
                     # ✅ Consumimos el endpoint de filtro con location_id como parámetro
                     response = self.api_client.get(
-                        f"/a-contents/?id={location_id}"
+                        f"/a-contents/by-location/?location_id={location_id}"
                     )
 
                     if response.status_code == 200:
