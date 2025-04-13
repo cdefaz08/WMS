@@ -461,3 +461,17 @@ item_maintance = Table(
     Column("configuration_name", String(100)),  # Ejemplo: Retail Config, Bulk Config
     Column("notes", String(200)),
 )
+
+a_contents = Table(
+    "a_contents",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("location_id", Integer, ForeignKey("locations.location_id"), nullable=False),
+    Column("pallet_id", Integer),
+    Column("item_id", String(50), ForeignKey("items.item_id"), nullable=False),
+    Column("pieces_on_hand", Integer, nullable=False, default=0),
+    Column("receipt_info", String(100), nullable=True),
+    Column("receipt_release_num", String(50), nullable=True),
+    Column("date_time_last_touched", DateTime, nullable=False),
+    Column("user_last_touched", String(50), nullable=False),
+)

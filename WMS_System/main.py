@@ -25,7 +25,8 @@ proximity,
 order_type,
 document_form,
 label_form,receipt,
-receipt_line,item_maintance)
+receipt_line,item_maintance,
+a_contents)
 
 # Initialize FastAPI
 app = FastAPI()
@@ -95,4 +96,5 @@ app.include_router(label_form.router)
 app.include_router(receipt.router)
 app.include_router(receipt_line.router)
 app.include_router(item_maintance.router)
+app.include_router(a_contents.router)
 

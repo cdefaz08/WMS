@@ -25,6 +25,7 @@ from Layout.Activities.ReceiptSearchWindow import ReceiptSearchWindow
 from Layout.Activities.ReceiptMaintance import ReceiptMaintanceWindow
 from Layout.Activities.ReceiptLinesWindow import ReceiptLinesWindow
 from Layout.Maintance.ItemConfiguration import ItemConfigurationWindow
+from Layout.Inquiry.InventorySearchWindow import InventorySearchWindow
 from api_client import APIClient
 
 
@@ -52,6 +53,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionForms = self.findChild(QtWidgets.QAction, "actionForms")
         self.actionOrder_Search = self.findChild(QtWidgets.QAction, "actionOrder_Search")
         self.actionReceipt_Search = self.findChild(QtWidgets.QAction, "actionReceipt_Search")
+        self.actionInventory_Adjustment = self.findChild(QtWidgets.QAction, "actionInventory_Adjustment")
 
 
 
@@ -68,6 +70,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionForms.triggered.connect(self.open_forms_window)
         self.actionOrder_Search.triggered.connect(self.open_Order_Search)
         self.actionReceipt_Search.triggered.connect(self.open_Receipt_Search_window)
+        self.actionInventory_Adjustment.triggered.connect(self.open_inventory_adjustment_window)
 
 
     def open_mdi_window(self, widget_class, window_title, size=(600, 400),
@@ -97,6 +100,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # ✅ Crear y limitar el subwindow también
         sub_window = QtWidgets.QMdiSubWindow()
+        sub_window.setWindowFlags(QtCore.Qt.Window)
         sub_window.setMinimumSize(*min_size)
         sub_window.setMaximumSize(*max_size)
 
@@ -134,7 +138,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.open_mdi_window(LocationTypes, "Location Types", size=(500, 600), extra_setup=setup)
 
 
-
     def open_order_type_window(self):
         self.open_mdi_window(OrderTypeWindow, "Order Types", size = (700, 400))
 
@@ -159,6 +162,13 @@ class MainWindow(QtWidgets.QMainWindow):
             widget.destroyed.connect(self.hide_item_toolbar_action)
         self.open_mdi_window(ReceiptSearchWindow, "Receipt Search", size=(1089, 720), extra_setup=setup,min_size=(697, 459), max_size=(1081, 874))
 
+    def open_inventory_adjustment_window(self):
+        def setup(widget, sub_window):
+            self.mdiArea.subWindowActivated.connect(self.handle_subwindow_focus_change)
+            self.actionItemMaintance.setVisible(True)
+            widget.destroyed.connect(self.hide_item_toolbar_action)
+        self.open_mdi_window(
+            lambda: InventorySearchWindow(api_client=self.api_client), "Inventory Search", size=(1089, 720), extra_setup=setup,min_size=(697, 459), max_size=(1135, 678))
 
     def open_location_search(self):
         def setup(widget, sub_window):
