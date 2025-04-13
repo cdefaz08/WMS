@@ -1,17 +1,40 @@
 from PyQt5 import QtWidgets
 from Layout.UI_PY.LocationMaintance import Ui_LocationMaintance
 import requests
-from config import API_BASE_URL
+from functools import partial
 
 class LocationMaintance(Ui_LocationMaintance):
     def __init__(self,api_client = None, location_data=None, parent=None):
         super().__init__(parent)
         self.api_client = api_client
         self.loadLocationClasesDropdown()
+        self.uppercase_fields = [
+            self.lineEdit_Location,
+            self.lineEdit_ScanLocation,
+            self.lineEdit_Aisle,
+            self.lineEdit_Bay,
+            self.lineEdit_Level,
+            self.lineEdit_Slot,
+            self.lineEdit_PnD1,
+            self.lineEdit_PnD2,
+        ]
+
+        # Conecta todos al validador de mayúsculas
+        for field in self.uppercase_fields:
+            field.textChanged.connect(partial(self.force_uppercase, field))
+
 
         self.original_data = location_data.copy() if location_data else {}
         if location_data:
             self.loadLocationData(location_data)
+
+    def force_uppercase(self, field, text):
+        upper = text.upper()
+        if text != upper:
+            cursor_pos = field.cursorPosition()
+            field.setText(upper)
+            field.setCursorPosition(cursor_pos)
+
 
     def loadLocationClasesDropdown(self):
         try:

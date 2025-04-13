@@ -1,7 +1,7 @@
 from PyQt5 import QtWidgets
 import requests
 from Layout.UI_PY.AddLocation import Ui_AddLocation  # Ajusta si tu path es distinto
-from config import API_BASE_URL
+from functools import partial
 
 class AddLocationDialog(Ui_AddLocation):
     def __init__(self, api_client = None ,parent=None):
@@ -9,6 +9,21 @@ class AddLocationDialog(Ui_AddLocation):
         self.api_client = api_client
 
         self.saved = False 
+
+        self.uppercase_fields = [
+            self.lineEdit_Location,
+            self.lineEdit_ScanLocation,
+            self.lineEdit_Aisle,
+            self.lineEdit_Bay,
+            self.lineEdit_Level,
+            self.lineEdit_Slot,
+            self.lineEdit_PnD1,
+            self.lineEdit_PnD2,
+        ]
+
+        # Conecta todos al validador de mayúsculas
+        for field in self.uppercase_fields:
+            field.textChanged.connect(partial(self.force_uppercase, field))
 
         self.setWindowTitle("Create New Location")
         self.load_location_classes()
@@ -45,6 +60,15 @@ class AddLocationDialog(Ui_AddLocation):
 
         except requests.exceptions.RequestException as e:
             QtWidgets.QMessageBox.critical(self, "Error", f"Could not connect to server: {e}")
+
+    def force_uppercase(self, field, text):
+        upper = text.upper()
+        if text != upper:
+            cursor_pos = field.cursorPosition()
+            field.setText(upper)
+            field.setCursorPosition(cursor_pos)
+
+
 
     def save_new_location(self):
         def set_if_not_empty(field_dict, key, line_edit, cast_type=str):

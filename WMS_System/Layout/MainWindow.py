@@ -272,6 +272,42 @@ class MainWindow(QtWidgets.QMainWindow):
                 QtWidgets.QMessageBox.warning(
                     self, "No Selection", "Please select a location from the table."
                 )
+        elif isinstance(active_window, InventorySearchWindow):
+            location_id = active_window.get_selected_location_id()
+            if location_id:
+                try:
+                    # ✅ Consumimos el endpoint de filtro con location_id como parámetro
+                    response = self.api_client.get(
+                        f"/a-contents/?id={location_id}"
+                    )
+
+                    if response.status_code == 200:
+                        adjustments_data = response.json()
+
+                        self.open_mdi_window(
+                            lambda: AdjustmentWindow(
+                                adjustments_data=adjustments_data,
+                                api_client=self.api_client,
+                                parent=self,
+                            ),
+                            "Inventory Adjustments",
+                            size=(800, 600),
+                            min_size=(697, 459),
+                            max_size=(799, 569),
+                            extra_setup=lambda w, s: setattr(w, "parent_subwindow", s),
+                        )
+                    else:
+                        QtWidgets.QMessageBox.warning(
+                            self, "Error", "Could not load adjustments from server."
+                        )
+                except requests.exceptions.RequestException:
+                    QtWidgets.QMessageBox.critical(
+                        self, "Error", "Could not connect to the server."
+                    )
+            else:
+                QtWidgets.QMessageBox.warning(
+                    self, "No Selection", "Please select a location from the table."
+                )
 
 
 
@@ -628,7 +664,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.actionItemMaintance.setVisible(True)
         elif isinstance(widget, (OrderMaintanceWindow,ReceiptMaintanceWindow,ItemMaintanceDialog)):
             self.actionOrderLines.setVisible(True)
-        elif isinstance(widget, (LocationSearchWindow)):
+        elif isinstance(widget, (LocationSearchWindow,InventorySearchWindow)):
             self.actionItemMaintance.setVisible(True)
             self.actionAdjustment.setVisible(True)
 
