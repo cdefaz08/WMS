@@ -39,6 +39,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.connect_toolbar()
         self.mdiArea = self.findChild(QtWidgets.QMdiArea, 'mdiArea')
+        self.mdiArea.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
+        self.mdiArea.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
 
         self.actionLogout = self.findChild(QtWidgets.QAction, 'actionLogout')
         self.actionItem_Search = self.findChild(QtWidgets.QAction, 'actionItem_Search')
@@ -193,7 +195,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.open_mdi_window(FormManager, "Forms", size= (606,458))
 
     def open_new_Location(self):
-        self.open_mdi_window(AddLocationDialog, "New Location", size=(634, 715))
+        self.open_mdi_window(
+            lambda: AddLocationDialog(api_client=self.api_client), "New Location", size=(710, 715),min_size=(697, 459), max_size=(1135, 678))
 
     def get_active_window(self):
         active_subwindow = self.mdiArea.activeSubWindow()
@@ -229,7 +232,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def toolbar_new(self):
         active_window = self.get_active_window()
         if isinstance(active_window, ItemSearchWindow):
-            self.open_mdi_window(AddItemDialog, "Add New Item", size=(805, 569))
+            self.open_mdi_window(AddItemDialog, "Add New Item", size=(805, 569),min_size=(697, 459), max_size=(1072, 700))
         elif isinstance(active_window , LocationTypes):
             self.open_mdi_window(AddLocationType, "Add New Location Type", size=(902, 384))
         elif isinstance(active_window, UsersTableWindow):
@@ -237,7 +240,7 @@ class MainWindow(QtWidgets.QMainWindow):
         elif isinstance(active_window, RuleClases):
             active_window.add_new_row()
         elif isinstance(active_window, LocationSearchWindow):
-            self.open_mdi_window(AddLocationDialog, "Add New Location", size=(634, 715))
+            self.open_mdi_window(AddLocationDialog, "Add New Location", size=(900, 800),min_size=(800 , 600), max_size=(940, 900))
         elif isinstance(active_window, ProximityWindow):
             active_window.add_new_row()
         elif isinstance(active_window, VendorSearchWindow):
@@ -462,7 +465,7 @@ class MainWindow(QtWidgets.QMainWindow):
                         self.open_mdi_window(
                             lambda: LocationMaintance(api_client=self.api_client, location_data=location_data, parent=self),
                             "Location Maintanance",
-                            size=(700, 600),min_size=(940 , 376), max_size=(940, 376),
+                            size=(900, 800),min_size=(800 , 600), max_size=(940, 900),
                             extra_setup=lambda w, s: setattr(w, "parent_subwindow", s)
                         )
                     else:

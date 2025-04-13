@@ -3,10 +3,9 @@ import requests
 from Layout.UI_PY.AddLocation import Ui_AddLocation  # Ajusta si tu path es distinto
 from config import API_BASE_URL
 
-class AddLocationDialog(QtWidgets.QWidget, Ui_AddLocation):
-    def __init__(self,api_client = None, parent=None):
+class AddLocationDialog(Ui_AddLocation):
+    def __init__(self, api_client = None ,parent=None):
         super().__init__(parent)
-        self.setupUi(self)
         self.api_client = api_client
 
         self.saved = False 
@@ -41,8 +40,8 @@ class AddLocationDialog(QtWidgets.QWidget, Ui_AddLocation):
                 self.comboBox_LocationType.addItem(lt["location_type"])
                 
             for p in proximities:
-                self.comboBox_PrxIN.addItem(p["proximity"])
-                self.comboBox_PrxOUT.addItem(p["proximity"])
+                self.comboBox_ProxIN.addItem(p["proximity"])
+                self.comboBox_ProxOUT.addItem(p["proximity"])
 
         except requests.exceptions.RequestException as e:
             QtWidgets.QMessageBox.critical(self, "Error", f"Could not connect to server: {e}")
@@ -62,22 +61,22 @@ class AddLocationDialog(QtWidgets.QWidget, Ui_AddLocation):
             "location_id": location_id,
             "location_type": self.comboBox_LocationType.currentText(),
             "scan_location": self.lineEdit_ScanLocation.text().strip(),
-            "black_hole_flag": "Y" if self.checkBox_BlackHoleFlag.isChecked() else "N",
-            "has_assign_flag": "Y" if self.checkBox_HasAssignedFlag.isChecked() else "N",
-            "has_contents_flag": "Y" if self.checkBox_HasContentFlag.isChecked() else "N",
-            "has_pending_flag": "Y" if self.checkBox_HasPendingFlag.isChecked() else "N",
+            "black_hole_flag": "Y" if self.checkBox_BlackHole.isChecked() else "N",
+            "has_assign_flag": "Y" if self.checkBox_Assigned.isChecked() else "N",
+            "has_contents_flag": "Y" if self.checkBox_Content.isChecked() else "N",
+            "has_pending_flag": "Y" if self.checkBox_Pending.isChecked() else "N",
             "putaway_class": self.comboBox_PutawayClass.currentText(),
             "pick_class": self.comboBox_PickClass.currentText(),
             "rstk_class": self.comboBox_RestockClass.currentText(),
             "blocked_code": self.comboBox_BlockCode.currentText().strip(),
-            "proximity_in": self.comboBox_PrxIN.currentText().strip(),
-            "proximity_out": self.comboBox_PrxOUT.currentText().strip(),
-            "aisle": self.lineEdit_Aisel.text().strip(),
+            "proximity_in": self.comboBox_ProxIN.currentText().strip(),
+            "proximity_out": self.comboBox_ProxOUT.currentText().strip(),
+            "aisle": self.lineEdit_Aisle.text().strip(),
             "bay": self.lineEdit_Bay.text().strip(),
             "loc_level": self.lineEdit_Level.text().strip(),
             "slot": self.lineEdit_Slot.text().strip(),
-            "pnd_location_id1": self.lineEdit_PnDIN.text().strip(),
-            "pnd_location_id2": self.lineEdit_PnDOUT.text().strip(),
+            "pnd_location_id1": self.lineEdit_PnD1.text().strip(),
+            "pnd_location_id2": self.lineEdit_PnD2.text().strip(),
             "uom_max_weight": self.comboBox_WeightUOM.currentText().strip(),
             "uom_max_height": self.comboBox_HeightUOM.currentText().strip(),
             "uom_max_width": self.comboBox_WidthUOM.currentText().strip(),
@@ -86,12 +85,12 @@ class AddLocationDialog(QtWidgets.QWidget, Ui_AddLocation):
         }
 
         # Campos numéricos con validación
-        set_if_not_empty(data, "palle_cap", self.lineEdit_PallCap, int)
-        set_if_not_empty(data, "carton_cap", self.lineEdit_CartCap, int)
-        set_if_not_empty(data, "max_weight", self.lineEdit_MaxWwightValue, float)
-        set_if_not_empty(data, "max_height", self.lineEdit_MaxHeightValue, float)
-        set_if_not_empty(data, "max_width", self.lineEdit_MaxWidthValue, float)
-        set_if_not_empty(data, "max_depth", self.lineEdit_MaxDepthValue, float)
+        set_if_not_empty(data, "palle_cap", self.lineEdit_PalletCap, int)
+        set_if_not_empty(data, "carton_cap", self.lineEdit_CartonCap, int)
+        set_if_not_empty(data, "max_weight", self.lineEdit_MaxWeight, float)
+        set_if_not_empty(data, "max_height", self.lineEdit_MaxHeight, float)
+        set_if_not_empty(data, "max_width", self.lineEdit_MaxWidth, float)
+        set_if_not_empty(data, "max_depth", self.lineEdit_MaxDepth, float)
 
 
         try:
@@ -122,18 +121,18 @@ class AddLocationDialog(QtWidgets.QWidget, Ui_AddLocation):
         fields = [
             self.lineEdit_Location,
             self.lineEdit_ScanLocation,
-            self.lineEdit_Aisel,
+            self.lineEdit_Aisle,
             self.lineEdit_Bay,
             self.lineEdit_Level,
             self.lineEdit_Slot,
-            self.lineEdit_PnDIN,
-            self.lineEdit_PnDOUT,
-            self.lineEdit_PallCap,
-            self.lineEdit_CartCap,
-            self.lineEdit_MaxHeightValue,
-            self.lineEdit_MaxDepthValue,
-            self.lineEdit_MaxWidthValue,
-            self.lineEdit_MaxWwightValue,
+            self.lineEdit_PnD1,
+            self.lineEdit_PnD2,
+            self.lineEdit_PalletCap,
+            self.lineEdit_CartonCap,
+            self.lineEdit_MaxHeight,
+            self.lineEdit_MaxDepth,
+            self.lineEdit_MaxWidth,
+            self.lineEdit_MaxWeight,
         ]
 
         has_unsaved_input = any(field.text().strip() for field in fields)

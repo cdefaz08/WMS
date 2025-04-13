@@ -3,10 +3,9 @@ from Layout.UI_PY.LocationMaintance import Ui_LocationMaintance
 import requests
 from config import API_BASE_URL
 
-class LocationMaintance(QtWidgets.QWidget, Ui_LocationMaintance):
+class LocationMaintance(Ui_LocationMaintance):
     def __init__(self,api_client = None, location_data=None, parent=None):
         super().__init__(parent)
-        self.setupUi(self)
         self.api_client = api_client
         self.loadLocationClasesDropdown()
 
@@ -27,8 +26,8 @@ class LocationMaintance(QtWidgets.QWidget, Ui_LocationMaintance):
             self.comboBox_RestockClass.clear()
             self.comboBox_PickClass.clear()
             self.comboBox_LocationType.clear()
-            self.comboBox_PrxIN.clear()
-            self.comboBox_PrxOUT.clear()
+            self.comboBox_ProxIN.clear()
+            self.comboBox_ProxOUT.clear()
 
             for c in putaway_classes:
                 self.comboBox_PutawayClass.addItem(c["class_name"], c["id"])
@@ -43,8 +42,8 @@ class LocationMaintance(QtWidgets.QWidget, Ui_LocationMaintance):
                 self.comboBox_LocationType.addItem(lt["location_type"])
 
             for p in proximities:
-                self.comboBox_PrxIN.addItem(p["proximity"])
-                self.comboBox_PrxOUT.addItem(p["proximity"])
+                self.comboBox_ProxIN.addItem(p["proximity"])
+                self.comboBox_ProxOUT.addItem(p["proximity"])
 
         except Exception as e:
             print(f"Error loading dropdowns: {e}")
@@ -58,25 +57,25 @@ class LocationMaintance(QtWidgets.QWidget, Ui_LocationMaintance):
 
 
         self.lineEdit_ScanLocation.setText(location.get("scan_location", ""))
-        self.lineEdit_Aisel.setText(location.get("aisle", ""))
+        self.lineEdit_Aisle.setText(location.get("aisle", ""))
         self.lineEdit_Bay.setText(location.get("bay", ""))
         self.lineEdit_Level.setText(location.get("loc_level", ""))
         self.lineEdit_Slot.setText(location.get("slot", ""))
 
         self.comboBox_BlockCode.setCurrentText(location.get("blocked_code", ""))
-        self.comboBox_PrxIN.setCurrentText(location.get("proximiti_in", ""))
-        self.comboBox_PrxOUT.setCurrentText(location.get("proximiti_out", ""))
+        self.comboBox_ProxIN.setCurrentText(location.get("proximiti_in", ""))
+        self.comboBox_ProxOUT.setCurrentText(location.get("proximiti_out", ""))
 
-        self.lineEdit_PnDIN.setText(location.get("pnd_location_id1", ""))
-        self.lineEdit_PnDOUT.setText(location.get("pnd_location_id2", ""))
+        self.lineEdit_PnD1.setText(location.get("pnd_location_id1", ""))
+        self.lineEdit_PnD2.setText(location.get("pnd_location_id2", ""))
 
-        self.lineEdit_PallCap.setText(str(location.get("palle_cap", "")))
-        self.lineEdit_CartCap.setText(str(location.get("carton_cap", "")))
+        self.lineEdit_PalletCap.setText(str(location.get("palle_cap", "")))
+        self.lineEdit_CartonCap.setText(str(location.get("carton_cap", "")))
 
-        self.lineEdit_MaxHeightValue.setText(str(location.get("max_height", "")))
-        self.lineEdit_MaxDepthValue.setText(str(location.get("max_depth", "")))
-        self.lineEdit_MaxWidthValue.setText(str(location.get("max_width", "")))
-        self.lineEdit_MaxWwightValue.setText(str(location.get("max_weight", "")))
+        self.lineEdit_MaxHeight.setText(str(location.get("max_height", "")))
+        self.lineEdit_MaxDepth.setText(str(location.get("max_depth", "")))
+        self.lineEdit_MaxWidth.setText(str(location.get("max_width", "")))
+        self.lineEdit_MaxWeight.setText(str(location.get("max_weight", "")))
 
         self.comboBox_HeightUOM.setCurrentText(location.get("uom_max_height", ""))
         self.comboBox_DepthUOM.setCurrentText(location.get("uom_max_depth", ""))
@@ -86,12 +85,12 @@ class LocationMaintance(QtWidgets.QWidget, Ui_LocationMaintance):
         def to_bool(value):
             return str(value).strip().upper() in ["Y", "YES", "TRUE", "1"]
 
-        self.checkBox_BlackHoleFlag.setChecked(to_bool(location.get("black_hole_flag")))
+        self.checkBox_BlackHole.setChecked(to_bool(location.get("black_hole_flag")))
 
-        self.lineEdit_ActivePalletsQTY.setText(str(location.get("pallet_qty_act", "")))
-        self.lineEdit_ActiveCartonsQTY.setText(str(location.get("carton_qty_act", "")))
+        self.lineEdit_PalletsQty.setText(str(location.get("pallet_qty_act", "")))
+        self.lineEdit_CartonsQty.setText(str(location.get("carton_qty_act", "")))
 
-        self.lineEdit_LastTouch.setText(location.get("last_touch", ""))
+        self.lineEdit_LastTouched.setText(location.get("last_touch", ""))
 
     def get_updated_fields(self):
         updated = {}
@@ -114,23 +113,23 @@ class LocationMaintance(QtWidgets.QWidget, Ui_LocationMaintance):
         # LineEdits
         check("location_id", self.lineEdit_Location)
         check("scan_location", self.lineEdit_ScanLocation)
-        check("aisle", self.lineEdit_Aisel)
+        check("aisle", self.lineEdit_Aisle)
         check("bay", self.lineEdit_Bay)
         check("loc_level", self.lineEdit_Level)
         check("slot", self.lineEdit_Slot)
-        check("pnd_location_id1", self.lineEdit_PnDIN)
-        check("pnd_location_id2", self.lineEdit_PnDOUT)
+        check("pnd_location_id1", self.lineEdit_PnD1)
+        check("pnd_location_id2", self.lineEdit_PnD2)
 
-        check("palle_cap", self.lineEdit_PallCap, int)
-        check("carton_cap", self.lineEdit_CartCap, int)
-        check("max_height", self.lineEdit_MaxHeightValue, float)
-        check("max_depth", self.lineEdit_MaxDepthValue, float)
-        check("max_width", self.lineEdit_MaxWidthValue, float)
-        check("max_weight", self.lineEdit_MaxWwightValue, float)
-        check("pallet_qty_act", self.lineEdit_ActivePalletsQTY, int)
-        check("carton_qty_act", self.lineEdit_ActiveCartonsQTY, int)
+        check("palle_cap", self.lineEdit_PalletCap, int)
+        check("carton_cap", self.lineEdit_CartonCap, int)
+        check("max_height", self.lineEdit_MaxHeight, float)
+        check("max_depth", self.lineEdit_MaxDepth, float)
+        check("max_width", self.lineEdit_MaxWidth, float)
+        check("max_weight", self.lineEdit_MaxWeight, float)
+        check("pallet_qty_act", self.lineEdit_PalletsQty, int)
+        check("carton_qty_act", self.lineEdit_CartonsQty, int)
 
-        check("last_touch", self.lineEdit_LastTouch)
+        check("last_touch", self.lineEdit_LastTouched)
 
         # Combos
         combos = {
@@ -139,8 +138,8 @@ class LocationMaintance(QtWidgets.QWidget, Ui_LocationMaintance):
             "pick_class": self.comboBox_PickClass,
             "rstk_class": self.comboBox_RestockClass,
             "blocked_code": self.comboBox_BlockCode,
-            "proximiti_in": self.comboBox_PrxIN,
-            "proximiti_out": self.comboBox_PrxOUT,
+            "proximiti_in": self.comboBox_ProxIN,
+            "proximiti_out": self.comboBox_ProxOUT,
             "uom_max_height": self.comboBox_HeightUOM,
             "uom_max_depth": self.comboBox_DepthUOM,
             "uom_max_width": self.comboBox_WidthUOM,
@@ -161,7 +160,7 @@ class LocationMaintance(QtWidgets.QWidget, Ui_LocationMaintance):
             if current != original:
                 updated[field] = current
 
-        check_flag("black_hole_flag", self.checkBox_BlackHoleFlag)
+        check_flag("black_hole_flag", self.checkBox_BlackHole)
 
         return updated
 
