@@ -15,8 +15,6 @@ class Ui_VendorMaintance(object):
     def setupUi(self, VendorMaintance):
         VendorMaintance.setObjectName("VendorMaintance")
         VendorMaintance.resize(810, 295)
-        VendorMaintance.setMinimumSize(QtCore.QSize(810, 295))
-        VendorMaintance.setMaximumSize(QtCore.QSize(800, 289))
         self.gridLayout_3 = QtWidgets.QGridLayout(VendorMaintance)
         self.gridLayout_3.setObjectName("gridLayout_3")
         self.frame_3 = QtWidgets.QFrame(VendorMaintance)

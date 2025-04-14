@@ -565,7 +565,7 @@ class MainWindow(QtWidgets.QMainWindow):
                         self.open_mdi_window(
                             lambda: VendorMaintanceDialog(vendor_data=vendor_data, parent=self),
                             "Vendor Maintanance",
-                            size=(800, 289),min_size=(810, 295), max_size=(810, 295),
+                            size=(800, 400),
                             extra_setup=lambda w, s: setattr(w, "parent_subwindow", s)
                         )
                     else:
