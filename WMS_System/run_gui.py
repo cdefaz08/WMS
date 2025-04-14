@@ -9,7 +9,7 @@ def apply_theme_from_file(app, qss_file):
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
-    apply_theme_from_file(app, "themes/dark_orange_theme.qss")
+    apply_theme_from_file(app, "themes/new_theme.qss")
     app.setWindowIcon(QIcon("icons/Logo/DEFAZ_LOGOV2.png"))
     login_window = LoginWindow()
     login_window.show()

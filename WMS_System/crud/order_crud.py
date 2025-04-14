@@ -6,21 +6,51 @@ from schemas.order import OrderCreate, OrderUpdate
 from typing import Optional
 from datetime import date
 from sqlalchemy.sql import and_
+from sqlalchemy import desc
+
+async def generate_next_order_number():
+    query = (
+        select(orders.c.order_number)
+        .order_by(desc(orders.c.id))
+        .limit(1)
+    )
+    last_order = await database.fetch_one(query)
+
+    if last_order and last_order["order_number"].startswith("ORD-"):
+        try:
+            last_number = int(last_order["order_number"].split("-")[-1])
+        except ValueError:
+            last_number = 0
+        new_number = last_number + 1
+    else:
+        new_number = 1
+
+    return f"S-{str(new_number).zfill(5)}"
 
 
-async def create_order(order_data: OrderCreate, created_by: str):
-    query = select(orders).where(orders.c.order_number == order_data.order_number)
+async def create_order(order_data: OrderCreate, current_user: dict):
+    values = order_data.dict(exclude_none=True)
+
+    # Generate order number if not provided
+    if not values.get("order_number"):
+        values["order_number"] = await generate_next_order_number()
+
+    # Check for duplicates
+    query = select(orders).where(orders.c.order_number == values["order_number"])
     existing = await database.fetch_one(query)
     if existing:
         raise HTTPException(status_code=400, detail="Order number already exists.")
 
+    values["created_by"] = current_user["id"]
+
     insert_query = (
         insert(orders)
-        .values(**order_data.dict(exclude_none=True),created_by=created_by)
-        .returning(orders)  # <- Return full order row
+        .values(**values)
+        .returning(orders)
     )
     new_order = await database.fetch_one(insert_query)
     return new_order
+
 
 
 async def get_orders():

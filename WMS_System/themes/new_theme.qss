@@ -1,0 +1,250 @@
+/* ========== GLOBAL ========== */
+QWidget {
+    background-color: #f4f6f8; /* Light gray MDI background */
+    color: #2c3e50; /* Deep gray-blue for better readability */
+    font-family: "Segoe UI", sans-serif;
+    font-size: 11pt;
+}
+
+/* ========== INPUTS ========== */
+QLineEdit, QTextEdit, QPlainTextEdit, QDateEdit {
+    background-color: #ffffff;
+    color: #2c3e50;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 4px;
+}
+
+QLineEdit:focus, QTextEdit:focus, QPlainTextEdit:focus, QDateEdit:focus {
+    border: 1px solid #007ACC; /* Calm productivity blue */
+    background-color: #e6f0fa;
+}
+
+/* ========== COMBOBOX ========== */
+QComboBox {
+    background-color: #ffffff;
+    color: #2c3e50;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 6px;
+}
+
+QComboBox:focus {
+    border: 1px solid #007ACC;
+}
+
+QComboBox QAbstractItemView {
+    background-color: #ffffff;
+    selection-background-color: #007ACC;
+    selection-color: #ffffff;
+    border: 1px solid #ced4da;
+}
+
+QComboBox QAbstractItemView::item:hover {
+    background-color: #dbeeff;
+    color: #2c3e50;
+}
+
+/* ========== BUTTONS ========== */
+QPushButton {
+    background-color: #007ACC;
+    color: #ffffff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+
+QPushButton:hover {
+    background-color: #005f99;
+}
+
+QPushButton:pressed {
+    background-color: #004f80;
+}
+
+/* ========== LABELS ========== */
+QLabel {
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+/* ========== TABLES ========== */
+QTableView, QTableWidget {
+    background-color: #ffffff;
+    color: #2c3e50;
+    border: 1px solid #dcdcdc;
+    selection-background-color: #007ACC;
+    selection-color: #ffffff;
+    gridline-color: #cccccc;
+    font-size: 10pt;
+}
+
+QHeaderView::section {
+    background-color: #34495e;
+    color: #ffffff;
+    padding: 6px;
+    border: none;
+    border-right: 1px solid #ffffff;
+    border-bottom: 1px solid #eeeeee;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+/* ========== MENU BAR & MENUS ========== */
+QMenuBar {
+    background-color: #f4f6f8;
+    color: #2c3e50;
+}
+
+QMenuBar::item {
+    padding: 4px 10px;
+    background: transparent;
+}
+
+QMenuBar::item:selected {
+    background-color: #007ACC;
+    color: #ffffff;
+}
+
+QMenu {
+    background-color: #ffffff;
+    border: 1px solid #ced4da;
+    color: #2c3e50;
+}
+
+QMenu::item:selected {
+    background-color: #007ACC;
+    color: #ffffff;
+}
+
+/* ========== TOOLBARS & BUTTONS ========== */
+QToolBar {
+    background-color: #f0f3f5;
+    border: none;
+    padding: 6px;
+}
+
+QToolButton {
+    background-color: transparent;
+    border: none;
+    padding: 6px;
+}
+
+QToolButton:hover {
+    background-color: #007ACC;
+    color: white;
+    border-radius: 4px;
+}
+
+QToolButton:pressed {
+    background-color: #005f99;
+}
+
+/* ========== CHECKBOX & RADIO ========== */
+QCheckBox, QRadioButton {
+    spacing: 8px;
+    font-size: 10.5pt;
+    color: #2c3e50;
+}
+
+QCheckBox::indicator, QRadioButton::indicator {
+    width: 16px;
+    height: 16px;
+}
+
+/* ========== GROUPBOX ========== */
+QGroupBox {
+    border: 1px solid #b0bec5;
+    border-radius: 6px;
+    margin-top: 10px;
+    padding: 10px;
+    font-weight: bold;
+}
+
+QGroupBox::title {
+    padding: 0 6px;
+    color: #2c3e50;
+}
+
+/* ========== TREE WIDGET ========== */
+/* Tree item selected */
+QTreeWidget::item:selected {
+    background-color: #e6f0fa;  /* Soft blue */
+    color: #2c3e50;
+}
+
+
+/* Tree item hovered */
+QTreeWidget::item:hover {
+    background-color: #dbeeff;
+    color: #2c3e50;
+}
+
+/* Tree item alternating background */
+QTreeWidget::item:alternate {
+    background-color: #f0f3f5;
+}
+
+/* Inputs inside QTreeWidgets (editable cells) */
+QTreeView QLineEdit,
+QTreeWidget QLineEdit {
+    background-color: #ffffff;
+    color: #2c3e50;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 2px;
+}
+
+QTreeView QLineEdit:focus,
+QTreeWidget QLineEdit:focus {
+    border: 1px solid #007ACC;
+    background-color: #e6f0fa;
+}
+
+/* Optional: slightly round QTreeView section borders */
+QTreeView::branch {
+    background: transparent;
+    border: none;
+    padding: 0px;
+    margin: 0px;
+}
+
+QTreeView::branch::has-children {
+    background: none;
+    margin: 0px;
+    padding: 0px;
+}
+
+QTreeWidget::item:selected:!active {
+    background-color: transparent;
+    color: #2c3e50;
+}
+
+QTreeView::branch:closed:has-children,
+QTreeView::branch:open:has-children {
+    background: none;
+    margin-left: 0px;
+    padding-left: 0px;
+}
+
+
+/* Padding/spacing fix for rows */
+QTreeWidget::item {
+    padding: 6px;
+    margin-bottom: 4px;
+}
+
+/* ========== QTreeView branch icons (expand/collapse) ========== */
+QTreeView::branch:has-children:!has-siblings:closed,
+QTreeView::branch:closed:has-children:has-siblings {
+    border-image: none;
+    image: url("icons/icons8-arrow-right-50.png");
+}
+
+QTreeView::branch:open:has-children:!has-siblings,
+QTreeView::branch:open:has-children:has-siblings {
+    border-image: none;
+    image: url("icons/icons8-arrow-down-50.png");
+}

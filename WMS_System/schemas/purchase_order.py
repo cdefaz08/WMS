@@ -4,12 +4,14 @@ from datetime import datetime
 
 
 class PurchaseOrderBase(BaseModel):
-    po_number: str
+    po_number: Optional[str] = None
     vendor_id: int
     order_date: datetime
     expected_date: Optional[datetime] = None
+    ship_date: Optional[datetime] = None
     status: Optional[str] = "Open"
-    created_by: Optional[int] = None
+    created_by: Optional[str] = None
+    modified_by: Optional[str] = None
     comments: Optional[str] = None
 
 
@@ -18,16 +20,17 @@ class PurchaseOrderCreate(PurchaseOrderBase):
 
 
 class PurchaseOrderUpdate(BaseModel):
-    vendor_id: Optional[int]
-    order_date: Optional[datetime]
-    expected_date: Optional[datetime]
-    status: Optional[str]
-    created_by: Optional[int]
-    comments: Optional[str]
+    expected_date: Optional[datetime] = None
+    ship_date: Optional[datetime] = None
+    status: Optional[str] = None
+    modified_by: Optional[str] = None
+    comments: Optional[str] = None
 
 
-class PurchaseOrder(PurchaseOrderBase):
+class PurchaseOrderInDB(PurchaseOrderBase):
     id: int
+    created_date: Optional[datetime] = None
+    modified_date: Optional[datetime] = None
 
     class Config:
         from_attributes = True

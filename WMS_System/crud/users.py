@@ -3,6 +3,7 @@ from utils import Hash_password
 from database import database
 from fastapi import HTTPException
 from schemas.user import UserUpdate , Users
+from sqlalchemy import select
 
 #--------------Create User------------------#
 async def create_user(user: Users):
@@ -33,6 +34,16 @@ async def create_user(user: Users):
 async def get_users():
     query = users.select()
     return await database.fetch_all(query)
+
+#get by ID
+async def get_user_by_id(user_id: int):
+    query = select(users).where(users.c.id == user_id)
+    user = await database.fetch_one(query)
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return user
 
 #Delete user by User_id
 async def delete_user(user_id: int):

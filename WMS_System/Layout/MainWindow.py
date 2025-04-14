@@ -98,13 +98,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # ✅ Aplicar límites de tamaño al widget antes de insertarlo en el subwindow
         widget.setMinimumSize(*min_size)
-        widget.setMaximumSize(*max_size)
+        #widget.setMaximumSize(*max_size)
 
         # ✅ Crear y limitar el subwindow también
         sub_window = QtWidgets.QMdiSubWindow()
         sub_window.setWindowFlags(QtCore.Qt.Window)
         sub_window.setMinimumSize(*min_size)
-        sub_window.setMaximumSize(*max_size)
+        #sub_window.setMaximumSize(*max_size)
 
         sub_window.setWidget(widget)
         sub_window.setWindowTitle(window_title)

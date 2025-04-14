@@ -17,7 +17,7 @@ async def create_order(
     order_data: OrderCreate,
     current_user: dict = Depends(get_current_user)  # 🔥 aquí accedemos al token decodificado
 ):
-    return await order_crud.create_order(order_data, created_by=current_user["sub"])
+    return await order_crud.create_order(order_data, current_user=current_user)
 
 
 @router.get("/")

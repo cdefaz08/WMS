@@ -5,9 +5,10 @@ from typing import Optional
 class PurchaseOrderLineBase(BaseModel):
     purchase_order_id: int
     item_id: int
-    quantity: int
-    unit_price: Optional[float] = 0.0
-    line_total: Optional[float] = 0.0
+    qty_ordered: int
+    qty_received: int
+    unit_price: Optional[float] = None
+    line_total: Optional[float] = None
     comments: Optional[str] = None
 
 
@@ -16,13 +17,12 @@ class PurchaseOrderLineCreate(PurchaseOrderLineBase):
 
 
 class PurchaseOrderLineUpdate(BaseModel):
-    quantity: Optional[int]
-    unit_price: Optional[float]
-    line_total: Optional[float]
-    comments: Optional[str]
+    qty_received: Optional[int] = None
+    unit_price: Optional[float] = None
+    comments: Optional[str] = None
 
 
-class PurchaseOrderLine(PurchaseOrderLineBase):
+class PurchaseOrderLineInDB(PurchaseOrderLineBase):
     id: int
 
     class Config:

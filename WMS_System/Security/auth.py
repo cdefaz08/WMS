@@ -16,6 +16,8 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
 def verify_access_token(token: str):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        print("🔐 Token payload:", payload)
         return payload
-    except JWTError:
+    except JWTError as e:
+        print("❌ Token is invalid or expired:", str(e))
         return None
