@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5 import QtWidgets, QtCore
+from PyQt5.QtCore import QDate
 import requests
 from Layout.UI_PY.UI_PurchaseOrderSearch import PurchaseOrderSearchUI
 
@@ -7,6 +8,13 @@ class PurchaseOrderSearchWindow(PurchaseOrderSearchUI):
     def __init__(self, api_client=None):
         super().__init__()
         self.api_client = api_client  # debe tener headers con el token
+        self.marker_date = QDate(2000, 1, 1)
+
+        self.input_start_date.setSpecialValueText("No filter")
+        self.input_start_date.setDate(self.marker_date)
+        self.input_end_date.setSpecialValueText("No filter")
+        self.input_end_date.setDate(self.marker_date)
+
         self.btn_search.clicked.connect(self.search_po)
         self.btn_reset.clicked.connect(self.reset_fields)
 
@@ -14,11 +22,16 @@ class PurchaseOrderSearchWindow(PurchaseOrderSearchUI):
         try:
             params = {
                 "po_number": self.input_po_number.text(),
-                "vendor_name": self.input_vendor.text(),
-                "status": self.input_status.currentText(),
-                "start_date": self.input_start_date.date().toString("yyyy-MM-dd"),
-                "end_date": self.input_end_date.date().toString("yyyy-MM-dd"),
+                "vendor": self.input_vendor.text(),
+                "status": self.input_status.currentText()
             }
+
+            # Only include if user changed it from the marker value
+            if self.input_start_date.date() != self.marker_date:
+                params["start_date"] = self.input_start_date.date().toString("yyyy-MM-dd")
+
+            if self.input_end_date.date() != self.marker_date:
+                params["end_date"] = self.input_end_date.date().toString("yyyy-MM-dd")
 
             # Limpiar parámetros vacíos
             params = {k: v for k, v in params.items() if v}

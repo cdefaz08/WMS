@@ -202,12 +202,12 @@ purchase_orders = Table(
     metadata,
     Column("id", Integer, primary_key=True, autoincrement=True),
     Column("po_number", String(50), nullable=False, unique=True),
-    Column("vendor_id", Integer, nullable=False),  # Foreign key ref to vendors
-    Column("order_date", DateTime, nullable=False),
-    Column("expected_date", DateTime),
-    Column("ship_date", Date),
-    Column("status", String(30), default="Open"),  # Open, Received, Cancelled, etc.
-    Column("created_by", String(50)),  # ✅ esto está bien
+    Column("vendor_id", Integer, nullable=False),
+    Column("order_date", Date, nullable=False),           # <- CAMBIO A Date
+    Column("expected_date", Date),                        # <- CAMBIO A Date
+    Column("ship_date", Date),                            # <- CAMBIO A Date
+    Column("status", String(30), default="Open"),
+    Column("created_by", String(50)),
     Column("created_date", DateTime, server_default=func.now()),
     Column("modified_by", String(50)),
     Column("modified_date", DateTime, onupdate=func.now()),
