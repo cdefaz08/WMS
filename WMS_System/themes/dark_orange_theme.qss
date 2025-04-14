@@ -212,6 +212,7 @@ QTreeWidget::item:hover {
 QTreeWidget::item:selected {
     background-color: #ffd580;
     color: #222831;
+    border: 1px solid #f6ae2d;
 }
 
 /* Alternating rows */
