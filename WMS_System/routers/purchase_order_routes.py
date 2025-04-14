@@ -40,7 +40,8 @@ async def update_purchase_order(
     update_data: PurchaseOrderUpdate,
     current_user=Depends(get_current_user)
 ):
-    return await purchase_order_crud.update_purchase_order(po_id, update_data, current_user)
+    modify_by = current_user["username"]
+    return await purchase_order_crud.update_purchase_order(po_id, update_data, modify_by)
 
 
 # Delete purchase order

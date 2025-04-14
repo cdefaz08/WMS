@@ -61,14 +61,14 @@ async def get_purchase_order_by_id(po_id: int):
 
 
 # UPDATE
-async def update_purchase_order(po_id: int, updated_data: PurchaseOrderUpdate, current_user):
+async def update_purchase_order(po_id: int, updated_data: PurchaseOrderUpdate, modify_by):
     query = select(purchase_orders).where(purchase_orders.c.id == po_id)
     existing = await database.fetch_one(query)
     if not existing:
         raise HTTPException(status_code=404, detail="Purchase Order not found.")
 
     update_values = updated_data.dict(exclude_unset=True)
-    update_values["modified_by"] = current_user["id"]
+    update_values["modified_by"] = modify_by
     query = (
         update(purchase_orders)
         .where(purchase_orders.c.id == po_id)
