@@ -211,6 +211,33 @@ purchase_orders = Table(
     Column("created_date", DateTime, server_default=func.now()),
     Column("modified_by", String(50)),
     Column("modified_date", DateTime, onupdate=func.now()),
+    Column("ship_company_name", String(100)),
+    Column("ship_address", String(150)),
+    Column("ship_city", String(50)),
+    Column("ship_state", String(50)),
+    Column("ship_zip_code", String(20)),
+    Column("ship_country", String(50)),
+    Column("ship_contact_name", String(50)),
+    Column("ship_contact_phone", String(30)),
+    Column("ship_tax_id", String(30)),
+
+    # Dirección de facturación (Bill To)
+    Column("bill_company_name", String(100)),
+    Column("bill_address", String(150)),
+    Column("bill_city", String(50)),
+    Column("bill_state", String(50)),
+    Column("bill_zip_code", String(20)),
+    Column("bill_country", String(50)),
+    Column("bill_contact_name", String(50)),
+    Column("bill_contact_phone", String(30)),
+    Column("bill_tax_id", String(30)),
+
+    # Custom fields
+    Column("custom_1", String(100)),
+    Column("custom_2", String(100)),
+    Column("custom_3", String(100)),
+    Column("custom_4", String(100)),
+    Column("custom_5", String(100)),
     Column("comments", String(200)),
 )
 

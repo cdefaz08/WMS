@@ -27,6 +27,7 @@ from Layout.Maintance.ItemConfiguration import ItemConfigurationWindow
 from Layout.Inquiry.InventorySearchWindow import InventorySearchWindow
 from Layout.Activities.PO_Search import PurchaseOrderSearchWindow
 from Layout.AdjustmentWindow import AdjustmentWindow
+from Layout.Activities.purchase_order_maint_window import PurchaseOrderMaintWindow
 from api_client import APIClient
 
 
@@ -583,7 +584,26 @@ class MainWindow(QtWidgets.QMainWindow):
                 except requests.exceptions.RequestException:
                     QtWidgets.QMessageBox.critical(self, "Error", "Could not connect to the server.")
             else:
-                QtWidgets.QMessageBox.warning(self, "No Selection", "Please select an item from the table.")                
+                QtWidgets.QMessageBox.warning(self, "No Selection", "Please select an item from the table.") 
+        elif isinstance(active_window,PurchaseOrderSearchWindow):
+            purchase_order_id = active_window.get_selected_po_id()
+            if purchase_order_id:
+                try:
+                    response = self.api_client.get(f"/purchase-orders/{purchase_order_id}")
+                    if response.status_code == 200:
+                        po_data = response.json()
+                        self.open_mdi_window(
+                            lambda: PurchaseOrderMaintWindow(po_data=po_data, api_client=self.api_client, parent=self),
+                            "Purchase Order Maintanance",
+                            size=(1072, 617),min_size=(697, 459), max_size=(1072, 617),
+                            extra_setup=lambda w, s: setattr(w, "parent_subwindow", s)
+                        )
+                    else:
+                        QtWidgets.QMessageBox.warning(self, "Error", "Could not load item from server.")
+                except requests.exceptions.RequestException:
+                    QtWidgets.QMessageBox.critical(self, "Error", "Could not connect to the server.")
+            else:
+                QtWidgets.QMessageBox.warning(self, "No Selection", "Please select an item from the table.")               
 
     
     def open_OrderLines_window(self):
@@ -669,7 +689,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         widget = active_subwindow.widget()
 
-        if isinstance(widget, (ItemSearchWindow, LocationTypes, VendorSearchWindow, OrderSearchWindow,ReceiptSearchWindow)):
+        if isinstance(widget, (ItemSearchWindow, LocationTypes, VendorSearchWindow, OrderSearchWindow,ReceiptSearchWindow,PurchaseOrderSearchWindow)):
             self.actionItemMaintance.setVisible(True)
         elif isinstance(widget, (OrderMaintanceWindow,ReceiptMaintanceWindow,ItemMaintanceDialog)):
             self.actionOrderLines.setVisible(True)

@@ -56,9 +56,18 @@ class PurchaseOrderSearchWindow(PurchaseOrderSearchUI):
     def populate_table(self, data):
         self.table.setRowCount(len(data))
         for row_idx, row in enumerate(data):
-            self.table.setItem(row_idx, 0, QtWidgets.QTableWidgetItem(row.get("po_number", "")))
-            self.table.setItem(row_idx, 1, QtWidgets.QTableWidgetItem(row.get("vendor_code", "")))
-            self.table.setItem(row_idx, 2, QtWidgets.QTableWidgetItem(row.get("order_date", "")))
-            self.table.setItem(row_idx, 3, QtWidgets.QTableWidgetItem(row.get("status", "")))
-            self.table.setItem(row_idx, 4, QtWidgets.QTableWidgetItem(row.get("created_by", "")))
-            self.table.setItem(row_idx, 5, QtWidgets.QTableWidgetItem(row.get("comments", "")))
+            self.table.setItem(row_idx, 0, QtWidgets.QTableWidgetItem(str(row.get("id", ""))))  # ID oculto
+            self.table.setItem(row_idx, 1, QtWidgets.QTableWidgetItem(row.get("po_number", "")))
+            self.table.setItem(row_idx, 2, QtWidgets.QTableWidgetItem(row.get("vendor_code", "")))
+            self.table.setItem(row_idx, 3, QtWidgets.QTableWidgetItem(row.get("order_date", "")))
+            self.table.setItem(row_idx, 4, QtWidgets.QTableWidgetItem(row.get("status", "")))
+            self.table.setItem(row_idx, 5, QtWidgets.QTableWidgetItem(row.get("created_by", "")))
+            self.table.setItem(row_idx, 6, QtWidgets.QTableWidgetItem(row.get("comments", "")))
+        
+        self.table.setColumnHidden(0, True)
+
+    def get_selected_po_id(self):
+        selected_row = self.table.currentRow()
+        if selected_row != -1:
+            return int(self.table.item(selected_row, 0).text())
+        return None
