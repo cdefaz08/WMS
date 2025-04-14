@@ -359,6 +359,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 active_window.add_new_row()
         elif isinstance(active_window, ItemConfigurationWindow):
             active_window.add_configuration_block()
+        elif isinstance(active_window,PurchaseOrderMaintWindow):
+            active_window.add_order_line_row()
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
 
@@ -402,6 +404,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 active_window.save_receipt()
         elif isinstance(active_window,ItemConfigurationWindow):
             active_window.save_all_configurations()
+        elif isinstance(active_window,PurchaseOrderMaintWindow):
+            active_window.save_changes()
 
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
@@ -440,6 +444,8 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.delete_selected_receipt()
         elif isinstance(active_window,ItemConfigurationWindow):
             active_window.delete_selected_configuration()
+        elif isinstance(active_window,PurchaseOrderMaintWindow):
+            active_window.delete_selected_order_line()
         else:
             QtWidgets.QMessageBox.warning(self,"No Active Window", "Please select a window First")
 

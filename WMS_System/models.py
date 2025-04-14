@@ -275,13 +275,24 @@ purchase_order_lines = Table(
     "purchase_order_lines",
     metadata,
     Column("id", Integer, primary_key=True, autoincrement=True),
-    Column("purchase_order_id", Integer, nullable=False),  # FK to purchase_orders
-    Column("item_id", Integer, nullable=False),            # FK to items
+    Column("purchase_order_id", Integer, nullable=False),  # FK a purchase_orders
+    Column("line_number", Integer, nullable=False),
+    Column("upc", String(50), nullable=True),
+    Column("item_id", Integer, nullable=False),            # FK a items
+    Column("description", String(100)),
     Column("qty_ordered", Integer, nullable=False),
+    Column("qty_expected", Integer, nullable=False),
     Column("qty_received", Integer, nullable=False),
+    Column("uom", String(20), default="Pieces"),
     Column("unit_price", Float, nullable=True),
-    Column("line_total", Float),  # quantity * unit_price
+    Column("line_total", Float),
+    Column("lot_number", String(50)),
+    Column("expiration_date", Date),
+    Column("location_received", String(50)),
     Column("comments", String(200)),
+    Column("custom_1", String(100)),
+    Column("custom_2", String(100)),
+    Column("custom_3", String(100)),
 )
 
 

@@ -47,8 +47,8 @@ async def update_purchase_order_line(line_id: int, updated_data: PurchaseOrderLi
         raise HTTPException(status_code=404, detail="Purchase order line not found.")
 
     update_values = updated_data.dict(exclude_unset=True)
-    if "qty_ordered" in update_values or "unit_price" in update_values:
-        qty = update_values.get("qty_ordered", existing["qty_ordered"])
+    if "qty_received" in update_values or "unit_price" in update_values:
+        qty = update_values.get("qty_received", existing["qty_received"])
         price = update_values.get("unit_price", existing["unit_price"] or 0)
         update_values["line_total"] = qty * price
 
