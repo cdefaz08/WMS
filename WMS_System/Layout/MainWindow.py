@@ -25,6 +25,7 @@ from Layout.Activities.ReceiptMaintance import ReceiptMaintanceWindow
 from Layout.Activities.ReceiptLinesWindow import ReceiptLinesWindow
 from Layout.Maintance.ItemConfiguration import ItemConfigurationWindow
 from Layout.Inquiry.InventorySearchWindow import InventorySearchWindow
+from Layout.Activities.PO_Search import PurchaseOrderSearchWindow
 from Layout.AdjustmentWindow import AdjustmentWindow
 from api_client import APIClient
 
@@ -56,6 +57,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionOrder_Search = self.findChild(QtWidgets.QAction, "actionOrder_Search")
         self.actionReceipt_Search = self.findChild(QtWidgets.QAction, "actionReceipt_Search")
         self.actionInventory_Adjustment = self.findChild(QtWidgets.QAction, "actionInventory_Adjustment")
+        self.actionPurchase_Order_Search = self.findChild(QtWidgets.QAction, "actionPurchase_Order_Search")
 
 
 
@@ -73,6 +75,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionOrder_Search.triggered.connect(self.open_Order_Search)
         self.actionReceipt_Search.triggered.connect(self.open_Receipt_Search_window)
         self.actionInventory_Adjustment.triggered.connect(self.open_inventory_adjustment_window)
+        self.actionPurchase_Order_Search.triggered.connect(self.open_purchase_order_search_window)
 
 
     def open_mdi_window(self, widget_class, window_title, size=(600, 400),
@@ -149,6 +152,13 @@ class MainWindow(QtWidgets.QMainWindow):
             self.actionItemMaintance.setVisible(True)
             widget.destroyed.connect(self.hide_item_toolbar_action)
         self.open_mdi_window(ItemSearchWindow, "Item Search", size=(1089, 720), extra_setup=setup,min_size=(697, 459), max_size=(1140, 850))
+    
+    def open_purchase_order_search_window(self):
+        def setup(widget, sub_window):
+            self.mdiArea.subWindowActivated.connect(self.handle_subwindow_focus_change)
+            self.actionItemMaintance.setVisible(True)
+            widget.destroyed.connect(self.hide_item_toolbar_action)
+        self.open_mdi_window(PurchaseOrderSearchWindow, "Purchase Order Search", size=(1089, 720), extra_setup=setup,min_size=(697, 459), max_size=(1140, 850))
 
     def open_Order_Search(self):
         def setup(widget, sub_window):

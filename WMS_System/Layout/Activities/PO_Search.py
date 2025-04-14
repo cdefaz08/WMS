@@ -1,0 +1,51 @@
+from PyQt5.QtWidgets import QMessageBox
+from PyQt5 import QtWidgets, QtCore
+import requests
+from Layout.UI_PY.UI_PurchaseOrderSearch import PurchaseOrderSearchUI
+
+class PurchaseOrderSearchWindow(PurchaseOrderSearchUI):
+    def __init__(self, api_client=None):
+        super().__init__()
+        self.api_client = api_client  # debe tener headers con el token
+        self.btn_search.clicked.connect(self.search_po)
+        self.btn_reset.clicked.connect(self.reset_fields)
+
+    def search_po(self):
+        try:
+            params = {
+                "po_number": self.input_po_number.text(),
+                "vendor_name": self.input_vendor.text(),
+                "status": self.input_status.currentText(),
+                "start_date": self.input_start_date.date().toString("yyyy-MM-dd"),
+                "end_date": self.input_end_date.date().toString("yyyy-MM-dd"),
+            }
+
+            # Limpiar parámetros vacíos
+            params = {k: v for k, v in params.items() if v}
+
+            response = self.api_client.get("/purchase-orders/search", params=params)
+            if response.status_code == 200:
+                data = response.json()
+                self.populate_table(data)
+            else:
+                QMessageBox.critical(self, "Error", f"Error: {response.status_code}\n{response.text}")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", str(e))
+
+    def reset_fields(self):
+        self.input_po_number.clear()
+        self.input_vendor.clear()
+        self.input_status.setCurrentIndex(0)
+        self.input_start_date.setDate(QtCore.QDate.currentDate())
+        self.input_end_date.setDate(QtCore.QDate.currentDate())
+        self.table.setRowCount(0)
+
+    def populate_table(self, data):
+        self.table.setRowCount(len(data))
+        for row_idx, row in enumerate(data):
+            self.table.setItem(row_idx, 0, QtWidgets.QTableWidgetItem(row.get("po_number", "")))
+            self.table.setItem(row_idx, 1, QtWidgets.QTableWidgetItem(row.get("vendor_code", "")))
+            self.table.setItem(row_idx, 2, QtWidgets.QTableWidgetItem(row.get("order_date", "")))
+            self.table.setItem(row_idx, 3, QtWidgets.QTableWidgetItem(row.get("status", "")))
+            self.table.setItem(row_idx, 4, QtWidgets.QTableWidgetItem(row.get("created_by", "")))
+            self.table.setItem(row_idx, 5, QtWidgets.QTableWidgetItem(row.get("comments", "")))
