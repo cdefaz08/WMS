@@ -13,11 +13,11 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
             try:
                 lines_response = self.api_client.get(f"/purchase-order-lines/by-po/{po_id}")
                 if lines_response.status_code == 200:
-                    self.po_data["receipt_lines"] = lines_response.json()
+                    self.po_data["po_lines"] = lines_response.json()
                 else:
-                    self.po_data["receipt_lines"] = []
+                    self.po_data["po_lines"] = []
             except Exception as e:
-                self.po_data["receipt_lines"] = []
+                self.po_data["po_lines"] = []
                 
         self.load_dropdowns()
         self.populate_data()
@@ -51,25 +51,30 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
         self._set_address_group(self.tabs.widget(0).layout().itemAt(0).widget(), "ship_")
         self._set_address_group(self.tabs.widget(0).layout().itemAt(1).widget(), "bill_")
 
-        receipt_lines = self.po_data.get("receipt_lines", [])
-        self.original_lines = receipt_lines.copy()
-        self.receipt_table.setRowCount(len(receipt_lines))
-        for row_idx, line in enumerate(receipt_lines):
-            column_keys = ["line_number", "upc", "item_id", "description", "qty_ordered",
-                        "qty_expected", "qty_received", "uom", "unit_price", "total_price","id"]
-
+        po_lines = self.po_data.get("po_lines", [])
+        self.original_lines = po_lines.copy()
+        self.receipt_table.setRowCount(len(po_lines))
+        for row_idx, line in enumerate(po_lines):
+            column_keys = ["line_number", 
+                        "upc", "item_code", "description", "qty_ordered", 
+                        "qty_expected", "qty_received", "uom", "unit_price", 
+                        "total_price", "id"]
+            
             for col_idx, key in enumerate(column_keys):
                 cell_value = str(line.get(key, ""))
                 item = QtWidgets.QTableWidgetItem(cell_value)
 
                 # En la columna 2 (item_code), guarda el item_id como UserRole
-                if key == "item_id":
-                    item.setData(QtCore.Qt.UserRole, line.get("item_id", None))
+                if key == "item_code":
+                    item.setData(QtCore.Qt.UserRole, line.get("item_id", None))  # Guarda el ID real
+
                 if key == "line_number":
                     item.setData(QtCore.Qt.UserRole + 1, line.get("id"))  # guarda el line_id aquí
-
-
+                
                 self.receipt_table.setItem(row_idx, col_idx, item)
+                
+                
+            
 
     def _set_address_group(self, groupbox, prefix):
         form_layout = groupbox.layout()
@@ -279,11 +284,13 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
             return
 
         product = items[0]
+        print(product)
 
         # Mostrar item_code (ej: "Phone Iphone") en la columna 2, guardar ID como UserRole
-        item_code = QtWidgets.QTableWidgetItem(str(product.get("item_id", "")))
-        item_code.setData(QtCore.Qt.UserRole, product["id"])  # ID real escondido
+        item_code = QtWidgets.QTableWidgetItem(product.get("item_id", ""))
+        item_code.setData(QtCore.Qt.UserRole, product["id"])  # ID interno
         self.receipt_table.setItem(row, 2, item_code)
+
 
         # Mostrar descripción en la columna 3
         self.receipt_table.setItem(row, 3, QtWidgets.QTableWidgetItem(product.get("description", "")))
@@ -315,6 +322,7 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
                 "line_number": self.get_cell_text(row, 0),
                 "upc": self.get_cell_text(row, 1),
                 "item_id": item_id,
+                "item_code": item_code_item.text() if item_code_item else "",
                 "description": self.get_cell_text(row, 3),
                 "qty_ordered": self.get_cell_text(row, 4),
                 "qty_expected": self.get_cell_text(row, 5),

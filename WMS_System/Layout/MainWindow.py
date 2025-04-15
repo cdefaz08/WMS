@@ -601,7 +601,7 @@ class MainWindow(QtWidgets.QMainWindow):
                         self.open_mdi_window(
                             lambda: PurchaseOrderMaintWindow(po_data=po_data, api_client=self.api_client, parent=self),
                             "Purchase Order Maintanance",
-                            size=(1072, 617),min_size=(697, 459), max_size=(1072, 617),
+                            size=(1000, 710),min_size=(697, 459), max_size=(1072, 617),
                             extra_setup=lambda w, s: setattr(w, "parent_subwindow", s)
                         )
                     else:

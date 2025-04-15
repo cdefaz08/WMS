@@ -58,12 +58,22 @@ class PurchaseOrderMaintUI(QtWidgets.QWidget):
         self.tab_receipt_lines = QtWidgets.QWidget()
         receipt_layout = QtWidgets.QVBoxLayout(self.tab_receipt_lines)
         self.receipt_table = QtWidgets.QTableWidget()
-        self.receipt_table.setColumnCount(11)
+        self.receipt_table.setColumnCount(10)
         self.receipt_table.setHorizontalHeaderLabels([
-            "LINE NUMBER", "UPC", "ITEM CODE", "DESCRIPTION", "QTY ORDERED",
-            "QTY EXPECTED", "QTY RECEIVED", "UOM", "UNIT PRICE", "TOTAL PRICE", "ID"
+            "N.", "UPC", "ITEM CODE", "DESCRIPTION", "ORDERED",
+            "EXPECTED", "RECEIVED", "UOM", "UNIT PRICE", "TOTAL PRICE"
         ])
-        self.receipt_table.setColumnHidden(11, True) 
+        self.receipt_table.setColumnWidth(0,10)
+        self.receipt_table.setColumnWidth(1,120)
+        self.receipt_table.setColumnWidth(2,150)
+        self.receipt_table.setColumnWidth(3,200)
+        self.receipt_table.setColumnWidth(4,100)
+        self.receipt_table.setColumnWidth(5,100)
+        self.receipt_table.setColumnWidth(6,100)
+        self.receipt_table.setColumnWidth(7,100)
+        self.receipt_table.setColumnWidth(8,80)
+        self.receipt_table.setColumnWidth(9,130)
+        self.receipt_table.setColumnWidth(10,130)
         self.receipt_table.horizontalHeader().setStretchLastSection(True)
         receipt_layout.addWidget(self.receipt_table)
         self.tabs.addTab(self.tab_receipt_lines, "Receipt Lines")

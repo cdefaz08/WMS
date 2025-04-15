@@ -8,6 +8,7 @@ class PurchaseOrderLineBase(BaseModel):
     line_number: Optional[int] = None
     upc: Optional[str] = None
     item_id: int
+    item_code: str
     description: Optional[str] = None
     qty_ordered: int
     qty_expected: Optional[int] = None

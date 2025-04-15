@@ -279,6 +279,7 @@ purchase_order_lines = Table(
     Column("line_number", Integer, nullable=False),
     Column("upc", String(50), nullable=True),
     Column("item_id", Integer, nullable=False),            # FK a items
+    Column("item_code",String(100)),
     Column("description", String(100)),
     Column("qty_ordered", Integer, nullable=False),
     Column("qty_expected", Integer, nullable=False),
