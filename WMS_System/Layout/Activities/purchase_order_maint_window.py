@@ -94,69 +94,78 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
                 field_widget.setText(self.po_data.get(f"{prefix}{label.lower().replace(' ', '_').replace(':', '')}", ""))
 
     def save_changes(self):
-        if not self.po_data:
-            return
+        po_updated = False
+        po_created = False
 
-        lines_updated = self.save_order_lines()
-        updated_fields = {}
-
-        current_values = {
+        # 1. Recolectar todos los datos del PO (tanto para update como create)
+        payload = {
+            "po_number": self.input_po_number.text().strip(),
+            "vendor_id": self.input_vendor.currentData(), 
             "expected_date": self.input_expected_date.date().toString("yyyy-MM-dd"),
             "ship_date": self.input_ship_date.date().toString("yyyy-MM-dd"),
+            "order_date": self.input_order_date.date().toString("yyyy-MM-dd"),
             "status": self.input_status.currentText(),
+            "created_by": self.input_created_by.text().strip(),
         }
 
-        for key, new_value in current_values.items():
-            old_value = str(self.po_data.get(key, "") or "")
-            if new_value != old_value:
-                updated_fields[key] = new_value
-
+        # Campos custom
         for idx, field in enumerate(self.custom_fields, start=1):
-            key = f"custom_{idx}"
-            current = field.text().strip()
-            previous = str(self.po_data.get(key, "") or "")
-            if current != previous:
-                updated_fields[key] = current
+            payload[f"custom_{idx}"] = field.text().strip()
 
+        # Dirección de envío y facturación
         for tab_index, prefix in [(0, "ship_"), (1, "bill_")]:
             form_layout = self.tabs.widget(0).layout().itemAt(tab_index).widget().layout()
             for i in range(form_layout.rowCount()):
                 label = form_layout.itemAt(i, QtWidgets.QFormLayout.LabelRole).widget().text()
                 field_widget = form_layout.itemAt(i, QtWidgets.QFormLayout.FieldRole).widget()
-                key = f"{prefix}{label.lower().replace(' ', '_').replace(':', '')}"
 
-                if "city" in label.lower():
+                if "City" in label:
                     container = field_widget.layout()
                     for sub_key, widget in zip(["city", "state", "zip_code"], [container.itemAt(j).widget() for j in range(3)]):
-                        full_key = f"{prefix}{sub_key}"
-                        current_value = widget.text().strip()
-                        if current_value != str(self.po_data.get(full_key, "") or ""):
-                            updated_fields[full_key] = current_value
+                        payload[f"{prefix}{sub_key}"] = widget.text().strip()
                 else:
-                    current = field_widget.text().strip()
-                    if current != str(self.po_data.get(key, "") or ""):
-                        updated_fields[key] = current
+                    key = f"{prefix}{label.lower().replace(' ', '_').replace(':', '')}"
+                    payload[key] = field_widget.text().strip()
 
-        po_id = self.po_data.get("id")
-        po_updated = False
-
-        if updated_fields:
-            response = self.api_client.put(f"/purchase-orders/{po_id}", json=updated_fields)
+        # 2. Decidir si creamos o actualizamos
+        if self.po_data and self.po_data.get("id"):
+            po_id = self.po_data["id"]
+            response = self.api_client.put(f"/purchase-orders/{po_id}", json=payload)
             if response.status_code == 200:
                 po_updated = True
             else:
                 QtWidgets.QMessageBox.critical(self, "Error", f"Failed to update PO: {response.text}")
                 return
+        else:
+            if not payload["vendor_id"]:
+                QtWidgets.QMessageBox.critical(self, "Missing Vendor", "Please select a vendor before saving.")
+                return
 
-        # Mostrar mensaje correcto según lo que se guardó
-        if po_updated and lines_updated:
-            QMessageBox.information(self, "Success", "Purchase Order and Lines updated successfully.")
+            response = self.api_client.post("/purchase-orders/", json=payload)
+            if response.status_code in (200, 201):
+                self.po_data = response.json()
+                po_created = True
+            else:
+                QtWidgets.QMessageBox.critical(self, "Error", f"Failed to create PO: {response.text}")
+                return
+
+        # 3. Guardar líneas (necesitamos el ID)
+        lines_updated = self.save_order_lines()
+
+        # 4. Mostrar resultado
+        if po_created and lines_updated:
+            QMessageBox.information(self, "Success", "Purchase Order created with lines.")
+        elif po_updated and lines_updated:
+            QMessageBox.information(self, "Success", "Purchase Order and Lines updated.")
+        elif po_created:
+            QMessageBox.information(self, "Success", "Purchase Order created.")
         elif po_updated:
-            QMessageBox.information(self, "Success", "Purchase Order updated successfully.")
+            QMessageBox.information(self, "Success", "Purchase Order updated.")
         elif lines_updated:
-            QMessageBox.information(self, "Success", "Purchase Order Lines updated successfully.")
+            QMessageBox.information(self, "Success", "Purchase Order Lines updated.")
         else:
             QMessageBox.information(self, "No Changes", "No changes detected.")
+
 
 
     def save_order_lines(self):

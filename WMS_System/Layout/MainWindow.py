@@ -361,6 +361,8 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.add_configuration_block()
         elif isinstance(active_window,PurchaseOrderMaintWindow):
             active_window.add_order_line_row()
+        elif isinstance(active_window,PurchaseOrderSearchWindow):
+            self.open_mdi_window(PurchaseOrderMaintWindow,"Add New Purchase Order",size=(1000, 710),min_size=(697, 459), max_size=(1072, 617),)
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
 
@@ -406,7 +408,6 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.save_all_configurations()
         elif isinstance(active_window,PurchaseOrderMaintWindow):
             active_window.save_changes()
-
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
 
