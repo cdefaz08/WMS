@@ -16,6 +16,7 @@ class PurchaseOrderLineBase(BaseModel):
     uom: Optional[str] = "Pieces"
     unit_price: Optional[float] = None
     line_total: Optional[float] = None
+    total_pieces: float  # 👈 nuevo campo
     lot_number: Optional[str] = None
     expiration_date: Optional[date] = None
     location_received: Optional[str] = None
@@ -23,6 +24,7 @@ class PurchaseOrderLineBase(BaseModel):
     custom_1: Optional[str] = None
     custom_2: Optional[str] = None
     custom_3: Optional[str] = None
+
 
 
 class PurchaseOrderLineCreate(PurchaseOrderLineBase):
@@ -33,6 +35,7 @@ class PurchaseOrderLineUpdate(BaseModel):
     qty_received: Optional[int] = None
     unit_price: Optional[float] = None
     line_total: Optional[float] = None
+    total_pieces: Optional[float] = None  # 👈 aquí también
     comments: Optional[str] = None
     lot_number: Optional[str] = None
     expiration_date: Optional[date] = None

@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import QMessageBox
 from PyQt5 import QtWidgets , QtCore
 from PyQt5.QtCore import QDate
 from Layout.UI_PY.purchase_order_maint_ui import PurchaseOrderMaintUI
+from functools import partial
 
 class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
     def __init__(self, api_client=None, po_data=None, parent=None):
@@ -36,7 +37,6 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
     def populate_data(self):
         if not self.po_data:
             return
-        
 
         self.input_po_number.setText(self.po_data.get("po_number", ""))
         self.input_order_date.setDate(QDate.fromString(self.po_data.get("order_date", ""), "yyyy-MM-dd"))
@@ -54,27 +54,73 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
         po_lines = self.po_data.get("po_lines", [])
         self.original_lines = po_lines.copy()
         self.receipt_table.setRowCount(len(po_lines))
+
         for row_idx, line in enumerate(po_lines):
-            column_keys = ["line_number", 
-                        "upc", "item_code", "description", "qty_ordered", 
-                        "qty_expected", "qty_received", "uom", "unit_price", 
-                        "total_price", "id"]
-            
+            column_keys = [
+                "line_number", "upc", "item_code", "description", "qty_ordered", 
+                "qty_expected", "qty_received", "uom", "unit_price", "line_total", "id"
+            ]
+
             for col_idx, key in enumerate(column_keys):
+                # UOM será un QComboBox
+                if key == "uom":
+                    combo = QtWidgets.QComboBox()
+                    combo.addItems(["Pallets", "Carton", "Pieces"])
+                    index = combo.findText(line.get("uom", "Pieces"))
+                    if index >= 0:
+                        combo.setCurrentIndex(index)
+
+                    # 👉 Obtener configuración del item
+                    item_id = line.get("item_id")
+                    config = {}
+                    try:
+                        if item_id:
+                            response = self.api_client.get(f"/item-config/item-maintance/default/{item_id}")
+                            if response.status_code == 200:
+                                config = response.json()
+                    except Exception as e:
+                        print(f"⚠️ Error fetching config: {e}")
+
+                    combo.setProperty("item_config", config)
+
+                    # 👉 Guardar total_pieces desde qty_ordered + uom
+                    try:
+                        ordered = float(line.get("qty_ordered", 0))
+                    except:
+                        ordered = 0.0
+
+                    pieces = ordered
+                    if config:
+                        per_case = config.get("pieces_per_case", 1)
+                        per_pallet = config.get("boxes_per_pallet", 1)
+
+                        if line.get("uom") == "Carton":
+                            pieces = ordered * per_case
+                        elif line.get("uom") == "Pallets":
+                            pieces = ordered * per_case * per_pallet
+
+                    combo.setProperty("total_pieces", pieces)
+
+                    # 👉 Conectar para recalcular al cambiar
+                    combo.currentIndexChanged.connect(partial(self.update_qty_ordered_based_on_uom, row_idx))
+                    self.receipt_table.setCellWidget(row_idx, col_idx, combo)
+                    continue
+
+                # Todas las otras columnas
                 cell_value = str(line.get(key, ""))
                 item = QtWidgets.QTableWidgetItem(cell_value)
 
-                # En la columna 2 (item_code), guarda el item_id como UserRole
                 if key == "item_code":
-                    item.setData(QtCore.Qt.UserRole, line.get("item_id", None))  # Guarda el ID real
-
+                    item.setData(QtCore.Qt.UserRole, line.get("item_id", None))
                 if key == "line_number":
-                    item.setData(QtCore.Qt.UserRole + 1, line.get("id"))  # guarda el line_id aquí
-                
+                    item.setData(QtCore.Qt.UserRole + 1, line.get("id"))
+
                 self.receipt_table.setItem(row_idx, col_idx, item)
-                
-                
-            
+
+            # 👉 Al final de la fila, actualizar cantidad según el UOM cargado
+            self.receipt_table.itemChanged.connect(self.handle_orderline_item_change)
+
+            #self.update_qty_ordered_based_on_uom(row_idx)   
 
     def _set_address_group(self, groupbox, prefix):
         form_layout = groupbox.layout()
@@ -166,8 +212,6 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
         else:
             QMessageBox.information(self, "No Changes", "No changes detected.")
 
-
-
     def save_order_lines(self):
         if not self.po_data:
             return False
@@ -184,15 +228,20 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
             payload["purchase_order_id"] = self.po_data["id"]
 
             try:
-                payload["item_id"] = int(payload["item_id"])
-                payload["qty_ordered"] = int(payload["qty_ordered"])
-                payload["qty_expected"] = int(payload["qty_expected"])
-                payload["qty_received"] = int(payload["qty_received"])
-                payload["unit_price"] = float(payload["unit_price"])
-                payload["line_total"] = float(payload["total_price"])
+                payload["item_id"] = int(payload.get("item_id", 0))
+                payload["qty_ordered"] = int(float(payload.get("qty_ordered", 0)))
+                payload["qty_expected"] = int(payload.get("qty_expected", 0))
+                payload["qty_received"] = int(payload.get("qty_received", 0))
+                payload["unit_price"] = float(payload.get("unit_price", 0))
+                payload["line_total"] = float(payload.get("total_price", 0))
+                payload["total_pieces"] = float(payload.get("total_pieces", 0))  # ✅
+
             except Exception as e:
+                print(f"❌ Error converting line {i + 1}: {e}")
                 continue
 
+
+            # Valores por defecto si no se han especificado
             payload.setdefault("lot_number", "")
             payload.setdefault("expiration_date", QDate.currentDate().toString("yyyy-MM-dd"))
             payload.setdefault("location_received", "")
@@ -201,18 +250,29 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
             payload.setdefault("custom_2", "")
             payload.setdefault("custom_3", "")
 
+            # Limpiar datos que no van
             payload.pop("po_number", None)
             payload.pop("total_price", None)
 
-            response = self.api_client.post(url, json=payload)
+            # 🔁 Elegir PUT o POST dependiendo de si la línea ya existe
+            line_id = row_data.get("line_id")  # <- debes agregar esto en get_order_lines_data()
+            if line_id:
+                print(f"📝 Updating line ID {line_id} → payload: {payload}")
+                response = self.api_client.put(f"/purchase-order-lines/{line_id}", json=payload)
+            else:
+                print(f"➕ Creating new line → payload: {payload}")
+                response = self.api_client.post(url, json=payload)
 
             if response.status_code not in (200, 201):
-                QtWidgets.QMessageBox.warning(self, "Line Save Error", f"Failed to save line {i + 1}:\n{response.text}")
+                QtWidgets.QMessageBox.warning(
+                    self,
+                    "Line Save Error",
+                    f"Failed to save line {i + 1}:\n{response.text}"
+                )
             else:
                 changes_made = True
 
         return changes_made
-
 
 
     def is_line_modified(self, new_row, index):
@@ -282,12 +342,44 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
         col = item.column()
         key = self.receipt_table.horizontalHeaderItem(col).text().lower().replace(" ", "_")
 
-        if key == "upc":
+        if key == "ordered":
+            combo = self.receipt_table.cellWidget(row, 7)
+            if combo:
+                try:
+                    qty = float(item.text())
+                except:
+                    qty = 0.0
+
+                uom = combo.currentText()
+                config = combo.property("item_config") or {}
+                print("Config:", config)
+                pieces_per_case = config.get("pieces_per_case", 1)
+                boxes_per_pallet = config.get("boxes_per_pallet", 1)
+
+                # 🔁 Convertir a total_pieces según UOM actual
+                if uom == "Pieces":
+                    qty = round(qty)  # 🔒 redondeamos cantidad visual escrita por el usuario
+                    total_pieces = qty
+                elif uom == "Carton":
+                    qty = round(qty)
+                    total_pieces = qty * pieces_per_case
+                elif uom == "Pallets":
+                    # ❗ NO redondees si se permite media tarima
+                    total_pieces = qty * pieces_per_case * boxes_per_pallet
+                else:
+                    total_pieces = qty
+
+                combo.setProperty("total_pieces", total_pieces)
+                print(f"[✏️] line change: row={row}, UOM={uom}, total_pieces={total_pieces}")
+                self.update_orderline_total_price(row)
+
+        elif key == "upc":
             self.receipt_table.blockSignals(True)
             self.handle_upc_change(item, row)
             self.receipt_table.blockSignals(False)
-        elif key == "quantity_received":
-            self.update_orderline_total_price(row)
+
+        
+
 
     def handle_upc_change(self, item, row):
         upc_value = item.text().strip()
@@ -306,60 +398,121 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
             return
 
         product = items[0]
+        item_id = product["id"]
 
-        # Mostrar item_code (ej: "Phone Iphone") en la columna 2, guardar ID como 
+        # 👉 Obtener configuración por defecto del item
+        config_response = self.api_client.get(f"/item-config/item-maintance/default/{item_id}")
+        if config_response.status_code != 200:
+            QtWidgets.QMessageBox.warning(self, "Warning", "No default configuration found for this item.")
+            config = {}
+        else:
+            config = config_response.json()
+
+        # Mostrar item_code en columna 2
         item_code = QtWidgets.QTableWidgetItem(product.get("item_id", ""))
         item_code.setFlags(item_code.flags() & ~QtCore.Qt.ItemIsEditable)
-        item_code.setData(QtCore.Qt.UserRole, product["id"])  # ID interno
+        item_code.setData(QtCore.Qt.UserRole, item_id)  # Guarda el item_id
         self.receipt_table.setItem(row, 2, item_code)
 
-
-        # Mostrar descripción en la columna 3
+        # Descripción en columna 3
         self.receipt_table.setItem(row, 3, QtWidgets.QTableWidgetItem(product.get("description", "")))
 
-        # Precio en la columna 8
+        # Precio en columna 8
         self.receipt_table.setItem(row, 8, QtWidgets.QTableWidgetItem(str(product.get("price", 0.0))))
 
-        self.update_orderline_total_price(row)
+        # UOM como dropdown en columna 7
+        combo = QtWidgets.QComboBox()
+        combo.addItems(["Pallets", "Carton", "Pieces"])
+        combo.setProperty("item_config", config)  # 🔁 Guarda config
+        print(combo.property("item_config"))
+        combo.currentIndexChanged.connect(lambda _, r=row: self.update_qty_ordered_based_on_uom(r))
+        self.receipt_table.setCellWidget(row, 7, combo)
 
+        # Calcular y actualizar qty_ordered (columna 4)
+        self.update_qty_ordered_based_on_uom(row)
+
+        # Calcular total
+        self.update_orderline_total_price(row)
 
     def update_qty_ordered_based_on_uom(self, row):
         combo = self.receipt_table.cellWidget(row, 7)
-        uom = combo.currentText() if combo else "Pieces"
+        if not combo:
+            return
+
+        uom = combo.currentText()
         config = combo.property("item_config") or {}
 
-        pieces_per_carton = config.get("pieces_per_carton", 1)
-        cartons_per_pallet = config.get("cartons_per_pallet", 1)
+        pieces_per_case = config.get("pieces_per_case", 1)
+        boxes_per_pallet = config.get("boxes_per_pallet", 1)
 
-        qty = 1  # Default fallback
+        # ✅ Solo leer el total_pieces, no recalcularlo
+        total_pieces = combo.property("total_pieces")
+        if total_pieces is None:
+            try:
+                total_pieces = float(self.receipt_table.item(row, 4).text())
+            except:
+                total_pieces = 0.0
+            combo.setProperty("total_pieces", total_pieces)
 
+        # 🔁 Convertir a la unidad actual solo para mostrar
         if uom == "Pieces":
-            qty = 1
-        elif uom == "Carton":
-            qty = pieces_per_carton
-        elif uom == "Pallets":
-            qty = cartons_per_pallet * pieces_per_carton
+            new_qty = total_pieces / 1
+            new_qty = round(new_qty)  # 🔒 enteros
+        elif uom == "Carton" and pieces_per_case:
+            new_qty = total_pieces / pieces_per_case
+            new_qty = round(new_qty)  # 🔒 enteros
+        elif uom == "Pallets" and pieces_per_case and boxes_per_pallet:
+            new_qty = total_pieces / (pieces_per_case * boxes_per_pallet)
+            # ✅ pallets pueden tener decimales, no se redondea
+        else:
+            new_qty = total_pieces
 
-        self.receipt_table.setItem(row, 4, QtWidgets.QTableWidgetItem(str(qty)))  # qty_ordered está en columna 4
+        # Mostrar visualmente la cantidad convertida
+        ordered_item = self.receipt_table.item(row, 4)
+        if ordered_item:
+            ordered_item.setText(f"{new_qty:.2f}")
+
+        print(f"[🔁] Updating row {row} - UOM: {uom} → Qty Ordered: {new_qty:.2f} | total_pieces = {total_pieces}")
+
 
 
 
     def update_orderline_total_price(self, row):
         try:
-            quantity = int(self.receipt_table.item(row, 6).text())
-            unit_price = float(self.receipt_table.item(row, 8).text())
-            total = quantity * unit_price
+            combo = self.receipt_table.cellWidget(row, 7)  # UOM ComboBox
+            price_item = self.receipt_table.item(row, 8)
+
+            if not combo or not price_item:
+                raise ValueError("Missing cells")
+
+            unit_price = float(price_item.text())
+            total_pieces = combo.property("total_pieces")
+
+            if total_pieces is None:
+                raise ValueError("Missing total_pieces")
+
+            total = total_pieces * unit_price
+            print(f"[💰] Calculating total for row {row}: {total_pieces} * {unit_price} = {total:.2f}")
+
             self.receipt_table.setItem(row, 9, QtWidgets.QTableWidgetItem(f"{total:.2f}"))
-        except (ValueError, TypeError):
+
+        except (ValueError, TypeError, AttributeError) as e:
+            print(f"⚠️ Error calculating total at row {row}: {e}")
             self.receipt_table.setItem(row, 9, QtWidgets.QTableWidgetItem("0.00"))
+
 
     def get_order_lines_data(self):
         data = []
         for row in range(self.receipt_table.rowCount()):
+            line_id_item = self.receipt_table.item(row, 0)
+            line_id = line_id_item.data(QtCore.Qt.UserRole + 1) if line_id_item else None
             item_code_item = self.receipt_table.item(row, 2)
             item_id = item_code_item.data(QtCore.Qt.UserRole) if item_code_item else None
+            combo = self.receipt_table.cellWidget(row, 7)
+            total_pieces = combo.property("total_pieces") if combo else 0
 
             row_data = {
+                "line_id": line_id,
                 "po_number": self.input_po_number.text().strip(),
                 "line_number": self.get_cell_text(row, 0),
                 "upc": self.get_cell_text(row, 1),
@@ -370,21 +523,18 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
                 "qty_expected": self.get_cell_text(row, 5),
                 "qty_received": self.get_cell_text(row, 6),
                 "uom": (
-                    self.receipt_table.cellWidget(row, 7).currentText()
-                    if self.receipt_table.cellWidget(row, 7)
-                    else self.get_cell_text(row, 7)
+                     combo.currentText() if combo else self.get_cell_text(row, 7)
                 ),
                 "unit_price": self.get_cell_text(row, 8),
                 "total_price": self.get_cell_text(row, 9),
-            }
+                "total_pieces": total_pieces,  # ⬅️ Nuevo campo agregado
+                }
             data.append(row_data)
         return data
-
 
     def get_cell_text(self, row, column):
         item = self.receipt_table.item(row, column)
         return item.text().strip() if item else ""
-
 
     def delete_selected_order_line(self):
         selected = self.receipt_table.currentRow()
