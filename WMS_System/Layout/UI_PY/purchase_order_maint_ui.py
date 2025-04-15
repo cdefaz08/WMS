@@ -14,6 +14,7 @@ class PurchaseOrderMaintUI(QtWidgets.QWidget):
         # Main form
         form_layout = QtWidgets.QFormLayout()
         self.input_po_number = QtWidgets.QLineEdit()
+        self.input_po_number.setReadOnly(True)
         self.input_vendor = QtWidgets.QComboBox()
         self.input_order_date = QtWidgets.QDateEdit(calendarPopup=True)
         self.input_order_date.setDate(QDate.currentDate())

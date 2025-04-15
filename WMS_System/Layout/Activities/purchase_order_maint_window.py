@@ -251,6 +251,19 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
             "line_number", "upc", "item_id", "description", "quantity_ordered",
             "quantity_expected", "quantity_received", "uom", "unit_price", "total_price"
         ]):
+            if key == "uom":
+                combo = QtWidgets.QComboBox()
+                combo.addItems(["Pallets", "Carton", "Pieces"])
+                
+                # Set default value from `values`
+                current_uom = values.get("uom", "Pieces")
+                index = combo.findText(current_uom)
+                if index != -1:
+                    combo.setCurrentIndex(index)
+
+                self.receipt_table.setCellWidget(row, col, combo)
+                continue  # Skip setting QTableWidgetItem for this column
+
             item = QtWidgets.QTableWidgetItem(str(values.get(key, "")))
             editable_keys = ["upc", "quantity_received", "quantity_ordered"]
             flags = item.flags()
@@ -294,8 +307,9 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
 
         product = items[0]
 
-        # Mostrar item_code (ej: "Phone Iphone") en la columna 2, guardar ID como UserRole
+        # Mostrar item_code (ej: "Phone Iphone") en la columna 2, guardar ID como 
         item_code = QtWidgets.QTableWidgetItem(product.get("item_id", ""))
+        item_code.setFlags(item_code.flags() & ~QtCore.Qt.ItemIsEditable)
         item_code.setData(QtCore.Qt.UserRole, product["id"])  # ID interno
         self.receipt_table.setItem(row, 2, item_code)
 
@@ -307,6 +321,26 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
         self.receipt_table.setItem(row, 8, QtWidgets.QTableWidgetItem(str(product.get("price", 0.0))))
 
         self.update_orderline_total_price(row)
+
+
+    def update_qty_ordered_based_on_uom(self, row):
+        combo = self.receipt_table.cellWidget(row, 7)
+        uom = combo.currentText() if combo else "Pieces"
+        config = combo.property("item_config") or {}
+
+        pieces_per_carton = config.get("pieces_per_carton", 1)
+        cartons_per_pallet = config.get("cartons_per_pallet", 1)
+
+        qty = 1  # Default fallback
+
+        if uom == "Pieces":
+            qty = 1
+        elif uom == "Carton":
+            qty = pieces_per_carton
+        elif uom == "Pallets":
+            qty = cartons_per_pallet * pieces_per_carton
+
+        self.receipt_table.setItem(row, 4, QtWidgets.QTableWidgetItem(str(qty)))  # qty_ordered está en columna 4
 
 
 
@@ -335,7 +369,11 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
                 "qty_ordered": self.get_cell_text(row, 4),
                 "qty_expected": self.get_cell_text(row, 5),
                 "qty_received": self.get_cell_text(row, 6),
-                "uom": self.get_cell_text(row, 7),
+                "uom": (
+                    self.receipt_table.cellWidget(row, 7).currentText()
+                    if self.receipt_table.cellWidget(row, 7)
+                    else self.get_cell_text(row, 7)
+                ),
                 "unit_price": self.get_cell_text(row, 8),
                 "total_price": self.get_cell_text(row, 9),
             }
