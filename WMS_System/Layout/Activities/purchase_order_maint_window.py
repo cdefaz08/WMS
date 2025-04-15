@@ -15,10 +15,8 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
                 if lines_response.status_code == 200:
                     self.po_data["receipt_lines"] = lines_response.json()
                 else:
-                    print(f"⚠️ No se pudieron traer las líneas de la orden: {lines_response.text}")
                     self.po_data["receipt_lines"] = []
             except Exception as e:
-                print(f"❌ Error al conectar con el servidor: {e}")
                 self.po_data["receipt_lines"] = []
                 
         self.load_dropdowns()
@@ -39,7 +37,6 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
         if not self.po_data:
             return
         
-        print(self.po_data)
 
         self.input_po_number.setText(self.po_data.get("po_number", ""))
         self.input_order_date.setDate(QDate.fromString(self.po_data.get("order_date", ""), "yyyy-MM-dd"))
@@ -139,7 +136,6 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
         po_updated = False
 
         if updated_fields:
-            print(f"po_id = {po_id} data to update = {updated_fields}")
             response = self.api_client.put(f"/purchase-orders/{po_id}", json=updated_fields)
             if response.status_code == 200:
                 po_updated = True
@@ -168,7 +164,6 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
 
         for i, row_data in enumerate(current_data):
             if not row_data.get("item_id") or not row_data.get("qty_ordered"):
-                print(f"⚠️ Línea {i + 1} omitida: falta item_id o cantidad ordenada")
                 continue
 
             payload = row_data.copy()
@@ -182,7 +177,6 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
                 payload["unit_price"] = float(payload["unit_price"])
                 payload["line_total"] = float(payload["total_price"])
             except Exception as e:
-                print(f"❌ Error al convertir tipos en línea {i + 1}: {e}")
                 continue
 
             payload.setdefault("lot_number", "")
@@ -196,14 +190,12 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
             payload.pop("po_number", None)
             payload.pop("total_price", None)
 
-            print(f"📦 POST Payload línea {i + 1}: {payload}")
             response = self.api_client.post(url, json=payload)
 
             if response.status_code not in (200, 201):
                 QtWidgets.QMessageBox.warning(self, "Line Save Error", f"Failed to save line {i + 1}:\n{response.text}")
             else:
                 changes_made = True
-                print(f"✅ Línea {i + 1} guardada correctamente.")
 
         return changes_made
 
@@ -287,7 +279,6 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
             return
 
         product = items[0]
-        print(product)
 
         # Mostrar item_code (ej: "Phone Iphone") en la columna 2, guardar ID como UserRole
         item_code = QtWidgets.QTableWidgetItem(str(product.get("item_id", "")))
@@ -359,7 +350,6 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
         # Obtener el ID si existe
         item = self.receipt_table.item(selected, 0)
         line_id = item.data(QtCore.Qt.UserRole + 1)
-        print(line_id)
 
         # Eliminar del backend si tiene ID
         if line_id:
