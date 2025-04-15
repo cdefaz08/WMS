@@ -2,8 +2,9 @@
 
 from fastapi import APIRouter, HTTPException, Depends
 from Security.dependencies import get_current_user
-from schemas.ItemMaintance import ItemMaintanceCreate, ItemMaintanceUpdate, ItemMaintance
+from schemas.ItemMaintance import ItemMaintanceCreate, ItemMaintanceUpdate, ItemMaintance,ItemConfigUOM
 import crud.ItemMaintance as item_maintance_crud
+
 
 router = APIRouter(prefix="/item-config", tags=["Item Configuration"],
     dependencies=[Depends(get_current_user)])
@@ -43,3 +44,10 @@ async def update_item_configuration_endpoint(config_id: int, update_data: ItemMa
 @router.delete("/{config_id}", response_model=dict)
 async def delete_item_configuration_endpoint(config_id: int):
     return await item_maintance_crud.delete_item_configuration(config_id)
+
+@router.get("/item-maintance/default/{item_id}", response_model=ItemConfigUOM)
+async def read_default_item_config(item_id: str):
+    config = await item_maintance_crud.get_default_item_config_by_item_id(item_id)
+    if not config:
+        raise HTTPException(status_code=404, detail="Default item configuration not found.")
+    return config

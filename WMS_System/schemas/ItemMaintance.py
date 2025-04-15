@@ -49,6 +49,12 @@ class ItemMaintanceCreate(ItemMaintanceBase):
 class ItemMaintanceUpdate(ItemMaintanceBase):
     pass
 
+class ItemConfigUOM(BaseModel):
+    item_id: str
+    boxes_per_pallet: Optional[int] = None
+    pieces_per_case: Optional[int] = None
+    configuration_name: Optional[str] = None
+
 class ItemMaintance(ItemMaintanceBase):
     id: int
 

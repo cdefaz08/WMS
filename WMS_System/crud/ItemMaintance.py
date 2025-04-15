@@ -25,6 +25,20 @@ async def create_item_configuration(new_config: ItemMaintanceCreate):
     return {"id": inserted_id, "message": "Item configuration created successfully."}
 
 
+async def get_default_item_config_by_item_id(item_id: str):
+    query = (
+        select(
+            item_maintance.c.item_id,
+            item_maintance.c.boxes_per_pallet,
+            item_maintance.c.pieces_per_case,
+            item_maintance.c.configuration_name
+        )
+        .where(item_maintance.c.item_id == item_id)
+        .where(item_maintance.c.is_default == True)
+        .limit(1)
+    )
+    return await database.fetch_one(query)
+
 # ✅ Obtener por ID
 async def get_item_configuration_by_id(config_id: int):
     query = select(item_maintance).where(item_maintance.c.id == config_id)
