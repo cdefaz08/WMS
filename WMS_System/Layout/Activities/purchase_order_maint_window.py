@@ -284,7 +284,6 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
             return
 
         product = items[0]
-        print(product)
 
         # Mostrar item_code (ej: "Phone Iphone") en la columna 2, guardar ID como UserRole
         item_code = QtWidgets.QTableWidgetItem(product.get("item_id", ""))
