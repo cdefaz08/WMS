@@ -58,11 +58,12 @@ class PurchaseOrderMaintUI(QtWidgets.QWidget):
         self.tab_receipt_lines = QtWidgets.QWidget()
         receipt_layout = QtWidgets.QVBoxLayout(self.tab_receipt_lines)
         self.receipt_table = QtWidgets.QTableWidget()
-        self.receipt_table.setColumnCount(10)
+        self.receipt_table.setColumnCount(11)
         self.receipt_table.setHorizontalHeaderLabels([
             "LINE NUMBER", "UPC", "ITEM CODE", "DESCRIPTION", "QTY ORDERED",
-            "QTY EXPECTED", "QTY RECEIVED", "UOM", "UNIT PRICE", "TOTAL PRICE"
+            "QTY EXPECTED", "QTY RECEIVED", "UOM", "UNIT PRICE", "TOTAL PRICE", "ID"
         ])
+        self.receipt_table.setColumnHidden(11, True) 
         self.receipt_table.horizontalHeader().setStretchLastSection(True)
         receipt_layout.addWidget(self.receipt_table)
         self.tabs.addTab(self.tab_receipt_lines, "Receipt Lines")

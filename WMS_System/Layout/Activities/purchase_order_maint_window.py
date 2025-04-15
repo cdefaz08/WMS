@@ -8,6 +8,19 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
         super().__init__(parent)
         self.api_client = api_client
         self.po_data = po_data
+        if self.po_data:
+            po_id = self.po_data.get("id")
+            try:
+                lines_response = self.api_client.get(f"/purchase-order-lines/by-po/{po_id}")
+                if lines_response.status_code == 200:
+                    self.po_data["receipt_lines"] = lines_response.json()
+                else:
+                    print(f"⚠️ No se pudieron traer las líneas de la orden: {lines_response.text}")
+                    self.po_data["receipt_lines"] = []
+            except Exception as e:
+                print(f"❌ Error al conectar con el servidor: {e}")
+                self.po_data["receipt_lines"] = []
+                
         self.load_dropdowns()
         self.populate_data()
 
@@ -25,6 +38,8 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
     def populate_data(self):
         if not self.po_data:
             return
+        
+        print(self.po_data)
 
         self.input_po_number.setText(self.po_data.get("po_number", ""))
         self.input_order_date.setDate(QDate.fromString(self.po_data.get("order_date", ""), "yyyy-MM-dd"))
@@ -43,19 +58,21 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
         self.original_lines = receipt_lines.copy()
         self.receipt_table.setRowCount(len(receipt_lines))
         for row_idx, line in enumerate(receipt_lines):
-            column_keys = ["line_number", "upc", "item_code", "description", "quantity_ordered",
-                        "quantity_expected", "quantity_received", "uom", "unit_price", "total_price"]
+            column_keys = ["line_number", "upc", "item_id", "description", "qty_ordered",
+                        "qty_expected", "qty_received", "uom", "unit_price", "total_price","id"]
 
             for col_idx, key in enumerate(column_keys):
                 cell_value = str(line.get(key, ""))
                 item = QtWidgets.QTableWidgetItem(cell_value)
 
                 # En la columna 2 (item_code), guarda el item_id como UserRole
-                if key == "item_code":
+                if key == "item_id":
                     item.setData(QtCore.Qt.UserRole, line.get("item_id", None))
+                if key == "line_number":
+                    item.setData(QtCore.Qt.UserRole + 1, line.get("id"))  # guarda el line_id aquí
+
 
                 self.receipt_table.setItem(row_idx, col_idx, item)
-            self.receipt_table.setItem(row_idx, 11, QtWidgets.QTableWidgetItem(str(line.get("id", ""))))
 
     def _set_address_group(self, groupbox, prefix):
         form_layout = groupbox.layout()
@@ -78,8 +95,9 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
         if not self.po_data:
             return
 
-        self.save_order_lines()
+        lines_updated = self.save_order_lines()
         updated_fields = {}
+
         current_values = {
             "expected_date": self.input_expected_date.date().toString("yyyy-MM-dd"),
             "ship_date": self.input_ship_date.date().toString("yyyy-MM-dd"),
@@ -117,28 +135,39 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
                     if current != str(self.po_data.get(key, "") or ""):
                         updated_fields[key] = current
 
-        if not updated_fields:
-            QMessageBox.information(self, "No Changes", "No changes detected.")
-            return
-
         po_id = self.po_data.get("id")
-        print(f"po_id = {po_id} data to update = {updated_fields}")
-        response = self.api_client.put(f"/purchase-orders/{po_id}", json=updated_fields)
-        if response.status_code == 200:
+        po_updated = False
+
+        if updated_fields:
+            print(f"po_id = {po_id} data to update = {updated_fields}")
+            response = self.api_client.put(f"/purchase-orders/{po_id}", json=updated_fields)
+            if response.status_code == 200:
+                po_updated = True
+            else:
+                QtWidgets.QMessageBox.critical(self, "Error", f"Failed to update PO: {response.text}")
+                return
+
+        # Mostrar mensaje correcto según lo que se guardó
+        if po_updated and lines_updated:
+            QMessageBox.information(self, "Success", "Purchase Order and Lines updated successfully.")
+        elif po_updated:
             QMessageBox.information(self, "Success", "Purchase Order updated successfully.")
+        elif lines_updated:
+            QMessageBox.information(self, "Success", "Purchase Order Lines updated successfully.")
         else:
-            QMessageBox.critical(self, "Error", f"Failed to update PO: {response.text}")
+            QMessageBox.information(self, "No Changes", "No changes detected.")
+
 
     def save_order_lines(self):
         if not self.po_data:
-            return
+            return False
 
         url = "/purchase-order-lines/"
         current_data = self.get_order_lines_data()
+        changes_made = False
 
         for i, row_data in enumerate(current_data):
-            # Validar campos mínimos
-            if not row_data.get("item_id") or not row_data.get("quantity_ordered"):
+            if not row_data.get("item_id") or not row_data.get("qty_ordered"):
                 print(f"⚠️ Línea {i + 1} omitida: falta item_id o cantidad ordenada")
                 continue
 
@@ -147,16 +176,15 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
 
             try:
                 payload["item_id"] = int(payload["item_id"])
-                payload["quantity_ordered"] = int(payload["quantity_ordered"])
-                payload["quantity_expected"] = int(payload["quantity_expected"])
-                payload["quantity_received"] = int(payload["quantity_received"])
+                payload["qty_ordered"] = int(payload["qty_ordered"])
+                payload["qty_expected"] = int(payload["qty_expected"])
+                payload["qty_received"] = int(payload["qty_received"])
                 payload["unit_price"] = float(payload["unit_price"])
                 payload["line_total"] = float(payload["total_price"])
             except Exception as e:
                 print(f"❌ Error al convertir tipos en línea {i + 1}: {e}")
                 continue
 
-            # Campos extra para el schema según Swagger
             payload.setdefault("lot_number", "")
             payload.setdefault("expiration_date", QDate.currentDate().toString("yyyy-MM-dd"))
             payload.setdefault("location_received", "")
@@ -165,18 +193,20 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
             payload.setdefault("custom_2", "")
             payload.setdefault("custom_3", "")
 
-            # Limpiar campos no necesarios
             payload.pop("po_number", None)
             payload.pop("total_price", None)
 
             print(f"📦 POST Payload línea {i + 1}: {payload}")
-
             response = self.api_client.post(url, json=payload)
 
             if response.status_code not in (200, 201):
                 QtWidgets.QMessageBox.warning(self, "Line Save Error", f"Failed to save line {i + 1}:\n{response.text}")
             else:
+                changes_made = True
                 print(f"✅ Línea {i + 1} guardada correctamente.")
+
+        return changes_made
+
 
 
     def is_line_modified(self, new_row, index):
@@ -205,14 +235,14 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
         self.receipt_table.insertRow(row)
 
         default = {
-            "line_number": row + 1, "upc": "", "item_code": "",
+            "line_number": row + 1, "upc": "", "item_id": "",
             "description": "", "quantity_ordered": 0, "quantity_expected": 0, "quantity_received": 0,
             "uom": "Pieces", "unit_price": 0.0, "total_price": 0.0
         }
         values = data or default
 
         for col, key in enumerate([
-            "line_number", "upc", "item_code", "description", "quantity_ordered",
+            "line_number", "upc", "item_id", "description", "quantity_ordered",
             "quantity_expected", "quantity_received", "uom", "unit_price", "total_price"
         ]):
             item = QtWidgets.QTableWidgetItem(str(values.get(key, "")))
@@ -220,7 +250,7 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
             flags = item.flags()
             item.setFlags(flags | QtCore.Qt.ItemIsEditable if key in editable_keys else flags & ~QtCore.Qt.ItemIsEditable)
             self.receipt_table.setItem(row, col, item)
-            if key == "item_code":
+            if key == "item_id":
                 item.setFlags(item.flags() & ~QtCore.Qt.ItemIsEditable)
 
         self.receipt_table.itemChanged.connect(self.handle_orderline_item_change)
@@ -260,7 +290,7 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
         print(product)
 
         # Mostrar item_code (ej: "Phone Iphone") en la columna 2, guardar ID como UserRole
-        item_code = QtWidgets.QTableWidgetItem(str(product.get("item_code", "")))
+        item_code = QtWidgets.QTableWidgetItem(str(product.get("item_id", "")))
         item_code.setData(QtCore.Qt.UserRole, product["id"])  # ID real escondido
         self.receipt_table.setItem(row, 2, item_code)
 
@@ -295,9 +325,9 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
                 "upc": self.get_cell_text(row, 1),
                 "item_id": item_id,
                 "description": self.get_cell_text(row, 3),
-                "quantity_ordered": self.get_cell_text(row, 4),
-                "quantity_expected": self.get_cell_text(row, 5),
-                "quantity_received": self.get_cell_text(row, 6),
+                "qty_ordered": self.get_cell_text(row, 4),
+                "qty_expected": self.get_cell_text(row, 5),
+                "qty_received": self.get_cell_text(row, 6),
                 "uom": self.get_cell_text(row, 7),
                 "unit_price": self.get_cell_text(row, 8),
                 "total_price": self.get_cell_text(row, 9),
@@ -313,5 +343,35 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
 
     def delete_selected_order_line(self):
         selected = self.receipt_table.currentRow()
-        if selected >= 0:
-            self.receipt_table.removeRow(selected)
+        if selected < 0:
+            return
+
+        confirm = QtWidgets.QMessageBox.question(
+            self,
+            "Confirm Deletion",
+            "Are you sure you want to delete this line?",
+            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No
+        )
+
+        if confirm != QtWidgets.QMessageBox.Yes:
+            return
+
+        # Obtener el ID si existe
+        item = self.receipt_table.item(selected, 0)
+        line_id = item.data(QtCore.Qt.UserRole + 1)
+        print(line_id)
+
+        # Eliminar del backend si tiene ID
+        if line_id:
+            try:
+                response = self.api_client.delete(f"/purchase-order-lines/{line_id}")
+                if response.status_code not in (200, 204):
+                    QtWidgets.QMessageBox.critical(self, "Error", f"Failed to delete line from server:\n{response.text}")
+                    return
+            except Exception as e:
+                QtWidgets.QMessageBox.critical(self, "Error", f"Exception occurred: {e}")
+                return
+
+        # Quitar la fila de la tabla si todo está bien
+        self.receipt_table.removeRow(selected)
+        QtWidgets.QMessageBox.information(self, "Deleted", "Line deleted successfully.")
