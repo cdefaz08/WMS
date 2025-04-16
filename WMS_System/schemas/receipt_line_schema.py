@@ -21,7 +21,7 @@ class ReceiptLineBase(BaseModel):
     custom_1: Optional[str]
     custom_2: Optional[str]
     custom_3: Optional[str]
-
+    
 class ReceiptLineCreate(ReceiptLineBase):
     pass
 

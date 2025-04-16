@@ -177,7 +177,6 @@ class ReceiptMaintanceWindow(QtWidgets.QDialog, Ui_OrderMaintance):
         if self.receipt_data and "id" in self.receipt_data:
             updated_data = self.get_updated_fields()
             if not updated_data:
-                QtWidgets.QMessageBox.information(self, "No Changes", "No fields were modified.")
                 return
             response = self.api_client.put(f"/receipts/{self.receipt_data['id']}", json=updated_data)
         else:
@@ -185,17 +184,27 @@ class ReceiptMaintanceWindow(QtWidgets.QDialog, Ui_OrderMaintance):
             response = self.api_client.post(f"/receipts", json=full_data)
 
         if response.status_code in (200, 201):
-            QtWidgets.QMessageBox.information(self, "Success", "Receipt saved successfully.")
             self.original_data = self.original_data | (self.collect_form_data() if not self.receipt_data else self.get_updated_fields())
-            mdi = self.parent()
-            while mdi and not isinstance(mdi, QtWidgets.QMdiSubWindow):
-                mdi = mdi.parent()
-            if mdi:
-                mdi.close()
-            else:
-                self.close()
         else:
             QtWidgets.QMessageBox.warning(self, "Error", f"Failed to save receipt: {response.text}")
+
+    def save_all(self):
+        receipt_saved = self.save_receipt()
+        lines_saved = False
+
+        for i in range(self.tabWidget.count()):
+            tab = self.tabWidget.widget(i)
+            if isinstance(tab, ReceiptLinesWindow):
+                lines_saved = tab.save_changes()
+                break
+
+        if receipt_saved and lines_saved:
+            QtWidgets.QMessageBox.information(self, "Success", "Receipt and lines saved successfully.")
+        elif receipt_saved:
+            QtWidgets.QMessageBox.information(self, "Success", "Receipt saved successfully.")
+        elif lines_saved:
+            QtWidgets.QMessageBox.information(self, "Success", "Receipt lines saved successfully.")
+
 
     def get_receipt_number(self):
         if self.receipt_data and "receipt_number" in self.receipt_data:

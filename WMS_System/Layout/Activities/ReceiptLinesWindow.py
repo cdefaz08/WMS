@@ -202,13 +202,20 @@ class ReceiptLinesWindow(QtWidgets.QWidget, Ui_Form):
             payload = row_data.copy()
             line_id = payload.pop("id", None)
 
+            print("Payload:", payload)
+
             if line_id:
                 response = self.api_client.put(f"{url}{line_id}", json=payload)
             else:
                 response = self.api_client.post(url, json=payload)
 
-            if response.status_code not in (200, 201):
-                QtWidgets.QMessageBox.warning(self, "Save Error", f"Failed to save line: {response.text}")
+            if response.status_code in (200, 201):
+                QtWidgets.QMessageBox.information(self, "Success", "Receipt saved successfully.")
+                self.original_data = self.get_current_data()
+                return True
+            else:
+                QtWidgets.QMessageBox.warning(self, "Error", f"Failed to save receipt: {response.text}")
+                return False
 
         self.load_data()
         self.original_data = self.get_current_data()

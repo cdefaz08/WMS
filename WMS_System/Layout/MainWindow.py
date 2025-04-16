@@ -411,11 +411,7 @@ class MainWindow(QtWidgets.QMainWindow):
         elif isinstance(active_window, OrderMaintanceWindow):
             active_window.save_all()
         elif isinstance(active_window, ReceiptMaintanceWindow):
-            current_tab = active_window.tabWidget.currentWidget()
-            if isinstance(current_tab, ReceiptLinesWindow):
-                current_tab.save_changes()
-            else:
-                active_window.save_receipt()
+            active_window.save_all()
         elif isinstance(active_window,ItemConfigurationWindow):
             active_window.save_all_configurations()
         elif isinstance(active_window,PurchaseOrderMaintWindow):

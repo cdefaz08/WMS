@@ -3,6 +3,7 @@ from sqlalchemy import select, insert, update, delete
 from models import receipt_lines
 from schemas.receipt_line_schema import ReceiptLineCreate
 from database import database
+from datetime import datetime
 
 
 # 🔹 Crear una nueva línea de recibo
@@ -33,8 +34,18 @@ async def get_receipt_lines_by_receipt_number(receipt_number: str):
     return await database.fetch_all(query)
 
 
-# 🔹 Actualizar línea de recibo
+def parse_datetime(val):
+    if isinstance(val, datetime):
+        return val
+    try:
+        return datetime.fromisoformat(val)
+    except:
+        return None
+
 async def update_receipt_line(line_id: int, updated_data: dict):
+    if "expiration_date" in updated_data:
+        updated_data["expiration_date"] = parse_datetime(updated_data["expiration_date"])
+
     query = update(receipt_lines).where(receipt_lines.c.id == line_id).values(**updated_data)
     await database.execute(query)
     return {"message": "Receipt line updated successfully."}
