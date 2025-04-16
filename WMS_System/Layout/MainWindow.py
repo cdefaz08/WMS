@@ -1,4 +1,6 @@
 from PyQt5 import QtWidgets, uic, QtCore
+from PyQt5.QtWidgets import QMdiSubWindow
+from PyQt5.QtCore import pyqtSignal
 import requests
 import sys
 from Layout.Inquiry.item_search import ItemSearchWindow
@@ -30,6 +32,14 @@ from Layout.AdjustmentWindow import AdjustmentWindow
 from Layout.Activities.purchase_order_maint_window import PurchaseOrderMaintWindow
 from Layout.configurations.item_class_window import ItemClassWindow
 from api_client import APIClient
+
+class TrackingSubWindow(QMdiSubWindow):
+    resized = pyqtSignal(int, int)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        size = self.size()
+        self.resized.emit(size.width(), size.height())
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -107,12 +117,13 @@ class MainWindow(QtWidgets.QMainWindow):
         #widget.setMaximumSize(*max_size)
 
         # ✅ Crear y limitar el subwindow también
-        sub_window = QtWidgets.QMdiSubWindow()
+        sub_window = TrackingSubWindow()
         sub_window.setWindowFlags(QtCore.Qt.Window)
         sub_window.setMinimumSize(*min_size)
-        #sub_window.setMaximumSize(*max_size)
+        sub_window.setMaximumSize(*max_size)
 
         sub_window.setWidget(widget)
+        sub_window.resized.connect(lambda w, h: self.on_subwindow_resized(window_title, w, h))
         sub_window.setWindowTitle(window_title)
         sub_window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
@@ -130,7 +141,8 @@ class MainWindow(QtWidgets.QMainWindow):
         return sub_window
 
 
-
+    def on_subwindow_resized(self, title, width, height):
+        print(f"📐 '{title}' resized to {width} x {height}")
 
     def open_user_table(self):
         self.open_mdi_window(UsersTableWindow, "User Search", size=(750, 400))
@@ -156,7 +168,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.mdiArea.subWindowActivated.connect(self.handle_subwindow_focus_change)
             self.actionItemMaintance.setVisible(True)
             widget.destroyed.connect(self.hide_item_toolbar_action)
-        self.open_mdi_window(ItemSearchWindow, "Item Search", size=(1089, 720), extra_setup=setup,min_size=(697, 459), max_size=(1140, 850))
+        self.open_mdi_window(ItemSearchWindow, "Item Search", size=(1089, 720), extra_setup=setup,min_size=(1580, 531), max_size=(1818, 867))
     
     def open_purchase_order_search_window(self):
         def setup(widget, sub_window):
@@ -185,7 +197,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.actionItemMaintance.setVisible(True)
             widget.destroyed.connect(self.hide_item_toolbar_action)
         self.open_mdi_window(
-            lambda: InventorySearchWindow(api_client=self.api_client), "Inventory Search", size=(1089, 720), extra_setup=setup,min_size=(697, 459), max_size=(1135, 678))
+            lambda: InventorySearchWindow(api_client=self.api_client), "Inventory Search", size=(1580, 720), extra_setup=setup,min_size=(1580, 535), max_size=(1301, 899))
 
     def open_location_search(self):
         def setup(widget, sub_window):
@@ -193,7 +205,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.actionItemMaintance.setVisible(True)
             widget.destroyed.connect(self.hide_item_toolbar_action)
         self.open_mdi_window(
-            lambda: LocationSearchWindow(api_client=self.api_client), "Location Search", size=(1089, 720), extra_setup=setup,min_size=(697, 459), max_size=(1135, 678))
+            lambda: LocationSearchWindow(api_client=self.api_client), "Location Search", size=(1089, 720), extra_setup=setup,min_size=(1030, 677), max_size=(1223, 885))
 
     def open_vendorSearch_window(self):
         def setup(widget, sub_window):
