@@ -96,7 +96,6 @@ class OrderMaintanceWindow(QtWidgets.QDialog, Ui_OrderMaintance):
         if ship_date:
             self.dateEdit_ShipDate.setDate(ship_date)
         
-        print(f"Order_date populated:{order_date}, Ship_date Populates{ship_date}")
 
         self.lineEdit_CreatedBy.setText(str(data.get("created_by", "")))
         self.lineEdit_Status.setText(data.get("status", ""))
@@ -148,7 +147,6 @@ class OrderMaintanceWindow(QtWidgets.QDialog, Ui_OrderMaintance):
                 original_value = original_value.split("T")[0]
 
             if current_value != original_value:
-                print(f"🔄 Diferencia en '{key}': '{original_value}' vs '{current_value}'")
                 return True
 
         return False
@@ -226,14 +224,10 @@ class OrderMaintanceWindow(QtWidgets.QDialog, Ui_OrderMaintance):
             norm_current = normalize(current_value, key)
             norm_original = normalize(original_value, key)
 
-            print(f"🔍 Key: {key}")
-            print(f"   🟦 Current Value: {current_value} ({type(current_value)}), normalized: {norm_current}")
-            print(f"   🟥 Original Value: {original_value} ({type(original_value)}), normalized: {norm_original}")
+
 
             if norm_current != norm_original:
                 updated[key] = current_value
-
-        print(f"Updated fields: {updated}")
         return updated
 
 
@@ -300,7 +294,7 @@ class OrderMaintanceWindow(QtWidgets.QDialog, Ui_OrderMaintance):
                 event.ignore()
         else:
             event.accept()
-            
+
 def normalize(val, key=None):
     if isinstance(val, QDate):
         return val.toString("yyyy-MM-dd")
