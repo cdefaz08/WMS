@@ -118,7 +118,7 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
                 self.receipt_table.setItem(row_idx, col_idx, item)
 
             # 👉 Al final de la fila, actualizar cantidad según el UOM cargado
-            self.receipt_table.itemChanged.connect(self.handle_orderline_item_change)
+        self.connect_signals_once()
 
             #self.update_qty_ordered_based_on_uom(row_idx)   
 
@@ -143,10 +143,10 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
         po_updated = False
         po_created = False
 
-        # 1. Recolectar todos los datos del PO (tanto para update como create)
-        payload = {
+        # 1. Recolectar valores actuales del formulario
+        current_values = {
             "po_number": self.input_po_number.text().strip(),
-            "vendor_id": self.input_vendor.currentData(), 
+            "vendor_id": self.input_vendor.currentData(),
             "expected_date": self.input_expected_date.date().toString("yyyy-MM-dd"),
             "ship_date": self.input_ship_date.date().toString("yyyy-MM-dd"),
             "order_date": self.input_order_date.date().toString("yyyy-MM-dd"),
@@ -154,11 +154,9 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
             "created_by": self.input_created_by.text().strip(),
         }
 
-        # Campos custom
         for idx, field in enumerate(self.custom_fields, start=1):
-            payload[f"custom_{idx}"] = field.text().strip()
+            current_values[f"custom_{idx}"] = field.text().strip()
 
-        # Dirección de envío y facturación
         for tab_index, prefix in [(0, "ship_"), (1, "bill_")]:
             form_layout = self.tabs.widget(0).layout().itemAt(tab_index).widget().layout()
             for i in range(form_layout.rowCount()):
@@ -168,26 +166,35 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
                 if "City" in label:
                     container = field_widget.layout()
                     for sub_key, widget in zip(["city", "state", "zip_code"], [container.itemAt(j).widget() for j in range(3)]):
-                        payload[f"{prefix}{sub_key}"] = widget.text().strip()
+                        current_values[f"{prefix}{sub_key}"] = widget.text().strip()
                 else:
                     key = f"{prefix}{label.lower().replace(' ', '_').replace(':', '')}"
-                    payload[key] = field_widget.text().strip()
+                    current_values[key] = field_widget.text().strip()
 
-        # 2. Decidir si creamos o actualizamos
+        # 2. Si es UPDATE, detectar cambios reales
+        updated_fields = {}
+
         if self.po_data and self.po_data.get("id"):
-            po_id = self.po_data["id"]
-            response = self.api_client.put(f"/purchase-orders/{po_id}", json=payload)
-            if response.status_code == 200:
-                po_updated = True
-            else:
-                QtWidgets.QMessageBox.critical(self, "Error", f"Failed to update PO: {response.text}")
-                return
+            for key, new_val in current_values.items():
+                old_val = str(self.po_data.get(key, "") or "").strip()
+                if str(new_val).strip() != old_val:
+                    updated_fields[key] = new_val
+
+            if updated_fields:
+                po_id = self.po_data["id"]
+                response = self.api_client.put(f"/purchase-orders/{po_id}", json=updated_fields)
+                if response.status_code == 200:
+                    po_updated = True
+                else:
+                    QtWidgets.QMessageBox.critical(self, "Error", f"Failed to update PO: {response.text}")
+                    return
         else:
-            if not payload["vendor_id"]:
+            # Es una nueva PO
+            if not current_values["vendor_id"]:
                 QtWidgets.QMessageBox.critical(self, "Missing Vendor", "Please select a vendor before saving.")
                 return
 
-            response = self.api_client.post("/purchase-orders/", json=payload)
+            response = self.api_client.post("/purchase-orders/", json=current_values)
             if response.status_code in (200, 201):
                 self.po_data = response.json()
                 po_created = True
@@ -195,10 +202,10 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
                 QtWidgets.QMessageBox.critical(self, "Error", f"Failed to create PO: {response.text}")
                 return
 
-        # 3. Guardar líneas (necesitamos el ID)
+        # 3. Guardar líneas
         lines_updated = self.save_order_lines()
 
-        # 4. Mostrar resultado
+        # 4. Resultado final
         if po_created and lines_updated:
             QMessageBox.information(self, "Success", "Purchase Order created with lines.")
         elif po_updated and lines_updated:
@@ -212,6 +219,7 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
         else:
             QMessageBox.information(self, "No Changes", "No changes detected.")
 
+
     def save_order_lines(self):
         if not self.po_data:
             return False
@@ -224,38 +232,57 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
             if not row_data.get("item_id") or not row_data.get("qty_ordered"):
                 continue
 
-            payload = row_data.copy()
+            if not self.is_line_modified(row_data, i):
+                continue  # ✅ Línea sin cambios
+
+            if i >= len(self.original_lines):
+                original = {}  # Es una nueva línea, sin original
+            else:
+                original = self.original_lines[i]
+            payload = {}
+
+            for key, new_val in row_data.items():
+                if key in ["line_id", "po_number"]:
+                    continue
+
+                old_val = original.get(key)
+
+                # Comparación segura numérica o textual
+                try:
+                    if float(new_val) == float(old_val):
+                        continue
+                except:
+                    if str(new_val).strip() == str(old_val).strip():
+                        continue
+
+                # Si cambió, lo incluimos
+                payload[key] = new_val
+
+            # Obligatorio siempre
             payload["purchase_order_id"] = self.po_data["id"]
 
+            # 🔄 Conversión de tipos solo si está presente
             try:
-                payload["item_id"] = int(payload.get("item_id", 0))
-                payload["qty_ordered"] = int(float(payload.get("qty_ordered", 0)))
-                payload["qty_expected"] = int(payload.get("qty_expected", 0))
-                payload["qty_received"] = int(payload.get("qty_received", 0))
-                payload["unit_price"] = float(payload.get("unit_price", 0))
-                payload["line_total"] = float(payload.get("total_price", 0))
-                payload["total_pieces"] = float(payload.get("total_pieces", 0))  # ✅
-
+                if "item_id" in payload:
+                    payload["item_id"] = int(payload["item_id"])
+                if "qty_ordered" in payload:
+                    payload["qty_ordered"] = int(float(payload["qty_ordered"]))
+                if "qty_expected" in payload:
+                    payload["qty_expected"] = int(payload["qty_expected"])
+                if "qty_received" in payload:
+                    payload["qty_received"] = int(payload["qty_received"])
+                if "unit_price" in payload:
+                    payload["unit_price"] = float(payload["unit_price"])
+                if "line_total" in payload:
+                    payload["line_total"] = float(payload["line_total"])
+                if "total_pieces" in payload:
+                    payload["total_pieces"] = float(payload["total_pieces"])
             except Exception as e:
-                print(f"❌ Error converting line {i + 1}: {e}")
+                print(f"❌ Error converting data for line {i + 1}: {e}")
                 continue
 
 
-            # Valores por defecto si no se han especificado
-            payload.setdefault("lot_number", "")
-            payload.setdefault("expiration_date", QDate.currentDate().toString("yyyy-MM-dd"))
-            payload.setdefault("location_received", "")
-            payload.setdefault("comments", "")
-            payload.setdefault("custom_1", "")
-            payload.setdefault("custom_2", "")
-            payload.setdefault("custom_3", "")
-
-            # Limpiar datos que no van
-            payload.pop("po_number", None)
-            payload.pop("total_price", None)
-
-            # 🔁 Elegir PUT o POST dependiendo de si la línea ya existe
-            line_id = row_data.get("line_id")  # <- debes agregar esto en get_order_lines_data()
+            line_id = row_data.get("line_id")
             if line_id:
                 print(f"📝 Updating line ID {line_id} → payload: {payload}")
                 response = self.api_client.put(f"/purchase-order-lines/{line_id}", json=payload)
@@ -275,29 +302,38 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
         return changes_made
 
 
+
     def is_line_modified(self, new_row, index):
         try:
             original = self.original_lines[index]
         except IndexError:
-            return True
+            return True  # Nueva fila (no hay original para comparar)
+
+        EXCLUDE_KEYS = {"po_number", "total_price", "line_id"}
 
         for key in new_row:
-            if key in ["po_number", "total_price"]:
+            if key in EXCLUDE_KEYS:
                 continue
-            new_val = str(new_row.get(key, "")).strip()
-            old_val = str(original.get(key, "")).strip()
+
+            new_val = new_row.get(key, "")
+            old_val = original.get(key, "")
+
             try:
                 if float(new_val) == float(old_val):
                     continue
-            except ValueError:
-                if new_val == old_val:
+            except:
+                if str(new_val).strip() == str(old_val).strip():
                     continue
+
+            print(f"🟠 Cambio detectado en '{key}': {new_val} ≠ {old_val}")
             return True
 
         return False
 
+
     def add_order_line_row(self, data=None):
         row = self.receipt_table.rowCount()
+        self.receipt_table.blockSignals(True)  # ⛔️ Pausar señales
         self.receipt_table.insertRow(row)
 
         default = {
@@ -332,6 +368,14 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
             if key == "item_id":
                 item.setFlags(item.flags() & ~QtCore.Qt.ItemIsEditable)
 
+        self.receipt_table.blockSignals(False)  # ✅ Volver a permitir señales
+    
+    def connect_signals_once(self):
+        try:
+            self.receipt_table.itemChanged.disconnect()
+        except TypeError:
+            pass  # no estaba conectado
+
         self.receipt_table.itemChanged.connect(self.handle_orderline_item_change)
 
     def handle_orderline_item_change(self, item):
@@ -361,7 +405,6 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
                     qty = round(qty)  # 🔒 redondeamos cantidad visual escrita por el usuario
                     total_pieces = qty
                 elif uom == "Carton":
-                    qty = round(qty)
                     total_pieces = qty * pieces_per_case
                 elif uom == "Pallets":
                     # ❗ NO redondees si se permite media tarima
@@ -383,6 +426,10 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
 
     def handle_upc_change(self, item, row):
         upc_value = item.text().strip()
+
+        if not upc_value:
+            return  # ⚠️ Si está vacío, no hacer nada
+
         if not upc_value.isdigit():
             QtWidgets.QMessageBox.warning(self, "UPC Error", "UPC must be numeric.")
             return
@@ -460,7 +507,7 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
             new_qty = round(new_qty)  # 🔒 enteros
         elif uom == "Carton" and pieces_per_case:
             new_qty = total_pieces / pieces_per_case
-            new_qty = round(new_qty)  # 🔒 enteros
+            new_qty = new_qty  # 🔒 enteros
         elif uom == "Pallets" and pieces_per_case and boxes_per_pallet:
             new_qty = total_pieces / (pieces_per_case * boxes_per_pallet)
             # ✅ pallets pueden tener decimales, no se redondea
@@ -472,7 +519,6 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
         if ordered_item:
             ordered_item.setText(f"{new_qty:.2f}")
 
-        print(f"[🔁] Updating row {row} - UOM: {uom} → Qty Ordered: {new_qty:.2f} | total_pieces = {total_pieces}")
 
 
 
@@ -513,7 +559,7 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
 
             row_data = {
                 "line_id": line_id,
-                "po_number": self.input_po_number.text().strip(),
+                "purchase_order_id": self.po_data["id"],
                 "line_number": self.get_cell_text(row, 0),
                 "upc": self.get_cell_text(row, 1),
                 "item_id": item_id,
@@ -522,13 +568,21 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
                 "qty_ordered": self.get_cell_text(row, 4),
                 "qty_expected": self.get_cell_text(row, 5),
                 "qty_received": self.get_cell_text(row, 6),
-                "uom": (
-                     combo.currentText() if combo else self.get_cell_text(row, 7)
-                ),
+                "uom": combo.currentText() if combo else self.get_cell_text(row, 7),
                 "unit_price": self.get_cell_text(row, 8),
-                "total_price": self.get_cell_text(row, 9),
-                "total_pieces": total_pieces,  # ⬅️ Nuevo campo agregado
-                }
+                "line_total": self.get_cell_text(row, 9),
+                "total_pieces": total_pieces,
+
+                # Opcionales:
+                "lot_number": "",
+                "expiration_date": QDate.currentDate().toString("yyyy-MM-dd"),
+                "location_received": "",
+                "comments": "",
+                "custom_1": "",
+                "custom_2": "",
+                "custom_3": "",
+            }
+
             data.append(row_data)
         return data
 

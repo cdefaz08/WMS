@@ -41,17 +41,25 @@ async def get_lines_by_po_id(po_id: int):
 
 # UPDATE
 async def update_purchase_order_line(line_id: int, updated_data: PurchaseOrderLineUpdate):
+    # 1. Validar existencia de la línea
     query = select(purchase_order_lines).where(purchase_order_lines.c.id == line_id)
     existing = await database.fetch_one(query)
     if not existing:
         raise HTTPException(status_code=404, detail="Purchase order line not found.")
 
+    # 2. Filtrar solo campos enviados
     update_values = updated_data.dict(exclude_unset=True)
-    if "qty_received" in update_values or "unit_price" in update_values:
-        qty = update_values.get("qty_received", existing["qty_received"])
-        price = update_values.get("unit_price", existing["unit_price"] or 0)
-        update_values["line_total"] = qty * price
 
+    if not update_values:
+        return {"message": "No fields provided to update."}
+
+    # 3. Calcular line_total si se envió qty o unit_price
+    if "total_pieces" in update_values or "unit_price" in update_values:
+        pieces = update_values.get("total_pieces", existing["total_pieces"])
+        price = update_values.get("unit_price", existing["unit_price"] or 0.0)
+        update_values["line_total"] = float(pieces) * float(price)
+
+    # 4. Ejecutar el UPDATE dinámico
     query = (
         update(purchase_order_lines)
         .where(purchase_order_lines.c.id == line_id)
