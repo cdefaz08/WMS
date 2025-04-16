@@ -28,6 +28,7 @@ from Layout.Inquiry.InventorySearchWindow import InventorySearchWindow
 from Layout.Activities.PO_Search import PurchaseOrderSearchWindow
 from Layout.AdjustmentWindow import AdjustmentWindow
 from Layout.Activities.purchase_order_maint_window import PurchaseOrderMaintWindow
+from Layout.configurations.item_class_window import ItemClassWindow
 from api_client import APIClient
 
 
@@ -59,7 +60,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionReceipt_Search = self.findChild(QtWidgets.QAction, "actionReceipt_Search")
         self.actionInventory_Adjustment = self.findChild(QtWidgets.QAction, "actionInventory_Adjustment")
         self.actionPurchase_Order_Search = self.findChild(QtWidgets.QAction, "actionPurchase_Order_Search")
-
+        self.actionItem_Clases = self.findChild(QtWidgets.QAction, "actionItem_Clases")
 
 
         self.actionLogout.triggered.connect(self.logout)
@@ -77,6 +78,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionReceipt_Search.triggered.connect(self.open_Receipt_Search_window)
         self.actionInventory_Adjustment.triggered.connect(self.open_inventory_adjustment_window)
         self.actionPurchase_Order_Search.triggered.connect(self.open_purchase_order_search_window)
+        self.actionItem_Clases.triggered.connect(self.open_item_class_window)
 
 
     def open_mdi_window(self, widget_class, window_title, size=(600, 400),
@@ -143,6 +145,8 @@ class MainWindow(QtWidgets.QMainWindow):
             widget.destroyed.connect(self.hide_item_toolbar_action)
         self.open_mdi_window(LocationTypes, "Location Types", size=(500, 600), extra_setup=setup)
 
+    def open_item_class_window(self):
+        self.open_mdi_window(ItemClassWindow, "Item Clases", size = (580, 600))
 
     def open_order_type_window(self):
         self.open_mdi_window(OrderTypeWindow, "Order Types", size = (700, 400))
@@ -363,6 +367,8 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.add_order_line_row()
         elif isinstance(active_window,PurchaseOrderSearchWindow):
             self.open_mdi_window(PurchaseOrderMaintWindow,"Add New Purchase Order",size=(1000, 710),min_size=(697, 459), max_size=(1072, 617),)
+        elif isinstance(active_window,ItemClassWindow):
+            active_window.add_empty_row()
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
 
@@ -408,6 +414,8 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.save_all_configurations()
         elif isinstance(active_window,PurchaseOrderMaintWindow):
             active_window.save_changes()
+        elif isinstance(active_window,ItemClassWindow):
+            active_window.save_changes()
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
 
@@ -447,6 +455,8 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.delete_selected_configuration()
         elif isinstance(active_window,PurchaseOrderMaintWindow):
             active_window.delete_selected_order_line()
+        elif isinstance(active_window,ItemClassWindow):
+            active_window.delete_selected_row()
         else:
             QtWidgets.QMessageBox.warning(self,"No Active Window", "Please select a window First")
 

@@ -75,6 +75,16 @@
      <addaction name="actionOrder_Types"/>
      <addaction name="actionForms"/>
     </widget>
+    <widget class="QMenu" name="menuItems_2">
+     <property name="title">
+      <string>Items</string>
+     </property>
+     <addaction name="separator"/>
+     <addaction name="separator"/>
+     <addaction name="actionNew_Item"/>
+     <addaction name="actionItem_Clases"/>
+    </widget>
+    <addaction name="menuItems_2"/>
     <addaction name="actionUsers"/>
     <addaction name="menuLocations"/>
     <addaction name="menuRules"/>
@@ -363,6 +373,16 @@
    </property>
    <property name="toolTip">
     <string>Adjustment</string>
+   </property>
+  </action>
+  <action name="actionItem_Clases">
+   <property name="text">
+    <string>Item Clases</string>
+   </property>
+  </action>
+  <action name="actionNew_Item">
+   <property name="text">
+    <string>New Item</string>
    </property>
   </action>
  </widget>

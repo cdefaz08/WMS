@@ -29,3 +29,18 @@ async def get_all_item_classes():
         }
         for row in result
     ]
+
+# UPDATE
+async def update_item_class(item_class_id: int, updated_data: ItemClassCreate):
+    query = item_class.update().where(item_class.c.id == item_class_id).values(
+        item_class_id=updated_data.item_class_id,
+        description=updated_data.description
+    )
+    await database.execute(query)
+    return {"message": "Item class updated successfully."}
+
+# DELETE
+async def delete_item_class(item_class_id: int):
+    query = item_class.delete().where(item_class.c.id == item_class_id)
+    await database.execute(query)
+    return {"message": "Item class deleted successfully."}
