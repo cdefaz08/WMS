@@ -335,8 +335,6 @@ class MainWindow(QtWidgets.QMainWindow):
                     self, "No Selection", "Please select a location from the table."
                 )
 
-
-
     def toolbar_new(self):
         active_window = self.get_active_window()
         if isinstance(active_window, ItemSearchWindow):
@@ -411,11 +409,7 @@ class MainWindow(QtWidgets.QMainWindow):
         elif isinstance(active_window, FormManager):
             active_window.save_changes()
         elif isinstance(active_window, OrderMaintanceWindow):
-            current_tab = active_window.tabWidget.currentWidget()
-            if isinstance(current_tab, OrderLinesWindow):
-                current_tab.save_changes()
-            else:
-                active_window.save_order()
+            active_window.save_all()
         elif isinstance(active_window, ReceiptMaintanceWindow):
             current_tab = active_window.tabWidget.currentWidget()
             if isinstance(current_tab, ReceiptLinesWindow):

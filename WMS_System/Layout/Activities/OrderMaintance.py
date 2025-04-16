@@ -1,8 +1,7 @@
 from PyQt5 import QtWidgets, QtCore
+from PyQt5.QtCore import QDate
 from Layout.UI_PY.UI_OrderMaintance import Ui_OrderMaintance
 import requests
-from config import API_BASE_URL
-from datetime import datetime
 from Layout.Activities.OrderLinesWindow import OrderLinesWindow
 
 class OrderMaintanceWindow(QtWidgets.QDialog, Ui_OrderMaintance):
@@ -96,6 +95,8 @@ class OrderMaintanceWindow(QtWidgets.QDialog, Ui_OrderMaintance):
             self.dateEdit_OrderDate.setDate(order_date)
         if ship_date:
             self.dateEdit_ShipDate.setDate(ship_date)
+        
+        print(f"Order_date populated:{order_date}, Ship_date Populates{ship_date}")
 
         self.lineEdit_CreatedBy.setText(str(data.get("created_by", "")))
         self.lineEdit_Status.setText(data.get("status", ""))
@@ -114,7 +115,8 @@ class OrderMaintanceWindow(QtWidgets.QDialog, Ui_OrderMaintance):
         self.lineEdit_shp_to_ContactPhone.setText(data.get("shp_to_ContactPhone", ""))
         self.lineEdit_shp_to_TaxId.setText(data.get("shp_to_TaxId", ""))
         self.lineEdit_shp_to_Company.setText(data.get("shp_to_Company", ""))
-        self.lineEdit_shp_to_Addres2.setText(data.get("shp_to_Address", ""))
+        self.lineEdit_11.setText(data.get("shp_to_Addres", ""))
+        self.lineEdit_shp_to_Addres2.setText(data.get("shp_to_Addres2", ""))
 
         self.lineEdit_bill_to_City.setText(data.get("bill_to_City", ""))
         self.lineEdit_bill_to_State.setText(data.get("bill_to_State", ""))
@@ -124,7 +126,8 @@ class OrderMaintanceWindow(QtWidgets.QDialog, Ui_OrderMaintance):
         self.lineEdit_bill_to_ContactPhone.setText(data.get("bill_to_ContactPhone", ""))
         self.lineEdit_bill_to_TaxId.setText(data.get("bill_to_TaxId", ""))
         self.lineEdit_bill_to_Company.setText(data.get("bill_to_Company", ""))
-        self.lineEdit_bill_to_Addres2.setText(data.get("bill_to_Address", ""))
+        self.lineEdit_bill_to_Addres.setText(data.get("bill_to_Addres", ""))
+        self.lineEdit_bill_to_Addres2.setText(data.get("bill_to_Addres2", ""))
 
         self.lineEdit_custom_1.setText(data.get("custom_1", ""))
         self.lineEdit_custom_2.setText(data.get("custom_2", ""))
@@ -191,7 +194,8 @@ class OrderMaintanceWindow(QtWidgets.QDialog, Ui_OrderMaintance):
             "shp_to_ContactPhone": get("shp_to_ContactPhone"),
             "shp_to_TaxId": get("shp_to_TaxId"),
             "shp_to_Company": get("shp_to_Company"),
-            "shp_to_Address": get("shp_to_Addres2"),
+            "shp_to_Addres": get("11"),
+            "shp_to_Addres2": get("shp_to_Addres2"),
             "bill_to_City": get("bill_to_City"),
             "bill_to_State": get("bill_to_State"),
             "bill_to_ZipCode": get("bill_to_ZipCode"),
@@ -200,7 +204,8 @@ class OrderMaintanceWindow(QtWidgets.QDialog, Ui_OrderMaintance):
             "bill_to_ContactPhone": get("bill_to_ContactPhone"),
             "bill_to_TaxId": get("bill_to_TaxId"),
             "bill_to_Company": get("bill_to_Company"),
-            "bill_to_Address": get("bill_to_Addres2"),
+            "bill_to_Addres": get("bill_to_Addres"),
+            "bill_to_Addres2": get("bill_to_Addres2"),
             "custom_1": get("custom_1"),
             "custom_2": get("custom_2"),
             "custom_3": get("custom_3"),
@@ -208,6 +213,8 @@ class OrderMaintanceWindow(QtWidgets.QDialog, Ui_OrderMaintance):
             "custom_5": get("custom_5"),
         }
         return {k: v for k, v in data.items() if v not in [None, ""]}
+
+
     
     def get_updated_fields(self):
         updated = {}
@@ -215,9 +222,18 @@ class OrderMaintanceWindow(QtWidgets.QDialog, Ui_OrderMaintance):
 
         for key, current_value in current_data.items():
             original_value = self.original_data.get(key, "")
-            if str(current_value).strip() != str(original_value).strip():
+
+            norm_current = normalize(current_value, key)
+            norm_original = normalize(original_value, key)
+
+            print(f"🔍 Key: {key}")
+            print(f"   🟦 Current Value: {current_value} ({type(current_value)}), normalized: {norm_current}")
+            print(f"   🟥 Original Value: {original_value} ({type(original_value)}), normalized: {norm_original}")
+
+            if norm_current != norm_original:
                 updated[key] = current_value
 
+        print(f"Updated fields: {updated}")
         return updated
 
 
@@ -225,7 +241,6 @@ class OrderMaintanceWindow(QtWidgets.QDialog, Ui_OrderMaintance):
         if self.order_data and "id" in self.order_data:
             updated_data = self.get_updated_fields()
             if not updated_data:
-                QtWidgets.QMessageBox.information(self, "No Changes", "No fields were modified.")
                 return
             response = self.api_client.put(f"/orders/{self.order_data['id']}", json=updated_data)
         else:
@@ -233,17 +248,30 @@ class OrderMaintanceWindow(QtWidgets.QDialog, Ui_OrderMaintance):
             response = self.api_client.post(f"/orders", json=full_data)
 
         if response.status_code in (200, 201):
-            QtWidgets.QMessageBox.information(self, "Success", "Order saved successfully.")
             self.original_data = self.original_data | (self.collect_form_data() if not self.order_data else self.get_updated_fields())
-            mdi = self.parent()
-            while mdi and not isinstance(mdi, QtWidgets.QMdiSubWindow):
-                mdi = mdi.parent()
-            if mdi:
-                mdi.close()
-            else:
-                self.close()  
+            return True
         else:
             QtWidgets.QMessageBox.warning(self, "Error", f"Failed to save order: {response.text}")
+            return False
+
+    def save_all(self):
+        order_updated = self.save_order()
+        lines_updated = False
+
+        # 🧠 Find OrderLines tab and call save
+        for i in range(self.tabWidget.count()):
+            tab = self.tabWidget.widget(i)
+            if isinstance(tab, OrderLinesWindow):
+                lines_updated = tab.save_changes()
+                break
+
+        if order_updated and lines_updated:
+            QtWidgets.QMessageBox.information(self, "Success", "Order and lines saved successfully.")
+        elif order_updated:
+            QtWidgets.QMessageBox.information(self, "Success", "Order saved successfully.")
+        elif lines_updated:
+            QtWidgets.QMessageBox.information(self, "Success", "Order lines saved successfully.")
+
 
     def get_order_number(self):
         """
@@ -272,3 +300,23 @@ class OrderMaintanceWindow(QtWidgets.QDialog, Ui_OrderMaintance):
                 event.ignore()
         else:
             event.accept()
+            
+def normalize(val, key=None):
+    if isinstance(val, QDate):
+        return val.toString("yyyy-MM-dd")
+
+    if isinstance(val, str) and "T" in val and key in ["order_date", "ship_date", "expected_date"]:
+        # Parse ISO datetime string like '2025-04-10T00:00:00'
+        try:
+            return val.split("T")[0]
+        except:
+            pass
+
+    if key in ["order_date", "ship_date", "expected_date"]:
+        # Try to parse even if it's not ISO format
+        try:
+            return QDate.fromString(val.strip(), "yyyy-MM-dd").toString("yyyy-MM-dd")
+        except:
+            pass
+
+    return str(val).strip()

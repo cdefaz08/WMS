@@ -39,6 +39,10 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
             return
 
         self.input_po_number.setText(self.po_data.get("po_number", ""))
+        vendor_id = self.po_data.get("vendor_id", "")
+        index = self.input_vendor.findData(vendor_id)
+        if index != -1:
+            self.input_vendor.setCurrentIndex(index)
         self.input_order_date.setDate(QDate.fromString(self.po_data.get("order_date", ""), "yyyy-MM-dd"))
         self.input_expected_date.setDate(QDate.fromString(self.po_data.get("expected_date", ""), "yyyy-MM-dd"))
         self.input_ship_date.setDate(QDate.fromString(self.po_data.get("ship_date", ""), "yyyy-MM-dd"))
