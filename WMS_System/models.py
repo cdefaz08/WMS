@@ -439,6 +439,7 @@ receipt_lines = Table(
     Column("receipt_number", String(50), ForeignKey("receipts.receipt_number"), nullable=False),
 
     Column("line_number", Integer),
+    Column("item_id", String(50), ForeignKey("items.id"), nullable=False),
     Column("item_code", String(50), nullable=False),
     Column("description", String(200)),
     Column("upc", String(50)),

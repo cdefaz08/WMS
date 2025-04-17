@@ -56,17 +56,31 @@ def load_lines_from_api(api_client, endpoint, parent_id):
     except:
         return []
 
-def handle_upc_change(upc_value, api_client):
-    """Consulta un item por UPC y devuelve el primer resultado."""
+def fetch_item_by_upc(api_client, upc_value):
+    """Devuelve el primer item encontrado por UPC, junto con su configuración."""
     if not upc_value or not upc_value.isdigit():
-        return {}
+        return None, None
 
-    response = api_client.get(f"/items?upc={upc_value}")
-    if response.status_code != 200:
-        return {}
+    try:
+        response = api_client.get(f"/items?upc={upc_value}")
+        if response.status_code != 200:
+            return None, None
 
-    items = response.json()
-    return items[0] if items else {}
+        items = response.json()
+        if not items:
+            return None, None
+
+        product = items[0]
+        item_id = product["id"]
+
+        # Cargar configuración del item
+        config_response = api_client.get(f"/item-config/item-maintance/default/{item_id}")
+        config = config_response.json() if config_response.status_code == 200 else {}
+
+        return product, config
+    except Exception as e:
+        print(f"⚠️ Error during UPC lookup: {e}")
+        return None, None
 
 def delete_backend_record(api_client, endpoint, record_id):
     """Elimina un registro en el backend por ID."""
@@ -75,3 +89,16 @@ def delete_backend_record(api_client, endpoint, record_id):
         return response.status_code in (200, 204)
     except:
         return False
+
+def get_default_item_config(api_client, item_id):
+    """Consulta la configuración por defecto de un item."""
+    if not item_id:
+        return {}
+
+    try:
+        response = api_client.get(f"/item-config/item-maintance/default/{item_id}")
+        if response.status_code == 200:
+            return response.json()
+    except Exception as e:
+        print(f"⚠️ Error fetching config: {e}")
+    return {}

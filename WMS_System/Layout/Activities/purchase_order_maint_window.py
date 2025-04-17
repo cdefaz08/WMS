@@ -9,7 +9,11 @@ from Utils.reusable_utils import (
     get_table_item_text,
     safe_disconnect_signal,
     calculate_total_pieces,
-    calculate_total_price)
+    calculate_total_price,
+    load_lines_from_api,
+    get_default_item_config,
+    fetch_item_by_upc,
+    delete_backend_record)
 
 class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
     def __init__(self, api_client=None, po_data=None, parent=None):
@@ -18,14 +22,7 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
         self.po_data = po_data
         if self.po_data:
             po_id = self.po_data.get("id")
-            try:
-                lines_response = self.api_client.get(f"/purchase-order-lines/by-po/{po_id}")
-                if lines_response.status_code == 200:
-                    self.po_data["po_lines"] = lines_response.json()
-                else:
-                    self.po_data["po_lines"] = []
-            except Exception as e:
-                self.po_data["po_lines"] = []
+            self.po_data["po_lines"] = load_lines_from_api(self.api_client, "/purchase-order-lines/by-po", po_id)
                 
         self.load_dropdowns()
         self.populate_data()
@@ -84,14 +81,7 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
 
                     # 👉 Obtener configuración del item
                     item_id = line.get("item_id")
-                    config = {}
-                    try:
-                        if item_id:
-                            response = self.api_client.get(f"/item-config/item-maintance/default/{item_id}")
-                            if response.status_code == 200:
-                                config = response.json()
-                    except Exception as e:
-                        print(f"⚠️ Error fetching config: {e}")
+                    config = get_default_item_config(self.api_client, item_id)
 
                     combo.setProperty("item_config", config)
 
@@ -124,6 +114,7 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
 
                 if key == "item_code":
                     item.setData(QtCore.Qt.UserRole, line.get("item_id", None))
+                    
                 if key == "line_number":
                     item.setData(QtCore.Qt.UserRole + 1, line.get("id"))
 
@@ -426,32 +417,15 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
         upc_value = item.text().strip()
 
         if not upc_value:
-            return  # ⚠️ Si está vacío, no hacer nada
-
-        if not upc_value.isdigit():
-            QtWidgets.QMessageBox.warning(self, "UPC Error", "UPC must be numeric.")
             return
 
-        response = self.api_client.get(f"/items?upc={upc_value}")
-        if response.status_code != 200:
-            QtWidgets.QMessageBox.critical(self, "Error", "Failed to connect to server.")
-            return
+        product, config = fetch_item_by_upc(self.api_client, upc_value)
 
-        items = response.json()
-        if not items:
+        if not product:
             QtWidgets.QMessageBox.warning(self, "UPC Not Found", f"No item found with UPC {upc_value}")
             return
 
-        product = items[0]
         item_id = product["id"]
-
-        # 👉 Obtener configuración por defecto del item
-        config_response = self.api_client.get(f"/item-config/item-maintance/default/{item_id}")
-        if config_response.status_code != 200:
-            QtWidgets.QMessageBox.warning(self, "Warning", "No default configuration found for this item.")
-            config = {}
-        else:
-            config = config_response.json()
 
         # Mostrar item_code en columna 2
         item_code = QtWidgets.QTableWidgetItem(product.get("item_id", ""))
@@ -468,8 +442,7 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
         # UOM como dropdown en columna 7
         combo = QtWidgets.QComboBox()
         combo.addItems(["Pallets", "Carton", "Pieces"])
-        combo.setProperty("item_config", config)  # 🔁 Guarda config
-        print(combo.property("item_config"))
+        combo.setProperty("item_config", config)
         combo.currentIndexChanged.connect(lambda _, r=row: self.update_qty_ordered_based_on_uom(r))
         self.receipt_table.setCellWidget(row, 7, combo)
 
@@ -478,6 +451,7 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
 
         # Calcular total
         self.update_orderline_total_price(row)
+
 
     def update_qty_ordered_based_on_uom(self, row):
         combo = self.receipt_table.cellWidget(row, 7)
@@ -605,13 +579,9 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
 
         # Eliminar del backend si tiene ID
         if line_id:
-            try:
-                response = self.api_client.delete(f"/purchase-order-lines/{line_id}")
-                if response.status_code not in (200, 204):
-                    QtWidgets.QMessageBox.critical(self, "Error", f"Failed to delete line from server:\n{response.text}")
-                    return
-            except Exception as e:
-                QtWidgets.QMessageBox.critical(self, "Error", f"Exception occurred: {e}")
+            success = delete_backend_record(self.api_client, "/purchase-order-lines", line_id)
+            if not success:
+                QtWidgets.QMessageBox.critical(self, "Error", "Failed to delete line from server.")
                 return
 
         # Quitar la fila de la tabla si todo está bien

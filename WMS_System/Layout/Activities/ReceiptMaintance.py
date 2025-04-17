@@ -120,7 +120,7 @@ class ReceiptMaintanceWindow(QtWidgets.QDialog, Ui_OrderMaintance):
             return widget.text().strip() if widget else ""
 
         def get_combo(field): return getattr(self, f"comboBox_{field}", None).currentText().strip()
-        def get_date(widget): return widget.date().toString("MM/dd/yy")
+        def get_date(widget): return widget.date().toString("yyyy-MM-dd")
 
         data = {
             "receipt_number": get("order_number"),

@@ -17,7 +17,7 @@ async def create_receipt_endpoint(
     receipt: ReceiptCreate,
     current_user: dict = Depends(get_current_user)
 ):
-    return await receipt_crud.create_receipt(receipt, created_by=current_user["sub"])
+    return await receipt_crud.create_receipt(receipt, created_by=current_user["username"])
 
 
 @router.get("/")
