@@ -19,7 +19,7 @@ items = Table(
     Column("description2", String(50)),
     Column("is_offer", Boolean),
     Column("default_cfg", String(10)),
-    Column("is_taxabel",Boolean, default="True"),
+    Column("is_taxable",Boolean, default="True"),
     Column("brand",String(30)),
     Column("style",String(30)),
     Column("custum1",String(30)),
