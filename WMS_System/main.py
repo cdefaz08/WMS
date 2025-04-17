@@ -26,7 +26,8 @@ order_type,
 document_form,
 label_form,receipt,
 receipt_line,item_maintance,
-a_contents)
+a_contents,
+sales,)
 
 # Initialize FastAPI
 app = FastAPI()
@@ -78,7 +79,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
         expires_delta=access_token_expires
     )
 
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {"access_token": access_token, "token_type": "bearer", "username": db_user["username"]}
 
 
 app.include_router(users_router, prefix="/Users", tags=["Users"], dependencies=[Depends(get_current_user)])
@@ -100,4 +101,4 @@ app.include_router(receipt.router)
 app.include_router(receipt_line.router)
 app.include_router(item_maintance.router)
 app.include_router(a_contents.router)
-
+app.include_router(sales.router)

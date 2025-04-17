@@ -122,7 +122,10 @@ async def delete_item(item_id: int):
 
 async def get_item_by_upc(upc: int):
     query = select(items).where(items.c.upc == upc)
-    return await database.fetch_all(query)
+    item = await database.fetch_one(query)
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found.")
+    return item
     
 async def search_items(
     item_id=None,

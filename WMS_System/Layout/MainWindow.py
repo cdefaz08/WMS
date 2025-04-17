@@ -31,6 +31,7 @@ from Layout.Activities.PO_Search import PurchaseOrderSearchWindow
 from Layout.AdjustmentWindow import AdjustmentWindow
 from Layout.Activities.purchase_order_maint_window import PurchaseOrderMaintWindow
 from Layout.configurations.item_class_window import ItemClassWindow
+from Layout.Activities.Retail_Sale_POS import RetailSaleWindow
 from api_client import APIClient
 
 class TrackingSubWindow(QMdiSubWindow):
@@ -43,11 +44,13 @@ class TrackingSubWindow(QMdiSubWindow):
 
 
 class MainWindow(QtWidgets.QMainWindow):
-    def __init__(self,token = None):
+    def __init__(self,token = None, username = None):
         super().__init__()
         uic.loadUi("UI/MainWindow.ui", self)
         print("TOKEN:", token)
         self.token = token
+        self.current_user = username
+        print("CURRENT USER:", self.current_user)
         self.api_client = APIClient(token)
 
         self.connect_toolbar()
@@ -71,6 +74,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionInventory_Adjustment = self.findChild(QtWidgets.QAction, "actionInventory_Adjustment")
         self.actionPurchase_Order_Search = self.findChild(QtWidgets.QAction, "actionPurchase_Order_Search")
         self.actionItem_Clases = self.findChild(QtWidgets.QAction, "actionItem_Clases")
+        self.actionSales = self.findChild(QtWidgets.QAction, "actionSales")
 
 
         self.actionLogout.triggered.connect(self.logout)
@@ -89,9 +93,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionInventory_Adjustment.triggered.connect(self.open_inventory_adjustment_window)
         self.actionPurchase_Order_Search.triggered.connect(self.open_purchase_order_search_window)
         self.actionItem_Clases.triggered.connect(self.open_item_class_window)
+        self.actionSales.triggered.connect(self.open_retail_sale_window)
 
 
-    def open_mdi_window(self, widget_class, window_title, size=(600, 400),
+    def open_mdi_window(self, widget_class, window_title,user = None, size=(600, 400),
                         reuse_existing=True, extra_setup=None, check_existing=True,
                         min_size=(400, 300), max_size=(800, 600)):
         is_type = isinstance(widget_class, type)
@@ -106,7 +111,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         if callable(widget_class):
             try:
-                widget = widget_class(api_client=self.api_client)  # 🔐 intenta pasar api_client
+                widget = widget_class(api_client=self.api_client, user=self.current_user)  # 🔐 intenta pasar api_client
             except TypeError:
                 widget = widget_class()  # fallback si no acepta el parámetro
         else:
@@ -146,6 +151,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def open_user_table(self):
         self.open_mdi_window(UsersTableWindow, "User Search", size=(750, 400))
+
+    def open_retail_sale_window(self):
+        def setup(widget, sub_window):
+            self.mdiArea.subWindowActivated.connect(self.handle_subwindow_focus_change)
+            self.actionItemMaintance.setVisible(True)
+            widget.destroyed.connect(self.hide_item_toolbar_action)       
+        self.open_mdi_window(RetailSaleWindow, "Retail Sale", user = self.current_user, size=(1617, 664), extra_setup=setup, min_size=(900, 600), max_size=(1700, 800))
 
     def open_proximity_window(self):
         self.open_mdi_window(ProximityWindow, "Proximity Search", size=(600, 400))

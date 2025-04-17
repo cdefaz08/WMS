@@ -1,6 +1,6 @@
 from fastapi import APIRouter , Body, Query
 
-from schemas.Items import ItemCreate, ItemUpdate
+from schemas.Items import ItemCreate, ItemUpdate,ItemOut
 from crud import Items as crud_items
 from typing import Optional
 
@@ -35,6 +35,11 @@ async def read_items(upc: int = Query(None)):
     if upc is not None:
         return await crud_items.get_item_by_upc(upc)
     return await crud_items.read_items()
+
+@router.get("/upc/{upc}", response_model=ItemOut)
+async def get_item_by_upc(upc: int):
+    db_item = await crud_items.get_item_by_upc(upc)
+    return ItemOut(**dict(db_item))  # <- esto es lo que faltaba
 
 
 @router.get("/")

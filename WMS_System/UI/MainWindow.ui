@@ -123,6 +123,13 @@
      <addaction name="actionNew_PO"/>
      <addaction name="actionPurchase_Order_Search"/>
     </widget>
+    <widget class="QMenu" name="menuRetail_Sale">
+     <property name="title">
+      <string>Retail Sale</string>
+     </property>
+     <addaction name="actionSales"/>
+    </widget>
+    <addaction name="menuRetail_Sale"/>
     <addaction name="menuOrders"/>
     <addaction name="menuReceiving"/>
     <addaction name="menuPurchase_Orders"/>
@@ -383,6 +390,11 @@
   <action name="actionNew_Item">
    <property name="text">
     <string>New Item</string>
+   </property>
+  </action>
+  <action name="actionSales">
+   <property name="text">
+    <string>Sales</string>
    </property>
   </action>
  </widget>

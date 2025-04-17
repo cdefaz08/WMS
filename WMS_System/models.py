@@ -522,3 +522,36 @@ a_contents = Table(
     Column("date_time_last_touched", DateTime, nullable=False),
     Column("user_last_touched", String(50), nullable=False),
 )
+
+sales = Table(
+    "sales",
+    metadata,
+    Column("id", Integer, primary_key=True),
+    Column("sale_number", String, unique=True, nullable=False),
+    Column("customer_name", String),
+    Column("customer_contact", String),
+    Column("payment_method", String, nullable=False),
+    Column("subtotal", Float, default=0),
+    Column("tax", Float, default=0),
+    Column("discount_total", Float, default=0),
+    Column("total", Float, default=0),
+    Column("amount_received", Float, default=0),
+    Column("change_due", Float, default=0),
+    Column("created_by", String, nullable=False),
+    Column("created_date", DateTime(timezone=True), server_default=func.now()),
+)
+
+
+sale_lines = Table(
+    "sale_lines",
+    metadata,
+    Column("id", Integer, primary_key=True),
+    Column("sale_id", Integer, ForeignKey("sales.id", ondelete="CASCADE")),
+    Column("item_id", Integer, ForeignKey("items.id")),
+    Column("item_code", String),
+    Column("description", String),
+    Column("quantity", Float, nullable=False),
+    Column("unit_price", Float, nullable=False),
+    Column("discount", Float, default=0),
+    Column("line_total", Float, nullable=False),
+)

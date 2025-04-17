@@ -24,6 +24,13 @@ class ItemBase(BaseModel):
     custum5: Optional[str] = None
     custum6: Optional[str] = None
 
+class ItemOut(BaseModel):
+    id: int
+    item_id: str
+    description: str
+    price: float
+    upc: int
+
 # 2. Para crear ítems (POST)
 class ItemCreate(ItemBase):
     pass
