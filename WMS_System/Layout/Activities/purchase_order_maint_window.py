@@ -55,7 +55,10 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
         self._set_address_group(self.tabs.widget(0).layout().itemAt(0).widget(), "ship_")
         self._set_address_group(self.tabs.widget(0).layout().itemAt(1).widget(), "bill_")
 
-        po_lines = self.po_data.get("po_lines", [])
+        if "po_lines" not in self.po_data:
+            self.po_data["po_lines"] = []
+
+        po_lines = self.po_data["po_lines"]
         self.original_lines = po_lines.copy()
         self.receipt_table.setRowCount(len(po_lines))
 
@@ -371,8 +374,12 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
             self.receipt_table.setItem(row, col, item)
             if key == "item_id":
                 item.setFlags(item.flags() & ~QtCore.Qt.ItemIsEditable)
+            
+            if not hasattr(self, "original_lines"):
+                self.original_lines = []
 
         self.receipt_table.blockSignals(False)  # ✅ Volver a permitir señales
+        self.connect_signals_once()
     
     def connect_signals_once(self):
         try:

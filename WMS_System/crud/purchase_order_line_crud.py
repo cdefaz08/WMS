@@ -74,3 +74,7 @@ async def delete_purchase_order_line(line_id: int):
     query = delete(purchase_order_lines).where(purchase_order_lines.c.id == line_id)
     await database.execute(query)
     return {"message": "Purchase order line deleted successfully."}
+
+async def delete_lines_by_po_id(po_id: int):
+    query = delete(purchase_order_lines).where(purchase_order_lines.c.purchase_order_id == po_id)
+    await database.execute(query)

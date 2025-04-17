@@ -14,6 +14,9 @@ class PurchaseOrderSearchWindow(PurchaseOrderSearchUI):
         self.input_start_date.setDate(self.marker_date)
         self.input_end_date.setSpecialValueText("No filter")
         self.input_end_date.setDate(self.marker_date)
+        
+        self.input_po_number.returnPressed.connect(self.search_po)
+        self.input_vendor.returnPressed.connect(self.search_po)
 
         self.btn_search.clicked.connect(self.search_po)
         self.btn_reset.clicked.connect(self.reset_fields)
@@ -49,8 +52,8 @@ class PurchaseOrderSearchWindow(PurchaseOrderSearchUI):
         self.input_po_number.clear()
         self.input_vendor.clear()
         self.input_status.setCurrentIndex(0)
-        self.input_start_date.setDate(QtCore.QDate.currentDate())
-        self.input_end_date.setDate(QtCore.QDate.currentDate())
+        self.input_start_date.setDate(self.marker_date)
+        self.input_end_date.setDate(self.marker_date)
         self.table.setRowCount(0)
 
     def populate_table(self, data):
@@ -71,3 +74,27 @@ class PurchaseOrderSearchWindow(PurchaseOrderSearchUI):
         if selected_row != -1:
             return int(self.table.item(selected_row, 0).text())
         return None
+
+    def delete_selected_po(self):
+        po_id = self.get_selected_po_id()
+        if po_id is None:
+            QMessageBox.warning(self, "No Selection", "Please select a Purchase Order to delete.")
+            return
+
+        confirm = QMessageBox.question(
+            self,
+            "Confirm Deletion",
+            "Are you sure you want to delete the selected Purchase Order?",
+            QMessageBox.Yes | QMessageBox.No
+        )
+
+        if confirm == QMessageBox.Yes:
+            try:
+                response = self.api_client.delete(f"/purchase-orders/{po_id}")
+                if response.status_code == 200:
+                    QMessageBox.information(self, "Deleted", "Purchase Order deleted successfully.")
+                    self.search_po()  # Refresh table
+                else:
+                    QMessageBox.critical(self, "Error", f"Failed to delete PO.\n{response.status_code}: {response.text}")
+            except Exception as e:
+                QMessageBox.critical(self, "Error", f"An error occurred:\n{str(e)}")

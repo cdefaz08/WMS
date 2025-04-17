@@ -1,7 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from typing import List
+from models import purchase_orders
 from Security.dependencies import get_current_user
-from crud import purchase_order_crud
+from crud import purchase_order_crud , purchase_order_line_crud
+from database import database
+from sqlalchemy import delete
 from typing import Optional
 from schemas.purchase_order import (
     PurchaseOrderCreate,
@@ -61,7 +64,14 @@ async def update_purchase_order(
     return await purchase_order_crud.update_purchase_order(po_id, update_data, modify_by)
 
 
-# Delete purchase order
-@router.delete("/{po_id}", response_model=dict)
+
+@router.delete("/{po_id}")
 async def delete_purchase_order(po_id: int):
-    return await purchase_order_crud.delete_purchase_order(po_id)
+    # 1. Eliminar líneas primero
+    await purchase_order_line_crud.delete_lines_by_po_id(po_id)
+
+    # 2. Eliminar la orden de compra
+    query = delete(purchase_orders).where(purchase_orders.c.id == po_id)
+    await database.execute(query)
+
+    return {"message": "Purchase Order and its lines deleted."}

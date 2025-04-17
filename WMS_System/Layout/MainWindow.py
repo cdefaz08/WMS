@@ -459,6 +459,8 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.delete_selected_order_line()
         elif isinstance(active_window,ItemClassWindow):
             active_window.delete_selected_row()
+        elif isinstance(active_window,PurchaseOrderSearchWindow):
+            active_window.delete_selected_po()
         else:
             QtWidgets.QMessageBox.warning(self,"No Active Window", "Please select a window First")
 
@@ -614,7 +616,7 @@ class MainWindow(QtWidgets.QMainWindow):
                         self.open_mdi_window(
                             lambda: PurchaseOrderMaintWindow(po_data=po_data, api_client=self.api_client, parent=self),
                             "Purchase Order Maintanance",
-                            size=(1000, 724),min_size=(986, 724), max_size=(1100, 780),
+                            size=(1000, 759),min_size=(800, 759), max_size=(1100, 780),
                             extra_setup=lambda w, s: setattr(w, "parent_subwindow", s)
                         )
                     else:
