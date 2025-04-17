@@ -4,6 +4,7 @@ from models import receipts
 from schemas.receipt_schema import ReceiptCreate
 from database import database
 from datetime import datetime
+from crud.receipt_line import delete_receipt_lines_by_number
 
 
 # Crear un nuevo recibo
@@ -59,9 +60,22 @@ async def update_receipt(receipt_id: int, updated_data: dict):
 
 # ✅ Eliminar recibo
 async def delete_receipt(receipt_id: int):
-    query = delete(receipts).where(receipts.c.id == receipt_id)
-    await database.execute(query)
-    return {"message": "Receipt deleted successfully."}
+    # 🔍 Buscar el receipt_number antes de eliminar
+    select_query = select(receipts.c.receipt_number).where(receipts.c.id == receipt_id)
+    result = await database.fetch_one(select_query)
+    if not result:
+        return {"error": "Receipt not found."}
+
+    receipt_number = result["receipt_number"]
+
+    # 🔥 Eliminar primero las líneas
+    await delete_receipt_lines_by_number(receipt_number)
+
+    # 🧽 Luego eliminar el recibo
+    delete_query = delete(receipts).where(receipts.c.id == receipt_id)
+    await database.execute(delete_query)
+
+    return {"message": "Receipt and associated lines deleted successfully."}
 
 
 from typing import Optional

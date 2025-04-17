@@ -56,3 +56,8 @@ async def delete_receipt_line(line_id: int):
     query = delete(receipt_lines).where(receipt_lines.c.id == line_id)
     await database.execute(query)
     return {"message": "Receipt line deleted successfully."}
+
+async def delete_receipt_lines_by_number(receipt_number: str):
+    query = delete(receipt_lines).where(receipt_lines.c.receipt_number == receipt_number)
+    await database.execute(query)
+    return {"message": f"All receipt lines for receipt_number {receipt_number} deleted."}

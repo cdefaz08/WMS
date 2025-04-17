@@ -1,0 +1,9 @@
+Step | Task | Status
+1 | Create DB models: sales, sale_lines | ⬜️
+2 | Create FastAPI endpoints | ⬜️
+3 | Create PyQt UI layout | ⬜️
+4 | Add logic to handle UPC/item fetch | ⬜️
+5 | Add subtotal/total calculations | ⬜️
+6 | Implement "Confirm Sale" logic | ⬜️
+7 | Connect API requests with api_client | ⬜️
+8 | Add receipt printing or confirmation screen | ⬜️
