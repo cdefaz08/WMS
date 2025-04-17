@@ -124,19 +124,11 @@ class RetailSaleWindow(RetailSaleUI):
         tax = taxable_total * TAX_RATE
         total = (subtotal - discount_total) + tax
 
-        # Actualiza campos
         self.input_subtotal.setText(f"{subtotal:.2f}")
         self.input_discount_total.setText(f"{discount_total:.2f}")
         self.input_tax.setText(f"{tax:.2f}")
         self.input_total.setText(f"{total:.2f}")
 
-        tax = subtotal * 0.07  # Suponiendo 7%
-        total = subtotal - discount_total + tax
-
-        self.input_subtotal.setText(f"{subtotal:.2f}")
-        self.input_discount_total.setText(f"{discount_total:.2f}")
-        self.input_tax.setText(f"{tax:.2f}")
-        self.input_total.setText(f"{total:.2f}")
 
     def calculate_change_due(self):
         try:
@@ -220,6 +212,7 @@ class RetailSaleWindow(RetailSaleUI):
             QMessageBox.critical(self, "Error", f"Unexpected error: {e}")
 
     def handle_item_change(self, item):
+        print("Cell changed:", item.row(), item.column())  # 👈 DEBUG
         row = item.row()
         col = item.column()
 
