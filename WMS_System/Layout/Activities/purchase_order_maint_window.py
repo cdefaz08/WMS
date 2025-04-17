@@ -3,6 +3,13 @@ from PyQt5 import QtWidgets , QtCore
 from PyQt5.QtCore import QDate
 from Layout.UI_PY.purchase_order_maint_ui import PurchaseOrderMaintUI
 from functools import partial
+from Utils.reusable_utils import (
+    get_updated_fields, 
+    populate_combobox,
+    get_table_item_text,
+    safe_disconnect_signal,
+    calculate_total_pieces,
+    calculate_total_price)
 
 class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
     def __init__(self, api_client=None, po_data=None, parent=None):
@@ -28,9 +35,7 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
             vendor_response = self.api_client.get("/vendors/")
             if vendor_response.status_code == 200:
                 self.vendors = vendor_response.json()
-                self.input_vendor.clear()
-                for vendor in self.vendors:
-                    self.input_vendor.addItem(vendor["vendor_code"], vendor["id"])
+                populate_combobox(self.input_vendor, self.vendors, "vendor_code", "id")
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Could not load dropdowns: {e}")
 
@@ -182,10 +187,8 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
         updated_fields = {}
 
         if self.po_data and self.po_data.get("id"):
-            for key, new_val in current_values.items():
-                old_val = str(self.po_data.get(key, "") or "").strip()
-                if str(new_val).strip() != old_val:
-                    updated_fields[key] = new_val
+            updated_fields = get_updated_fields(self.po_data, current_values)
+            print(updated_fields)
 
             if updated_fields:
                 po_id = self.po_data["id"]
@@ -382,12 +385,9 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
         self.connect_signals_once()
     
     def connect_signals_once(self):
-        try:
-            self.receipt_table.itemChanged.disconnect()
-        except TypeError:
-            pass  # no estaba conectado
-
+        safe_disconnect_signal(self.receipt_table, self.receipt_table.itemChanged)
         self.receipt_table.itemChanged.connect(self.handle_orderline_item_change)
+
 
     def handle_orderline_item_change(self, item):
         if not item:
@@ -407,22 +407,9 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
 
                 uom = combo.currentText()
                 config = combo.property("item_config") or {}
+
                 print("Config:", config)
-                pieces_per_case = config.get("pieces_per_case", 1)
-                boxes_per_pallet = config.get("boxes_per_pallet", 1)
-
-                # 🔁 Convertir a total_pieces según UOM actual
-                if uom == "Pieces":
-                    qty = round(qty)  # 🔒 redondeamos cantidad visual escrita por el usuario
-                    total_pieces = qty
-                elif uom == "Carton":
-                    total_pieces = qty * pieces_per_case
-                elif uom == "Pallets":
-                    # ❗ NO redondees si se permite media tarima
-                    total_pieces = qty * pieces_per_case * boxes_per_pallet
-                else:
-                    total_pieces = qty
-
+                total_pieces = calculate_total_pieces(qty, uom, config)
                 combo.setProperty("total_pieces", total_pieces)
                 print(f"[✏️] line change: row={row}, UOM={uom}, total_pieces={total_pieces}")
                 self.update_orderline_total_price(row)
@@ -548,7 +535,7 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
             if total_pieces is None:
                 raise ValueError("Missing total_pieces")
 
-            total = total_pieces * unit_price
+            total = calculate_total_price(unit_price, total_pieces)
             print(f"[💰] Calculating total for row {row}: {total_pieces} * {unit_price} = {total:.2f}")
 
             self.receipt_table.setItem(row, 9, QtWidgets.QTableWidgetItem(f"{total:.2f}"))
@@ -571,17 +558,17 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
             row_data = {
                 "line_id": line_id,
                 "purchase_order_id": self.po_data["id"],
-                "line_number": self.get_cell_text(row, 0),
-                "upc": self.get_cell_text(row, 1),
+                "line_number": get_table_item_text(self.receipt_table, row, 0),
+                "upc": get_table_item_text(self.receipt_table, row, 1),
                 "item_id": item_id,
                 "item_code": item_code_item.text() if item_code_item else "",
-                "description": self.get_cell_text(row, 3),
-                "qty_ordered": self.get_cell_text(row, 4),
-                "qty_expected": self.get_cell_text(row, 5),
-                "qty_received": self.get_cell_text(row, 6),
-                "uom": combo.currentText() if combo else self.get_cell_text(row, 7),
-                "unit_price": self.get_cell_text(row, 8),
-                "line_total": self.get_cell_text(row, 9),
+                "description": get_table_item_text(self.receipt_table, row, 3),
+                "qty_ordered": get_table_item_text(self.receipt_table, row, 4),
+                "qty_expected": get_table_item_text(self.receipt_table, row, 5),
+                "qty_received": get_table_item_text(self.receipt_table, row, 6),
+                "uom": get_table_item_text(self.receipt_table, row, 7),
+                "unit_price": get_table_item_text(self.receipt_table, row, 8),
+                "line_total": get_table_item_text(self.receipt_table, row, 9),
                 "total_pieces": total_pieces,
 
                 # Opcionales:
@@ -596,10 +583,6 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
 
             data.append(row_data)
         return data
-
-    def get_cell_text(self, row, column):
-        item = self.receipt_table.item(row, column)
-        return item.text().strip() if item else ""
 
     def delete_selected_order_line(self):
         selected = self.receipt_table.currentRow()
