@@ -540,7 +540,7 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
                 "qty_ordered": get_table_item_text(self.receipt_table, row, 4),
                 "qty_expected": get_table_item_text(self.receipt_table, row, 5),
                 "qty_received": get_table_item_text(self.receipt_table, row, 6),
-                "uom": get_table_item_text(self.receipt_table, row, 7),
+                "uom": self.receipt_table.cellWidget(row, 7).currentText() if self.receipt_table.cellWidget(row, 7) else "",
                 "unit_price": get_table_item_text(self.receipt_table, row, 8),
                 "line_total": get_table_item_text(self.receipt_table, row, 9),
                 "total_pieces": total_pieces,
