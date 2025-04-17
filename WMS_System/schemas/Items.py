@@ -30,6 +30,7 @@ class ItemOut(BaseModel):
     description: str
     price: float
     upc: int
+    is_taxable: bool
 
 # 2. Para crear ítems (POST)
 class ItemCreate(ItemBase):

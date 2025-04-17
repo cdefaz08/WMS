@@ -1,6 +1,6 @@
 from Layout.UI_PY.retail_sale_ui import RetailSaleUI  # Ajusta la ruta si es distinta
 import sys
-from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox
+from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox,QCheckBox
 from PyQt5.QtCore import Qt
 
 class RetailSaleWindow(RetailSaleUI):
@@ -66,6 +66,7 @@ class RetailSaleWindow(RetailSaleUI):
 
         upc_item = make_read_only_item(upc)
         upc_item.setData(Qt.UserRole, item["id"])
+        upc_item.setData(Qt.UserRole + 1, item.get("is_taxable", True)) 
         self.table.setItem(row, 0, upc_item)
 
         # Code y Description
@@ -94,17 +95,40 @@ class RetailSaleWindow(RetailSaleUI):
             self.table.setItem(row, 6, QTableWidgetItem("0.00"))
 
     def update_totals(self):
+        TAX_RATE = 0.06625
+        taxable_total = 0.0
         subtotal = 0.0
         discount_total = 0.0
+
         for row in range(self.table.rowCount()):
             try:
                 qty = float(self.table.item(row, 3).text())
                 price = float(self.table.item(row, 4).text())
                 discount = float(self.table.item(row, 5).text())
-                subtotal += qty * price
+
+                line_subtotal = qty * price
+                subtotal += line_subtotal
                 discount_total += discount
+
+                upc_item = self.table.item(row, 0)
+                is_taxable = True
+                if upc_item:
+                    is_taxable = upc_item.data(Qt.UserRole + 1)
+
+                if is_taxable:
+                    taxable_total += (line_subtotal - discount)
+
             except:
                 continue
+
+        tax = taxable_total * TAX_RATE
+        total = (subtotal - discount_total) + tax
+
+        # Actualiza campos
+        self.input_subtotal.setText(f"{subtotal:.2f}")
+        self.input_discount_total.setText(f"{discount_total:.2f}")
+        self.input_tax.setText(f"{tax:.2f}")
+        self.input_total.setText(f"{total:.2f}")
 
         tax = subtotal * 0.07  # Suponiendo 7%
         total = subtotal - discount_total + tax
