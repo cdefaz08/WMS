@@ -58,7 +58,7 @@
      <addaction name="separator"/>
      <addaction name="actionRule_Maintance"/>
      <addaction name="actionRule_Clases"/>
-     <addaction name="actionRule_Grups"/>
+     <addaction name="actionRule_Groups"/>
     </widget>
     <widget class="QMenu" name="menuSystem">
      <property name="title">
@@ -278,7 +278,7 @@
     <string>Rule Maintance</string>
    </property>
   </action>
-  <action name="actionRule_Grups">
+  <action name="actionRule_Groups">
    <property name="text">
     <string>Rule Grups</string>
    </property>

@@ -11,7 +11,7 @@ from Layout.Maintance.add_item_dialog import AddItemDialog
 from Layout.configurations.LocationType_Win import LocationTypes
 from Layout.Maintance.LocationType_Maintance import LocationType_Maintance
 from Layout.Maintance.AddLocationType import AddLocationType
-from Layout.configurations.RuleClases import RuleClases
+from Layout.configurations.rules.RuleClases import RuleClases
 from Layout.Maintance.LocationMaintance import LocationMaintance
 from Layout.Maintance.add_location import AddLocationDialog
 from Layout.configurations.Proximities import ProximityWindow
@@ -32,6 +32,7 @@ from Layout.AdjustmentWindow import AdjustmentWindow
 from Layout.Activities.purchase_order_maint_window import PurchaseOrderMaintWindow
 from Layout.configurations.item_class_window import ItemClassWindow
 from Layout.Activities.Retail_Sale_POS import RetailSaleWindow
+from Layout.configurations.rules.RuleGroups import GroupMaintanceWindow
 from api_client import APIClient
 
 class TrackingSubWindow(QMdiSubWindow):
@@ -64,6 +65,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionUser_table = self.findChild(QtWidgets.QAction, 'actionUsers')
         self.actionLocation_Types = self.findChild(QtWidgets.QAction,"actionLocation_Types")
         self.actionactionRule_Clases = self.findChild(QtWidgets.QAction,"actionRule_Clases")
+        self.actionRule_Groups = self.findChild(QtWidgets.QAction,"actionRule_Groups")
         self.actionNewLocation = self.findChild(QtWidgets.QAction,"actionNewLocation")
         self.actionLocation_Search = self.findChild(QtWidgets.QAction,"actionLocation_Search")
         self.actionProximity = self.findChild(QtWidgets.QAction, 'actionProximity')
@@ -83,6 +85,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionUser_table.triggered.connect(self.open_user_table)
         self.actionLocation_Types.triggered.connect(self.open_locationType_win)
         self.actionactionRule_Clases.triggered.connect(self.open_RuleClases)
+        self.actionRule_Groups.triggered.connect(self.open_RuleGroups)
+
         self.actionNewLocation.triggered.connect(self.open_new_Location)
         self.actionLocation_Search.triggered.connect(self.open_location_search)  
         self.actionProximity.triggered.connect(self.open_proximity_window)
@@ -162,6 +166,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def open_proximity_window(self):
         self.open_mdi_window(ProximityWindow(api_client=self.api_client), "Proximity Search", size=(600, 400))
+    
+    def open_RuleGroups(self):
+        def setup(widget, sub_window):
+            self.mdiArea.subWindowActivated.connect(self.handle_subwindow_focus_change)
+            self.actionItemMaintance.setVisible(True)
+            widget.destroyed.connect(self.hide_item_toolbar_action)        
+        self.open_mdi_window(GroupMaintanceWindow(api_client=self.api_client), "Rule Groups", size=(600, 400), extra_setup=setup)
 
     def open_locationType_win(self):
         def setup(widget, sub_window):
@@ -392,6 +403,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.open_mdi_window(PurchaseOrderMaintWindow,"Add New Purchase Order",size=(1000, 710),min_size=(697, 459), max_size=(1072, 617),)
         elif isinstance(active_window,ItemClassWindow):
             active_window.add_empty_row()
+        elif isinstance(active_window , GroupMaintanceWindow):
+            active_window.add_new_row_to_current_tab()
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
 
@@ -431,6 +444,8 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.save_changes()
         elif isinstance(active_window,ItemClassWindow):
             active_window.save_changes()
+        elif isinstance(active_window,GroupMaintanceWindow):
+            active_window.save_current_tab_changes()
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
 
@@ -474,6 +489,8 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.delete_selected_row()
         elif isinstance(active_window,PurchaseOrderSearchWindow):
             active_window.delete_selected_po()
+        elif isinstance(active_window,GroupMaintanceWindow):
+            active_window.delete_selected_group()            
         else:
             QtWidgets.QMessageBox.warning(self,"No Active Window", "Please select a window First")
 
@@ -725,7 +742,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         widget = active_subwindow.widget()
 
-        if isinstance(widget, (ItemSearchWindow, LocationTypes, VendorSearchWindow, OrderSearchWindow,ReceiptSearchWindow,PurchaseOrderSearchWindow)):
+        if isinstance(widget, (ItemSearchWindow,GroupMaintanceWindow, LocationTypes, VendorSearchWindow, OrderSearchWindow,ReceiptSearchWindow,PurchaseOrderSearchWindow)):
             self.actionItemMaintance.setVisible(True)
         elif isinstance(widget, (OrderMaintanceWindow,ReceiptMaintanceWindow,ItemMaintanceDialog)):
             self.actionOrderLines.setVisible(True)
