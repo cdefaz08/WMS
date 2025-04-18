@@ -559,7 +559,7 @@ sale_lines = Table(
 )
 
 
-item_default_config = Table(
+item_default_config = Table(  #Need a UI
     "item_default_config",
     metadata,
     Column("id", Integer, primary_key=True, autoincrement=True),
@@ -571,7 +571,7 @@ item_default_config = Table(
 
 
 # Grupos
-putaway_groups = Table(
+putaway_groups = Table(#Need a UI
     "putaway_groups",
     metadata,
     Column("id", Integer, primary_key=True, autoincrement=True),
@@ -579,7 +579,7 @@ putaway_groups = Table(
     Column("description", String(50))
 )
 
-pick_groups = Table(
+pick_groups = Table(#Need a UI
     "pick_groups",
     metadata,
     Column("id", Integer, primary_key=True, autoincrement=True),
@@ -587,7 +587,7 @@ pick_groups = Table(
     Column("description", String(50))
 )
 
-restock_groups = Table(
+restock_groups = Table(#Need a UI
     "restock_groups",
     metadata,
     Column("id", Integer, primary_key=True, autoincrement=True),
@@ -596,7 +596,7 @@ restock_groups = Table(
 )
 
 # Group-Class (con prioridad y %)
-putaway_group_classes = Table(
+putaway_group_classes = Table(#Need a UI
     "putaway_group_classes",
     metadata,
     Column("id", Integer, primary_key=True),
@@ -607,7 +607,7 @@ putaway_group_classes = Table(
     Column("max_percent", Float)
 )
 
-pick_group_classes = Table(
+pick_group_classes = Table(#Need a UI
     "pick_group_classes",
     metadata,
     Column("id", Integer, primary_key=True),
@@ -618,7 +618,7 @@ pick_group_classes = Table(
     Column("max_percent", Float)
 )
 
-restock_group_classes = Table(
+restock_group_classes = Table(#Need a UI
     "restock_group_classes",
     metadata,
     Column("id", Integer, primary_key=True),
