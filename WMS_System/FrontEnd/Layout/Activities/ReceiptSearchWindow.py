@@ -1,6 +1,5 @@
 from PyQt5 import QtWidgets, QtCore
 import requests
-from config import API_BASE_URL
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from Layout.UI_PY.UI_ReceiptSearch import Ui_ReceiptSearch
 from datetime import datetime

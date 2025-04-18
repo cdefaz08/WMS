@@ -1,6 +1,5 @@
 from PyQt5 import QtWidgets, uic
 import requests
-from config import API_BASE_URL
 
 class NewUserDialog(QtWidgets.QDialog):
     def __init__(self,api_client = None):

@@ -4,7 +4,6 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5 import QtWidgets
 from Layout.UI_PY.order_type_ui import Ui_OrderTypes
-from config import API_BASE_URL
 
 class OrderTypeWindow(QWidget):
     def __init__(self,api_client = None):

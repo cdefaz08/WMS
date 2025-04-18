@@ -1,5 +1,4 @@
 from PyQt5 import QtWidgets, uic , QtCore
-from config import API_BASE_URL
 import requests
 from Layout.Security.Create_NewUser import NewUserDialog  # Import the new dialog
 

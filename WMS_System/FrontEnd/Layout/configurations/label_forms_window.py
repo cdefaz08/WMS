@@ -2,7 +2,7 @@ import sys
 import requests
 from PyQt5 import QtWidgets
 from Layout.UI_PY.forms_ui import Ui_Forms
-from config import API_BASE_URL
+
 
 class FormManager(QtWidgets.QWidget):
     def __init__(self,api_client = None):

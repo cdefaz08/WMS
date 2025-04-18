@@ -3,7 +3,6 @@ from PyQt5 import QtWidgets, QtCore
 from Layout.UI_PY.UI_ReceiptMaintance import Ui_OrderMaintance
 from Layout.Activities.ReceiptLinesWindow import ReceiptLinesWindow
 import requests
-from config import API_BASE_URL
 from datetime import datetime
 
 class ReceiptMaintanceWindow(QtWidgets.QDialog, Ui_OrderMaintance):

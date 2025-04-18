@@ -7,7 +7,7 @@ from PyQt5.QtGui import QFont
 class LoginWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi("UI/Login_layout.ui", self)
+        uic.loadUi("FrontEnd/UI/Login_layout.ui", self)
 
         font = QFont("Segoe UI", 60, QFont.Bold)
         

@@ -1,6 +1,5 @@
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtGui import QDoubleValidator
-from config import API_BASE_URL
 import requests
 
 class AddItemDialog(QtWidgets.QWidget):

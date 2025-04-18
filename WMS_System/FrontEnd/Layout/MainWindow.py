@@ -48,7 +48,7 @@ class TrackingSubWindow(QMdiSubWindow):
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self,token = None, username = None):
         super().__init__()
-        uic.loadUi("UI/MainWindow.ui", self)
+        uic.loadUi("FrontEnd/UI/MainWindow.ui", self)
         print("TOKEN:", token)
         self.token = token
         self.current_user = username

@@ -1,8 +1,5 @@
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QMessageBox 
-from config import API_BASE_URL
 from Layout.UI_PY.LocationTypeMaintance_ui import Ui_Form
-import requests
 
 class LocationType_Maintance(QtWidgets.QWidget):
     def __init__(self,api_client = None, locationTypeData=None, parent=None):

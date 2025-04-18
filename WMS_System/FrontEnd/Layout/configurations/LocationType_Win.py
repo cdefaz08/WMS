@@ -1,6 +1,4 @@
 from PyQt5 import QtWidgets, uic, QtCore 
-from config import API_BASE_URL
-import requests
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 
 class LocationTypes(QtWidgets.QWidget):

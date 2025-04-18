@@ -1,5 +1,4 @@
 from Layout.UI_PY.retail_sale_ui import RetailSaleUI  # Ajusta la ruta si es distinta
-import sys
 from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox,QCheckBox
 from PyQt5.QtCore import Qt
 

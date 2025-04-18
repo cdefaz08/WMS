@@ -1,6 +1,5 @@
 from PyQt5 import QtWidgets
 from Layout.UI_PY.ui_proximities import Ui_Form  # Change Ui_Dialog to your actual class name in the .py file
-from config import API_BASE_URL
 import requests
 
 class ProximityWindow(QtWidgets.QDialog):

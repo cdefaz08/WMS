@@ -2,7 +2,6 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtSignal
 import requests
 from Layout.UI_PY.vendor_maintance_ui import Ui_VendorMaintance
-from config import API_BASE_URL
 
 class VendorMaintanceDialog(QtWidgets.QDialog, Ui_VendorMaintance):
     vendor_updated = pyqtSignal()
@@ -70,7 +69,7 @@ class VendorMaintanceDialog(QtWidgets.QDialog, Ui_VendorMaintance):
                 QtWidgets.QMessageBox.information(self, "No Changes", "No fields were modified.")
                 return
             payload = updated_fields
-            url = f"{API_BASE_URL}/vendors/{vendor_id}"
+            url = f"/vendors/{vendor_id}"
             method = self.api_client.put
         else:
             # Collect all fields for creation

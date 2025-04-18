@@ -2,7 +2,6 @@
 
 from PyQt5 import QtWidgets, QtCore
 import requests
-from config import API_BASE_URL
 from Layout.UI_PY.vendor_search_ui import Ui_VendorSearch  # Update path if needed
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 
