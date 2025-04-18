@@ -2,6 +2,7 @@ from PyQt5 import QtWidgets, QtCore
 from Layout.UI_PY.UI_ReceiptLines import Ui_Form
 from functools import partial
 from Utils.reusable_utils import fetch_item_by_upc, calculate_total_pieces,get_default_item_config
+from copy import deepcopy
 
 
 class ReceiptLinesWindow(QtWidgets.QWidget, Ui_Form):
@@ -43,7 +44,7 @@ class ReceiptLinesWindow(QtWidgets.QWidget, Ui_Form):
             self.tableWidget_OrderLines.blockSignals(False)
 
             # ✅ Reconstruir original_data desde la tabla ya poblada
-            self.original_data = self.get_current_data()
+            self.original_data = deepcopy(self.get_current_data())
         else:
             QtWidgets.QMessageBox.critical(self, "Error", "Failed to load receipt lines.")
 
@@ -61,7 +62,6 @@ class ReceiptLinesWindow(QtWidgets.QWidget, Ui_Form):
         }
 
         values = data or default
-        print(f"🧩 Adding row → ID: {values.get('id')}")
         for col, key in enumerate(self.headers):
             value = values.get(key, "")
             item = QtWidgets.QTableWidgetItem(str(value))
@@ -81,13 +81,11 @@ class ReceiptLinesWindow(QtWidgets.QWidget, Ui_Form):
                 index = combo.findText(values.get("uom", "Pieces"))
                 if index >= 0:
                     combo.setCurrentIndex(index)
-                print(f"Setting UOM to {values.get('uom')}")
 
                 # Obtener configuración del ítem
                 item_id = values.get("item_id", "")
                 config = get_default_item_config(self.api_client, item_id) if item_id else {}
                 combo.setProperty("item_config", config)
-                print(f"Config for item_id {item_id}: {config}")
 
                 # Calcular total_pieces desde qty y UOM
                 try:
@@ -152,10 +150,6 @@ class ReceiptLinesWindow(QtWidgets.QWidget, Ui_Form):
 
                 total_pieces = calculate_total_pieces(qty, uom, config)
                 combo.setProperty("total_pieces", total_pieces)
-
-                print(f"[✏️] Changed row={row}, UOM={uom}, total_pieces={total_pieces}")
-                print(f"config={config}")
-            
             self.update_total_price(row)
 
     def handle_upc_change(self, item, row):
@@ -196,7 +190,6 @@ class ReceiptLinesWindow(QtWidgets.QWidget, Ui_Form):
 
             total_pieces = calculate_total_pieces(qty, "Pieces", config)
             combo.setProperty("total_pieces", total_pieces)
-            print(f"Total pieces set to {total_pieces} for row {row}")
 
         # Actualizar cantidad ordenada
         self.update_qty_ordered_based_on_uom(row)
@@ -259,53 +252,46 @@ class ReceiptLinesWindow(QtWidgets.QWidget, Ui_Form):
             row_data["receipt_number"] = self.receipt_number
             data.append(row_data)
 
-            print(f"✅ Row {row} → Captured ID in get_current_data: ID: {row_data.get('id')}, UOM: {row_data.get('uom')}")
-
         return data
 
 
     def is_row_modified(self, new_row, row_index):
         if row_index >= len(self.original_data):
-            print(f"🆕 Nueva fila (index {row_index}) ➜ marcada como modificada.")
             return True
 
         original = self.original_data[row_index]
 
         for key in self.headers:
-            if key == "id":
+            if key in ["id"]:
                 continue
 
             new_value = str(new_row.get(key, "")).strip()
             original_value = str(original.get(key, "")).strip()
 
-            if key == "uom":
-                print(f"[DEBUG] UOM -> new: '{new_value}' | original: '{original_value}'")
 
-            # Si ambos vacíos, no hacer nada
-            if new_value.casefold() != original_value.casefold():
-                print(f"📝 Cambio detectado en '{key}': '{original_value}' → '{new_value}'")
-                return True
+            # Si ambos vacíos, continúa
+            if not new_value and not original_value:
+                continue
 
-            # Comparar numéricamente si es posible
+            # Intenta comparar como número si ambos son numéricos
             try:
                 if float(new_value) != float(original_value):
-                    print(f"🔢 Cambio detectado en '{key}': '{original_value}' → '{new_value}'")
                     return True
                 else:
                     continue
             except ValueError:
-                # Si no son números, comparar como texto
-                if new_value != original_value:
-                    print(f"📝 Cambio detectado en '{key}': '{original_value}' → '{new_value}'")
+                # Si no son números, compara como texto insensible a mayúsculas
+                if new_value.strip().casefold() != original_value.strip().casefold():
                     return True
 
         return False  # ✅ No se detectaron diferencias
 
 
+
     def save_changes(self):
         url = "/receipt-lines/"
         current_data = self.get_current_data()
-        print(f"current data:{current_data} ")
+        changes_made = False
 
         for i, row_data in enumerate(current_data):
             if not row_data.get("item_code") or not row_data.get("quantity_received"):
@@ -317,25 +303,25 @@ class ReceiptLinesWindow(QtWidgets.QWidget, Ui_Form):
             if not is_modified:
                 continue
 
-            # Don't pop, just read the id separately
             payload = row_data.copy()
-            line_id = row_data.get("id")  # Use this to decide between POST and PUT
-
-            print(f"📝 Sending payload to API → row={i}, is_new={is_new}, id={line_id}")
-            print("Payload:", payload)
+            line_id = row_data.get("id")
 
             if line_id:
                 response = self.api_client.put(f"{url}{line_id}", json=payload)
             else:
                 response = self.api_client.post(url, json=payload)
 
-            if response.status_code in (200, 201):
-                return True
-            else:
+            if response.status_code not in (200, 201):
                 QtWidgets.QMessageBox.warning(self, "Error", f"❌ Failed to save line {i+1}: {response.text}")
-                return False
+            else:
+                changes_made = True
 
-        self.load_data()
+        # 🔄 Actualiza original_lines si hubo cambios
+        if changes_made:
+            self.original_data = deepcopy(self.get_current_data())
+
+        return changes_made
+
 
     def delete_selected_row(self):
         selected = self.tableWidget_OrderLines.currentRow()

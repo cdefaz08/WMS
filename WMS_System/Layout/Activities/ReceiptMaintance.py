@@ -184,7 +184,7 @@ class ReceiptMaintanceWindow(QtWidgets.QDialog, Ui_OrderMaintance):
             response = self.api_client.post(f"/receipts", json=full_data)
 
         if response.status_code in (200, 201):
-            self.original_data = self.original_data | (self.collect_form_data() if not self.receipt_data else self.get_updated_fields())
+            self.original_data = self.collect_form_data()
         else:
             QtWidgets.QMessageBox.warning(self, "Error", f"Failed to save receipt: {response.text}")
 
@@ -204,6 +204,8 @@ class ReceiptMaintanceWindow(QtWidgets.QDialog, Ui_OrderMaintance):
             QtWidgets.QMessageBox.information(self, "Success", "Receipt saved successfully.")
         elif lines_saved:
             QtWidgets.QMessageBox.information(self, "Success", "Receipt lines saved successfully.")
+        else:
+            QtWidgets.QMessageBox.information(self, "Success", "No Changes Detected")
 
 
     def get_receipt_number(self):

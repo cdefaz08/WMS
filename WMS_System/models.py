@@ -1,6 +1,7 @@
 from sqlalchemy import Table, Column, Integer, String, Float, Boolean, DateTime,Date, ForeignKey
 from database import metadata , Base
 from sqlalchemy.sql import func
+from datetime import datetime
 
 # Define the "items" table
 items = Table(
@@ -555,4 +556,165 @@ sale_lines = Table(
     Column("unit_price", Float, nullable=False),
     Column("discount", Float, default=0),
     Column("line_total", Float, nullable=False),
+)
+
+
+item_default_config = Table(
+    "item_default_config",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("item_code", String, nullable=False, unique=True),
+    Column("putaway_group", String),
+    Column("restock_class", String),
+    Column("pick_class", String),
+)
+
+
+# Grupos
+putaway_groups = Table(
+    "putaway_groups",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("group_name", String, unique=True),
+    Column("description", String(50))
+)
+
+pick_groups = Table(
+    "pick_groups",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("group_name", String, unique=True),
+    Column("description", String(50))
+)
+
+restock_groups = Table(
+    "restock_groups",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("group_name", String, unique=True),
+    Column("description", String(50))
+)
+
+# Group-Class (con prioridad y %)
+putaway_group_classes = Table(
+    "putaway_group_classes",
+    metadata,
+    Column("id", Integer, primary_key=True),
+    Column("group_name", String),
+    Column("class_name", String),
+    Column("priority", Integer),
+    Column("min_percent", Float),
+    Column("max_percent", Float)
+)
+
+pick_group_classes = Table(
+    "pick_group_classes",
+    metadata,
+    Column("id", Integer, primary_key=True),
+    Column("group_name", String),
+    Column("class_name", String),
+    Column("priority", Integer),
+    Column("min_percent", Float),
+    Column("max_percent", Float)
+)
+
+restock_group_classes = Table(
+    "restock_group_classes",
+    metadata,
+    Column("id", Integer, primary_key=True),
+    Column("group_name", String),
+    Column("class_name", String),
+    Column("priority", Integer),
+    Column("min_percent", Float),
+    Column("max_percent", Float)
+)
+
+# Reglas
+putaway_rules = Table(
+    "putaway_rules",
+    metadata,
+    Column("id", Integer, primary_key=True),
+    Column("rule_name", String, unique=True),
+    Column("description", String(50)),
+    Column("priority", Integer)
+)
+
+pick_rules = Table(
+    "pick_rules",
+    metadata,
+    Column("id", Integer, primary_key=True),
+    Column("rule_name", String, unique=True),
+    Column("description", String(50)),
+    Column("priority", Integer)
+)
+
+restock_rules = Table(
+    "restock_rules",
+    metadata,
+    Column("id", Integer, primary_key=True),
+    Column("rule_name", String, unique=True),
+    Column("description", String(50)),
+    Column("priority", Integer)
+)
+
+# Pasos de regla (simplificados)
+putaway_rule_steps = Table(
+    "putaway_rule_steps",
+    metadata,
+    Column("id", Integer, primary_key=True),
+    Column("rule_id", Integer, ForeignKey("putaway_rules.id")),
+    Column("seq", Integer),
+    Column("putaway_to", String),
+    Column("putaway_group", String),
+    Column("putaway_class", String),
+    Column("location_type", String),
+    Column("min_percent", Float),
+    Column("max_percent", Float)
+)
+
+# Pasos de regla para PICK
+pick_rule_steps = Table(
+    "pick_rule_steps",
+    metadata,
+    Column("id", Integer, primary_key=True),
+    Column("rule_id", Integer, ForeignKey("pick_rules.id")),
+    Column("seq", Integer),
+    Column("pick_group", String),
+    Column("pick_class", String),
+    Column("location_type", String),
+    Column("min_percent", Float),
+    Column("max_percent", Float)
+)
+
+# Pasos de regla para RESTOCK
+restock_rule_steps = Table(
+    "restock_rule_steps",
+    metadata,
+    Column("id", Integer, primary_key=True),
+    Column("rule_id", Integer, ForeignKey("restock_rules.id")),
+    Column("seq", Integer),
+    Column("restock_group", String),
+    Column("restock_class", String),
+    Column("location_type", String),
+    Column("min_percent", Float),
+    Column("max_percent", Float)
+)
+
+works = Table(
+    "works",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("work_num", String, unique=True),
+    Column("work_type", String),  # COP, CRP, FRP, etc.
+    Column("status", String),  # pending, in_progress, done
+    Column("location_from", String),
+    Column("location_to", String),
+    Column("item_code", String),
+    Column("pcs_to_move", Integer),
+    Column("created_by", String),
+    Column("assigned_to", String),
+    Column("completed_by", String),
+    Column("timestamp_created", DateTime, default=datetime.utcnow),
+    Column("timestamp_completed", DateTime),
+    Column("priority", Integer)
 )

@@ -186,6 +186,7 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
                 response = self.api_client.put(f"/purchase-orders/{po_id}", json=updated_fields)
                 if response.status_code == 200:
                     po_updated = True
+                    self.po_data.update(current_values)
                 else:
                     QtWidgets.QMessageBox.critical(self, "Error", f"Failed to update PO: {response.text}")
                     return
@@ -299,6 +300,9 @@ class PurchaseOrderMaintWindow(PurchaseOrderMaintUI):
                 )
             else:
                 changes_made = True
+            
+        if changes_made:
+            self.original_lines = [row.copy() for row in current_data]
 
         return changes_made
 
