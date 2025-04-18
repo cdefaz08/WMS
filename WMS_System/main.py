@@ -28,7 +28,8 @@ label_form,receipt,
 receipt_line,item_maintance,
 a_contents,
 sales,
-rule_groups)
+rule_groups,
+group_classes)
 
 # Initialize FastAPI
 app = FastAPI()
@@ -104,3 +105,4 @@ app.include_router(item_maintance.router)
 app.include_router(a_contents.router)
 app.include_router(sales.router)
 app.include_router(rule_groups.router)
+app.include_router(group_classes.router)
