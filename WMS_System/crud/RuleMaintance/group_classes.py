@@ -22,7 +22,8 @@ async def create_putaway_class(entry: PutawayGroupClassCreate):
 
 async def get_all_putaway_classes():
     query = select(putaway_group_classes)
-    return await database.fetch_all(query)
+    records = await database.fetch_all(query)
+    return [dict(r) for r in records]
 
 async def get_putaway_class_by_id(class_id: int):
     query = select(putaway_group_classes).where(putaway_group_classes.c.id == class_id)
@@ -54,7 +55,8 @@ async def create_pick_class(entry: PickGroupClassCreate):
 
 async def get_all_pick_classes():
     query = select(pick_group_classes)
-    return await database.fetch_all(query)
+    records = await database.fetch_all(query)
+    return [dict(r) for r in records]
 
 async def get_pick_class_by_id(class_id: int):
     query = select(pick_group_classes).where(pick_group_classes.c.id == class_id)
@@ -86,7 +88,8 @@ async def create_restock_class(entry: RestockGroupClassCreate):
 
 async def get_all_restock_classes():
     query = select(restock_group_classes)
-    return await database.fetch_all(query)
+    records = await database.fetch_all(query)
+    return [dict(r) for r in records]
 
 async def get_restock_class_by_id(class_id: int):
     query = select(restock_group_classes).where(restock_group_classes.c.id == class_id)

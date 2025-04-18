@@ -91,6 +91,27 @@ class GroupMaintanceWindow(GroupMaintanceUI):
             QMessageBox.critical(self, "Error", f"Request failed:\n{str(e)}")
 
 
+    def get_selected_group_info(self):
+        tab_index = self.tabs.currentIndex()
+        tab = self.tabs.currentWidget()
+        table = tab.table
+        row = table.currentRow()
+
+        if row < 0:
+            QMessageBox.warning(self, "No Selection", "Please select a group row first.")
+            return None, None
+
+        group_name_item = table.item(row, 0)
+        if not group_name_item:
+            return None, None
+
+        group_name = group_name_item.text()
+        group_type = {0: "putaway", 1: "restock", 2: "pick"}.get(tab_index)
+
+        return group_name, group_type
+
+
+
     def save_current_tab_changes(self):
         tab_index = self.tabs.currentIndex()
         tab = self.tabs.currentWidget()

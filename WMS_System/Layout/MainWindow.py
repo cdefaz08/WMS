@@ -33,6 +33,7 @@ from Layout.Activities.purchase_order_maint_window import PurchaseOrderMaintWind
 from Layout.configurations.item_class_window import ItemClassWindow
 from Layout.Activities.Retail_Sale_POS import RetailSaleWindow
 from Layout.configurations.rules.RuleGroups import GroupMaintanceWindow
+from Layout.configurations.rules.GroupClassTableWindow import GroupClassTableWindow
 from api_client import APIClient
 
 class TrackingSubWindow(QMdiSubWindow):
@@ -403,8 +404,10 @@ class MainWindow(QtWidgets.QMainWindow):
             self.open_mdi_window(PurchaseOrderMaintWindow,"Add New Purchase Order",size=(1000, 710),min_size=(697, 459), max_size=(1072, 617),)
         elif isinstance(active_window,ItemClassWindow):
             active_window.add_empty_row()
-        elif isinstance(active_window , GroupMaintanceWindow):
+        elif isinstance(active_window , GroupMaintanceWindow): 
             active_window.add_new_row_to_current_tab()
+        elif isinstance(active_window , GroupClassTableWindow):
+            active_window.add_empty_row()
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
 
@@ -444,8 +447,10 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.save_changes()
         elif isinstance(active_window,ItemClassWindow):
             active_window.save_changes()
-        elif isinstance(active_window,GroupMaintanceWindow):
+        elif isinstance(active_window,GroupMaintanceWindow): 
             active_window.save_current_tab_changes()
+        elif isinstance(active_window,GroupClassTableWindow):
+            active_window.save_changes()
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
 
@@ -489,8 +494,10 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.delete_selected_row()
         elif isinstance(active_window,PurchaseOrderSearchWindow):
             active_window.delete_selected_po()
-        elif isinstance(active_window,GroupMaintanceWindow):
-            active_window.delete_selected_group()            
+        elif isinstance(active_window,GroupMaintanceWindow): 
+            active_window.delete_selected_group()
+        elif isinstance(active_window,GroupClassTableWindow):
+            active_window.delete_selected_row()            
         else:
             QtWidgets.QMessageBox.warning(self,"No Active Window", "Please select a window First")
 
@@ -513,6 +520,9 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.load_location_types()
         elif isinstance(active_window, RuleClases):
             active_window.load_data()
+        elif isinstance(active_window,GroupClassTableWindow):
+            active_window.refresh_data()
+        
         else:
             QtWidgets.QMessageBox.warning(self,"No Active Window", "Please select a window First")
 
@@ -540,6 +550,35 @@ class MainWindow(QtWidgets.QMainWindow):
                     QtWidgets.QMessageBox.critical(self, "Error", "Could not connect to the server.")
             else:
                 QtWidgets.QMessageBox.warning(self, "No Selection", "Please select an item from the table.")
+        elif isinstance(active_window, GroupMaintanceWindow):
+            group_name, group_type = active_window.get_selected_group_info()
+            if group_name and group_type:
+                try:
+                    # Lógica: endpoint depende del tipo de grupo
+                    response = self.api_client.get(f"/group-classes/{group_type}")
+                    if response.status_code == 200:
+                        all_group_class_data = response.json()
+
+                        # 🔍 Filtrar las clases por group_name
+                        group_data = [r for r in all_group_class_data if r["group_name"] == group_name]
+                    else:
+                        group_data = []
+                except Exception as e:
+                    group_data = []
+                    QtWidgets.QMessageBox.warning(self, "Warning", f"Could not load group classes:\n{str(e)}")
+
+                # 🪟 Abrir la ventana de configuración, con datos o vacía
+                self.open_mdi_window(
+                    lambda: GroupClassTableWindow(
+                        api_client=self.api_client,
+                        group_name=group_name,
+                        group_type=group_type,
+                        group_data=group_data,
+                        parent=self
+                    ), f"{group_name} Group Classes",
+                    size=(428, 399)
+                )
+
         elif isinstance(active_window, OrderSearchWindow):
             order_id = active_window.get_selected_order_id()
             if order_id:
