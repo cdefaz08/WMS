@@ -29,7 +29,8 @@ receipt_line,item_maintance,
 a_contents,
 sales,
 rule_groups,
-group_classes)
+group_classes,
+item_default_config)
 
 # Initialize FastAPI
 app = FastAPI()
@@ -106,3 +107,4 @@ app.include_router(a_contents.router)
 app.include_router(sales.router)
 app.include_router(rule_groups.router)
 app.include_router(group_classes.router)
+app.include_router(item_default_config.router)
