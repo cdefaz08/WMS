@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException,Depends
 from Security.dependencies import get_current_user
 from typing import List
 from crud import rule_groups as crud_rules
-from schemas.rules import (
+from schemas.rules_groups import (
     PutawayGroupCreate, PutawayGroupUpdate,
     PickGroupCreate, PickGroupUpdate,
     RestockGroupCreate, RestockGroupUpdate

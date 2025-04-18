@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 from sqlalchemy import select, insert, update, delete
 from models import putaway_groups, pick_groups, restock_groups
-from schemas.rules import (
+from schemas.rules_groups import (
     PutawayGroupCreate, PutawayGroupUpdate,
     PickGroupCreate, PickGroupUpdate,
     RestockGroupCreate, RestockGroupUpdate
