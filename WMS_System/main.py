@@ -9,29 +9,21 @@ from fastapi import Request
 from pydantic import BaseModel
 from database import database, metadata, engine
 from models import users
+from routers.ItemMaintance import a_contents, item_default_config, item_maintance
+from routers.LocationMaintance import proximity
+from routers.OrderMaintance import order_line_routes, order_routes, order_type
+from routers.PO_Maintance import purchase_order_line_routes, purchase_order_routes
+from routers.ReceiptMaintance import receipt, receipt_line
+from routers.RetailMaintance import sales
+from routers.RuleMaintance import class_routes, group_classes, rule_groups
+from routers.SystemMaintance import document_form, label_form, vendors_routes
 from utils import  verify_password
-from routers.users import router as users_router
-from routers.items import router as items_router
-from routers.ItemClass import router as item_class_router
-from routers.LocationTypes import router as locationType_router
-from routers.Location import router as locations
-from routers import (class_routes ,
-vendors_routes, 
-purchase_order_line_routes, 
-purchase_order_routes , 
-order_routes,
-order_line_routes,
-proximity,
-order_type,
-document_form,
-label_form,receipt,
-receipt_line,item_maintance,
-a_contents,
-sales,
-rule_groups,
-group_classes,
-item_default_config,
-rules_steps)
+from routers.SystemMaintance.users import router as users_router
+from routers.ItemMaintance.items import router as items_router
+from routers.ItemMaintance.ItemClass import router as item_class_router
+from routers.LocationMaintance.LocationTypes import router as locationType_router
+from routers.LocationMaintance.Location import router as locations
+from routers.RuleMaintance import (rules_steps)
 
 # Initialize FastAPI
 app = FastAPI()
