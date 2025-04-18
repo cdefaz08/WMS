@@ -8,6 +8,7 @@ class PurchaseOrderSearchWindow(PurchaseOrderSearchUI):
     def __init__(self, api_client=None):
         super().__init__()
         self.api_client = api_client  # debe tener headers con el token
+        print("API Client PO_search:", self.api_client)
         self.marker_date = QDate(2000, 1, 1)
 
         self.input_start_date.setSpecialValueText("No filter")
@@ -42,6 +43,7 @@ class PurchaseOrderSearchWindow(PurchaseOrderSearchUI):
             response = self.api_client.get("/purchase-orders/search", params=params)
             if response.status_code == 200:
                 data = response.json()
+                print(data)
                 self.populate_table(data)
             else:
                 QMessageBox.critical(self, "Error", f"Error: {response.status_code}\n{response.text}")

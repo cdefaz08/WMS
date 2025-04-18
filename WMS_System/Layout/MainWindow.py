@@ -52,6 +52,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.current_user = username
         print("CURRENT USER:", self.current_user)
         self.api_client = APIClient(token)
+        print("API Client Main Window:", self.api_client)
 
         self.connect_toolbar()
         self.mdiArea = self.findChild(QtWidgets.QMdiArea, 'mdiArea')
@@ -150,58 +151,58 @@ class MainWindow(QtWidgets.QMainWindow):
         print(f"📐 '{title}' resized to {width} x {height}")
 
     def open_user_table(self):
-        self.open_mdi_window(UsersTableWindow, "User Search", size=(750, 400))
+        self.open_mdi_window(UsersTableWindow(api_client=self.api_client), "User Search", size=(750, 400))
 
     def open_retail_sale_window(self):
         def setup(widget, sub_window):
             self.mdiArea.subWindowActivated.connect(self.handle_subwindow_focus_change)
             self.actionItemMaintance.setVisible(True)
             widget.destroyed.connect(self.hide_item_toolbar_action)       
-        self.open_mdi_window(RetailSaleWindow, "Retail Sale", user = self.current_user, size=(1617, 664), extra_setup=setup, min_size=(900, 600), max_size=(1700, 800))
+        self.open_mdi_window(RetailSaleWindow(api_client=self.api_client), "Retail Sale", user = self.current_user, size=(1617, 664), extra_setup=setup, min_size=(900, 600), max_size=(1700, 800))
 
     def open_proximity_window(self):
-        self.open_mdi_window(ProximityWindow, "Proximity Search", size=(600, 400))
+        self.open_mdi_window(ProximityWindow(api_client=self.api_client), "Proximity Search", size=(600, 400))
 
     def open_locationType_win(self):
         def setup(widget, sub_window):
             self.mdiArea.subWindowActivated.connect(self.handle_subwindow_focus_change)
             self.actionItemMaintance.setVisible(True)
             widget.destroyed.connect(self.hide_item_toolbar_action)
-        self.open_mdi_window(LocationTypes, "Location Types", size=(500, 600), extra_setup=setup)
+        self.open_mdi_window(LocationTypes(api_client=self.api_client), "Location Types", size=(500, 600), extra_setup=setup)
 
     def open_item_class_window(self):
-        self.open_mdi_window(ItemClassWindow, "Item Clases", size = (580, 600))
+        self.open_mdi_window(ItemClassWindow(api_client=self.api_client), "Item Clases", size = (580, 600))
 
     def open_order_type_window(self):
-        self.open_mdi_window(OrderTypeWindow, "Order Types", size = (700, 400))
+        self.open_mdi_window(OrderTypeWindow(api_client=self.api_client), "Order Types", size = (700, 400))
 
     def open_item_search(self):
         def setup(widget, sub_window):
             self.mdiArea.subWindowActivated.connect(self.handle_subwindow_focus_change)
             self.actionItemMaintance.setVisible(True)
             widget.destroyed.connect(self.hide_item_toolbar_action)
-        self.open_mdi_window(ItemSearchWindow, "Item Search", size=(1089, 720), extra_setup=setup,min_size=(1580, 531), max_size=(1818, 867))
+        self.open_mdi_window(ItemSearchWindow(api_client=self.api_client), "Item Search", size=(1089, 720), extra_setup=setup,min_size=(1580, 531), max_size=(1818, 867))
     
     def open_purchase_order_search_window(self):
         def setup(widget, sub_window):
             self.mdiArea.subWindowActivated.connect(self.handle_subwindow_focus_change)
             self.actionItemMaintance.setVisible(True)
             widget.destroyed.connect(self.hide_item_toolbar_action)
-        self.open_mdi_window(PurchaseOrderSearchWindow, "Purchase Order Search", size=(1089, 720), extra_setup=setup,min_size=(697, 459), max_size=(1140, 850))
+        self.open_mdi_window(PurchaseOrderSearchWindow(api_client=self.api_client), "Purchase Order Search", size=(1089, 720), extra_setup=setup,min_size=(697, 459), max_size=(1140, 850))
 
     def open_Order_Search(self):
         def setup(widget, sub_window):
             self.mdiArea.subWindowActivated.connect(self.handle_subwindow_focus_change)
             self.actionItemMaintance.setVisible(True)
             widget.destroyed.connect(self.hide_item_toolbar_action)
-        self.open_mdi_window(OrderSearchWindow, "Order Search", size=(1089, 720), extra_setup=setup,min_size=(697, 459), max_size=(1081, 874))
+        self.open_mdi_window(OrderSearchWindow(api_client=self.api_client), "Order Search", size=(1089, 720), extra_setup=setup,min_size=(697, 459), max_size=(1081, 874))
 
     def open_Receipt_Search_window(self):
         def setup(widget, sub_window):
             self.mdiArea.subWindowActivated.connect(self.handle_subwindow_focus_change)
             self.actionItemMaintance.setVisible(True)
             widget.destroyed.connect(self.hide_item_toolbar_action)
-        self.open_mdi_window(ReceiptSearchWindow, "Receipt Search", size=(1089, 720), extra_setup=setup,min_size=(697, 459), max_size=(1081, 874))
+        self.open_mdi_window(ReceiptSearchWindow(api_client=self.api_client), "Receipt Search", size=(1089, 720), extra_setup=setup,min_size=(697, 459), max_size=(1081, 874))
 
     def open_inventory_adjustment_window(self):
         def setup(widget, sub_window):
@@ -228,10 +229,10 @@ class MainWindow(QtWidgets.QMainWindow):
             lambda: VendorSearchWindow(api_client=self.api_client), "Vendor Search", size=(1089, 720), extra_setup=setup,min_size=(697, 459), max_size=(1135, 678))
 
     def open_RuleClases(self):
-        self.open_mdi_window(RuleClases, "Rule Clases", size=(600, 500))
+        self.open_mdi_window(RuleClases(api_client=self.api_client), "Rule Clases", size=(600, 500))
 
     def open_forms_window(self):
-        self.open_mdi_window(FormManager, "Forms", size= (606,458))
+        self.open_mdi_window(FormManager(api_client=self.api_client), "Forms", size= (606,458))
 
     def open_new_Location(self):
         self.open_mdi_window(
@@ -376,7 +377,7 @@ class MainWindow(QtWidgets.QMainWindow):
             else:
                 active_window.add_new_row()
         elif isinstance(active_window, ReceiptSearchWindow):
-            self.open_mdi_window(ReceiptMaintanceWindow, "Add New Receipt", size=(1072, 700),min_size=(697, 459), max_size=(1072, 700),)
+            self.open_mdi_window(ReceiptMaintanceWindow(api_client= self.api_client), "Add New Receipt", size=(1072, 700),min_size=(697, 459), max_size=(1072, 700),)
         elif isinstance(active_window, ReceiptMaintanceWindow):
             current_tab = active_window.tabWidget.currentWidget()
             if isinstance(current_tab, ReceiptLinesWindow):
@@ -569,7 +570,9 @@ class MainWindow(QtWidgets.QMainWindow):
                     if response.status_code == 200:
                         locationTypeData = response.json()
                         self.open_mdi_window(
-                            lambda: LocationType_Maintance(locationTypeData=locationTypeData, parent=self),
+                            lambda: LocationType_Maintance(api_client= self.api_client, 
+                                                           locationTypeData=locationTypeData,
+                                                            parent=self),
                             "Location Type Maintanance",
                             size=(902, 384),
                             check_existing=False
@@ -607,7 +610,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     if response.status_code == 200:
                         vendor_data = response.json()
                         self.open_mdi_window(
-                            lambda: VendorMaintanceDialog(vendor_data=vendor_data, parent=self),
+                            lambda: VendorMaintanceDialog(api_client=self.api_client, vendor_data=vendor_data, parent=self),
                             "Vendor Maintanance",
                             size=(800, 400),
                             extra_setup=lambda w, s: setattr(w, "parent_subwindow", s)

@@ -10,6 +10,7 @@ class OrderSearchWindow(QtWidgets.QDialog, Ui_OrderSearch):
         super().__init__(parent)
         self.setupUi(self)
         self.api_client = api_client
+        print("API Client:", self.api_client)
         # Conectar Enter en campos de texto
         self.lineEdit_Order.returnPressed.connect(self.search_orders)
         self.lineEdit_CustomerName.returnPressed.connect(self.search_orders)
