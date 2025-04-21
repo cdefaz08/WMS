@@ -153,11 +153,11 @@ class RuleMaintance(Ui_RuleWindow):
 
         if current_index == 0:  # Putaway
             selected = self.get_selected_id(self.putaway_table)
-            return selected, "putaway"
+            return selected, "putaway-rule-steps"
         elif current_index == 1:  # Restock
             selected = self.get_selected_id(self.restock_table)
-            return selected, "restock"
+            return selected, "restock-rule-steps"
         elif current_index == 2:  # Pick
             selected = self.get_selected_id(self.pick_table)
-            return selected, "pick"
+            return selected, "pick-rule-steps"
         return None, None

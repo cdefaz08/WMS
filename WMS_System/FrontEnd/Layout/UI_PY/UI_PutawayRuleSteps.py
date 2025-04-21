@@ -24,7 +24,6 @@ class PutawayStepsMaintWindow(QtWidgets.QWidget):
             "Sort Expression", "Max Loc Check"
         ])
         self.layout.addWidget(self.table)
-        self.add_sample_row()
 
     def add_section_label(self, layout, text, column_span):
         label = QtWidgets.QLabel(text)
@@ -39,40 +38,18 @@ class PutawayStepsMaintWindow(QtWidgets.QWidget):
 
         layout.addWidget(label)
 
-    def add_sample_row(self):
-        row = self.table.rowCount()
-        self.table.insertRow(row)
 
-        self.table.setCellWidget(row, 0, self._spinbox(1, 1, 1000))
-        self.table.setCellWidget(row, 1, self._doublespin(0, 1000))
-        self.table.setCellWidget(row, 2, self._doublespin(0, 1000))
-        self.table.setCellWidget(row, 3, self._combobox(["Pallet", "Case", "Piece"]))
-        self.table.setCellWidget(row, 4, self._combobox(["(Ignore)"], 180))
-        self.table.setCellWidget(row, 5, self._combobox(["Empty Locations", "Consolidating Item", "Mixing Items"], 180))
-        self.table.setCellWidget(row, 6, self._combobox(["(Ignore)"], 180))
-        self.table.setCellWidget(row, 7, self._combobox(["(Ignore)"], 180))
-        self.table.setCellWidget(row, 8, self._lineedit("CubeCapUsedA", 200))
-        self.table.setCellWidget(row, 9, self._spinbox(0, 100, 180))
-        self.table.setColumnWidth(0, 70) # Set width for SEQ #
-        self.table.setColumnWidth(1, 85) # Set width for Min %
-        self.table.setColumnWidth(2, 85) # Set width for Max %
-        self.table.setColumnWidth(3, 125) # Set width for UOM
-        self.table.setColumnWidth(4, 180) # Set width for Loc Type From
-        self.table.setColumnWidth(5, 180) # Set width for Putaway To
-        self.table.setColumnWidth(6, 183) # Set width for Loc Type To
-        self.table.setColumnWidth(7, 180) # Set width for Putaway Group
-        self.table.setColumnWidth(8, 190) # Set width for Sort Expression
-        self.table.setColumnWidth(9, 120) # Set width for Max Loc Check
-
-    def _spinbox(self, min_val, max_val, width=70):
+    def _spinbox(self, value=0, min_val=0, max_val=1000, width=70):
         spin = QtWidgets.QSpinBox()
         spin.setRange(min_val, max_val)
+        spin.setValue(value)
         spin.setFixedWidth(width)
         return spin
 
-    def _doublespin(self, min_val, max_val, width=70):
+    def _doublespin(self, value=0.0, min_val=0.0, max_val=1000.0, width=70):
         spin = QtWidgets.QDoubleSpinBox()
         spin.setRange(min_val, max_val)
+        spin.setValue(value)
         spin.setFixedWidth(width)
         return spin
 
@@ -87,11 +64,3 @@ class PutawayStepsMaintWindow(QtWidgets.QWidget):
         line.setFixedWidth(width)
         return line
 
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    window = PutawayStepsMaintWindow()
-    window.resize(1200, 400)
-    window.show()
-    sys.exit(app.exec_())

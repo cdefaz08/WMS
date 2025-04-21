@@ -418,6 +418,8 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.add_empty_row()
         elif isinstance(active_window, RuleMaintance):
             active_window.add_empty_row(active_window.tab_widget.currentWidget())
+        elif isinstance(active_window,PutawayStepsLogic):
+            active_window.add_empty_row()
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
 
@@ -463,6 +465,8 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.save_changes()
         elif isinstance(active_window,RuleMaintance):
             active_window.save_changes(active_window.tab_widget.currentWidget())
+        elif isinstance(active_window,PutawayStepsLogic):
+            active_window.save_changes()
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
 
@@ -512,6 +516,8 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.delete_selected_row()       
         elif isinstance(active_window,RuleMaintance):    
             active_window.delete_selected_row(active_window.tab_widget.currentWidget())
+        elif isinstance(active_window,PutawayStepsLogic):
+            active_window.delete_selected_row()
         else:
             QtWidgets.QMessageBox.warning(self,"No Active Window", "Please select a window First")
 
@@ -712,6 +718,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 QtWidgets.QMessageBox.warning(self, "No Selection", "Please select an item from the table.")               
         elif isinstance(active_window, RuleMaintance):
             rule_id, rule_type = active_window.get_selected_rule_info()
+            print(f"rule id:{rule_id}, rule_type {rule_type}")
             if rule_id:
                 try:
                     response = self.api_client.get(f"/rules_steps/{rule_type}/{rule_id}")
@@ -723,12 +730,11 @@ class MainWindow(QtWidgets.QMainWindow):
                     rule_data = {"rule_name": f"{rule_type.upper()} Rule"}
 
                 # Abrir la ventana según el tipo
-                if rule_type == "putaway":
+                if rule_type == "putaway-rule-steps":
                     self.open_mdi_window(
                         lambda: PutawayStepsLogic(
                             api_client=self.api_client,
-                            rule_id=rule_id,
-                            rule_name=rule_data["rule_name"]
+                            rule_id=rule_id
                         ),
                         "Putaway Steps",
                         size=(1405, 348),min_size=(1405, 349), max_size=(1406, 350),
