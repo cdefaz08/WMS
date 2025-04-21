@@ -35,6 +35,7 @@ from Layout.Activities.Retail_Sale_POS import RetailSaleWindow
 from Layout.configurations.rules.GroupClases import GroupMaintanceWindow
 from Layout.configurations.rules.GroupClassTableWindow import GroupClassTableWindow
 from Layout.configurations.rules.RuleMaintance import RuleMaintance
+from Layout.configurations.rules.Putaway_RuleSteps import PutawayStepsLogic
 from api_client import APIClient
 
 class TrackingSubWindow(QMdiSubWindow):
@@ -709,6 +710,52 @@ class MainWindow(QtWidgets.QMainWindow):
                     QtWidgets.QMessageBox.critical(self, "Error", "Could not connect to the server.")
             else:
                 QtWidgets.QMessageBox.warning(self, "No Selection", "Please select an item from the table.")               
+        elif isinstance(active_window, RuleMaintance):
+            print("boton funciona")
+            rule_id, rule_type = active_window.get_selected_rule_info()
+            if rule_id:
+                try:
+                    response = self.api_client.get(f"/rules_steps/{rule_type}/{rule_id}")
+                    if response.status_code == 200:
+                        rule_data = response.json()
+                    else:
+                        rule_data = {"rule_name": f"{rule_type.upper()} Rule"}
+                except Exception:
+                    rule_data = {"rule_name": f"{rule_type.upper()} Rule"}
+
+                # Abrir la ventana según el tipo
+                if rule_type == "putaway":
+                    self.open_mdi_window(
+                        lambda: PutawayStepsLogic(
+                            api_client=self.api_client,
+                            rule_id=rule_id,
+                            rule_name=rule_data["rule_name"]
+                        ),
+                        "Putaway Steps",
+                        size=(1405, 348),min_size=(1405, 349), max_size=(1406, 350),
+                    )
+                elif rule_type == "restock":
+                    self.open_mdi_window(
+                        lambda: PutawayStepsLogic( #cambiar a RestockStepsLogic
+                            api_client=self.api_client,
+                            rule_id=rule_id,
+                            rule_name=rule_data["rule_name"]
+                        ),
+                        "Restock Steps"
+                    )
+                elif rule_type == "pick":
+                    self.open_mdi_window(
+                        lambda: PutawayStepsLogic( #cambiar a PickStepsLogic
+                            api_client=self.api_client,
+                            rule_id=rule_id,
+                            rule_name=rule_data["rule_name"]
+                        ),
+                        "Pick Steps"
+                    )
+            else:
+                QtWidgets.QMessageBox.warning(self, "No Selection", "Please select a rule from the table.")
+
+
 
     
     def open_OrderLines_window(self):

@@ -1,7 +1,6 @@
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtCore import QDate
-import requests
 from Layout.UI_PY.UI_PurchaseOrderSearch import PurchaseOrderSearchUI
 
 class PurchaseOrderSearchWindow(PurchaseOrderSearchUI):

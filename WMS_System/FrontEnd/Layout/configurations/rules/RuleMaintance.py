@@ -146,3 +146,18 @@ class RuleMaintance(Ui_RuleWindow):
             QMessageBox.information(self, "Success", "Changes saved successfully.")
         else:
             QMessageBox.information(self, "No Changes", "No changes detected to save.")
+
+
+    def get_selected_rule_info(self):
+        current_index = self.tab_widget.currentIndex()
+
+        if current_index == 0:  # Putaway
+            selected = self.get_selected_id(self.putaway_table)
+            return selected, "putaway"
+        elif current_index == 1:  # Restock
+            selected = self.get_selected_id(self.restock_table)
+            return selected, "restock"
+        elif current_index == 2:  # Pick
+            selected = self.get_selected_id(self.pick_table)
+            return selected, "pick"
+        return None, None

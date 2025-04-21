@@ -1,0 +1,121 @@
+QWidget {
+    background-color: #eef1f5;
+    color: #2c3e50;
+    font-family: "Segoe UI", "Roboto", sans-serif;
+    font-size: 11pt;
+}
+QLineEdit, QTextEdit, QPlainTextEdit, QDateEdit {
+    background-color: #fbfcfe;
+    border: 1px solid #cfd8dc;
+    border-radius: 6px;
+    padding: 6px;
+    color: #37474f;
+}
+
+QLineEdit:focus, QTextEdit:focus, QPlainTextEdit:focus, QDateEdit:focus {
+    background-color: #e3f2fd;
+    border: 1px solid #42a5f5;
+}
+QComboBox {
+    background-color: #ffffff;
+    color: #263238;
+    border: 1px solid #b0bec5;
+    border-radius: 6px;
+    padding: 6px;
+}
+
+QComboBox QAbstractItemView {
+    background-color: #ffffff;
+    border: 1px solid #b0bec5;
+    selection-background-color: #64b5f6;
+    selection-color: #ffffff;
+    font-size: 10pt;
+}
+QPushButton {
+    background-color: #42a5f5;
+    color: white;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-weight: bold;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+QPushButton:hover {
+    background-color: #2196f3;
+}
+
+QPushButton:pressed {
+    background-color: #1e88e5;
+}
+QTableWidget, QTableView {
+    background-color: #ffffff;
+    alternate-background-color: #f5f7fa;
+    border: 1px solid #dce1e6;
+    gridline-color: #e0e0e0;
+    font-size: 10.5pt;
+    selection-background-color: #64b5f6;
+    selection-color: white;
+}
+
+QHeaderView::section {
+    background-color: #263238;
+    color: white;
+    font-weight: bold;
+    padding: 8px;
+    text-transform: uppercase;
+    border: none;
+    border-right: 1px solid #90a4ae;
+}
+
+QTableWidget::item, QTableView::item {
+    padding: 6px;
+    border: none;
+}
+QToolBar {
+    background-color: #e3eaf0;
+    border: none;
+    padding: 4px;
+}
+
+QMenuBar {
+    background-color: #eef1f5;
+    color: #263238;
+}
+
+QMenu {
+    background-color: #ffffff;
+    border: 1px solid #cfd8dc;
+    color: #37474f;
+}
+
+QMenu::item:selected {
+    background-color: #42a5f5;
+    color: white;
+}
+QGroupBox {
+    border: 1px solid #b0bec5;
+    border-radius: 6px;
+    padding: 8px;
+    margin-top: 10px;
+    font-weight: bold;
+    background-color: #f9fbfd;
+}
+
+QGroupBox::title {
+    padding: 0 6px;
+    color: #455a64;
+}
+
+QCheckBox, QRadioButton {
+    spacing: 6px;
+    font-size: 10.5pt;
+}
+QTreeWidget {
+    background-color: #ffffff;
+    alternate-background-color: #f0f4f8;
+}
+
+QTreeWidget::item:selected {
+    background-color: #e3f2fd;
+    color: #263238;
+}

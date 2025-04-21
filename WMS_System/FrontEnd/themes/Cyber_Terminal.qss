@@ -1,0 +1,36 @@
+
+QWidget {
+    background-color: #101820;
+    color: #00ff95;
+    font-family: "Consolas", monospace;
+    font-size: 11pt;
+}
+QLineEdit, QTextEdit, QPlainTextEdit, QDateEdit, QComboBox {
+    background-color: #1c2c33;
+    border: 1px solid #20c997;
+    border-radius: 6px;
+    padding: 6px;
+    color: #00ff95;
+}
+QPushButton {
+    background-color: #20c997;
+    color: #101820;
+    border-radius: 6px;
+    padding: 6px 12px;
+}
+QPushButton:hover {
+    background-color: #1dd1a1;
+}
+QTableWidget, QTableView {
+    background-color: #1c2c33;
+    alternate-background-color: #23343d;
+    gridline-color: #20c997;
+    color: #00ff95;
+    selection-background-color: #20c997;
+}
+QHeaderView::section {
+    background-color: #183d3d;
+    color: #00ff95;
+    padding: 6px;
+    font-weight: bold;
+}
