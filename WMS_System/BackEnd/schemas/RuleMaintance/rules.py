@@ -12,6 +12,7 @@ class PutawayRuleCreate(PutawayRuleBase):
     pass
 
 class PutawayRuleUpdate(BaseModel):
+    rule_name: Optional[str] = None
     description: Optional[str] = None
     priority: Optional[int] = None
 
@@ -32,6 +33,7 @@ class PickRuleCreate(PickRuleBase):
     pass
 
 class PickRuleUpdate(BaseModel):
+    rule_name: Optional[str] = None
     description: Optional[str] = None
     priority: Optional[int] = None
 
@@ -52,6 +54,7 @@ class RestockRuleCreate(RestockRuleBase):
     pass
 
 class RestockRuleUpdate(BaseModel):
+    rule_name: Optional[str] = None
     description: Optional[str] = None
     priority: Optional[int] = None
 

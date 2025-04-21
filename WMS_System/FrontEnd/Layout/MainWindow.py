@@ -34,6 +34,7 @@ from Layout.configurations.item_class_window import ItemClassWindow
 from Layout.Activities.Retail_Sale_POS import RetailSaleWindow
 from Layout.configurations.rules.GroupClases import GroupMaintanceWindow
 from Layout.configurations.rules.GroupClassTableWindow import GroupClassTableWindow
+from Layout.configurations.rules.RuleMaintance import RuleMaintance
 from api_client import APIClient
 
 class TrackingSubWindow(QMdiSubWindow):
@@ -76,6 +77,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionPurchase_Order_Search = self.findChild(QtWidgets.QAction, "actionPurchase_Order_Search")
         self.actionItem_Clases = self.findChild(QtWidgets.QAction, "actionItem_Clases")
         self.actionSales = self.findChild(QtWidgets.QAction, "actionSales")
+        self.actionRule_Maintance = self.findChild(QtWidgets.QAction, "actionRule_Maintance")   
 
 
         self.actionLogout.triggered.connect(self.logout)
@@ -97,6 +99,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionPurchase_Order_Search.triggered.connect(self.open_purchase_order_search_window)
         self.actionItem_Clases.triggered.connect(self.open_item_class_window)
         self.actionSales.triggered.connect(self.open_retail_sale_window)
+        self.actionRule_Maintance.triggered.connect(self.open_RuleMaintance)
 
 
     def open_mdi_window(self, widget_class, window_title,user = None, size=(600, 400),
@@ -171,6 +174,13 @@ class MainWindow(QtWidgets.QMainWindow):
             self.actionItemMaintance.setVisible(True)
             widget.destroyed.connect(self.hide_item_toolbar_action)        
         self.open_mdi_window(GroupMaintanceWindow(api_client=self.api_client), "Rule Groups", size=(600, 400), extra_setup=setup)
+
+    def open_RuleMaintance(self):
+        def setup(widget, sub_window):
+            self.mdiArea.subWindowActivated.connect(self.handle_subwindow_focus_change)
+            self.actionItemMaintance.setVisible(True)
+            widget.destroyed.connect(self.hide_item_toolbar_action)        
+        self.open_mdi_window(RuleMaintance(api_client=self.api_client), "Rule Maintance", size=(634, 409), extra_setup=setup, min_size=(634, 335), max_size=(635, 600))
 
     def open_locationType_win(self):
         def setup(widget, sub_window):
@@ -405,6 +415,8 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.add_new_row_to_current_tab()
         elif isinstance(active_window , GroupClassTableWindow):
             active_window.add_empty_row()
+        elif isinstance(active_window, RuleMaintance):
+            active_window.add_empty_row(active_window.tab_widget.currentWidget())
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
 
@@ -448,6 +460,8 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.save_current_tab_changes()
         elif isinstance(active_window,GroupClassTableWindow):
             active_window.save_changes()
+        elif isinstance(active_window,RuleMaintance):
+            active_window.save_changes(active_window.tab_widget.currentWidget())
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
 
@@ -494,7 +508,9 @@ class MainWindow(QtWidgets.QMainWindow):
         elif isinstance(active_window,GroupMaintanceWindow): 
             active_window.delete_selected_group()
         elif isinstance(active_window,GroupClassTableWindow):
-            active_window.delete_selected_row()            
+            active_window.delete_selected_row()       
+        elif isinstance(active_window,RuleMaintance):    
+            active_window.delete_selected_row(active_window.tab_widget.currentWidget())
         else:
             QtWidgets.QMessageBox.warning(self,"No Active Window", "Please select a window First")
 
@@ -778,7 +794,15 @@ class MainWindow(QtWidgets.QMainWindow):
 
         widget = active_subwindow.widget()
 
-        if isinstance(widget, (ItemSearchWindow,GroupMaintanceWindow, LocationTypes, VendorSearchWindow, OrderSearchWindow,ReceiptSearchWindow,PurchaseOrderSearchWindow)):
+        if isinstance(widget, (
+            ItemSearchWindow,
+            GroupMaintanceWindow, 
+            LocationTypes, 
+            VendorSearchWindow,
+            OrderSearchWindow,
+            ReceiptSearchWindow,
+            PurchaseOrderSearchWindow,
+            RuleMaintance)):
             self.actionItemMaintance.setVisible(True)
         elif isinstance(widget, (OrderMaintanceWindow,ReceiptMaintanceWindow,ItemMaintanceDialog)):
             self.actionOrderLines.setVisible(True)

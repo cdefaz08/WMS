@@ -20,13 +20,14 @@ async def create_putaway_rule(entry: PutawayRuleCreate):
     return {"id": inserted_id, "message": "Putaway rule created successfully."}
 
 async def get_all_putaway_rules():
-    return await database.fetch_all(select(putaway_rules))
+    results = await database.fetch_all(select(putaway_rules))
+    return [dict(r) for r in results]
 
 async def get_putaway_rule_by_id(rule_id: int):
     result = await database.fetch_one(select(putaway_rules).where(putaway_rules.c.id == rule_id))
     if not result:
         raise HTTPException(status_code=404, detail="Putaway rule not found.")
-    return result
+    return dict(result)
 
 async def update_putaway_rule(rule_id: int, data: PutawayRuleUpdate):
     await database.execute(
@@ -51,13 +52,14 @@ async def create_pick_rule(entry: PickRuleCreate):
     return {"id": inserted_id, "message": "Pick rule created successfully."}
 
 async def get_all_pick_rules():
-    return await database.fetch_all(select(pick_rules))
+    results = await database.fetch_all(select(pick_rules))
+    return [dict(r) for r in results]
 
 async def get_pick_rule_by_id(rule_id: int):
     result = await database.fetch_one(select(pick_rules).where(pick_rules.c.id == rule_id))
     if not result:
         raise HTTPException(status_code=404, detail="Pick rule not found.")
-    return result
+    return dict(result)
 
 async def update_pick_rule(rule_id: int, data: PickRuleUpdate):
     await database.execute(
@@ -82,13 +84,14 @@ async def create_restock_rule(entry: RestockRuleCreate):
     return {"id": inserted_id, "message": "Restock rule created successfully."}
 
 async def get_all_restock_rules():
-    return await database.fetch_all(select(restock_rules))
+    results = await database.fetch_all(select(restock_rules))
+    return [dict(r) for r in results]
 
 async def get_restock_rule_by_id(rule_id: int):
     result = await database.fetch_one(select(restock_rules).where(restock_rules.c.id == rule_id))
     if not result:
         raise HTTPException(status_code=404, detail="Restock rule not found.")
-    return result
+    return dict(result)
 
 async def update_restock_rule(rule_id: int, data: RestockRuleUpdate):
     await database.execute(
