@@ -25,6 +25,7 @@ from routers.ItemMaintance.ItemClass import router as item_class_router
 from routers.LocationMaintance.LocationTypes import router as locationType_router
 from routers.LocationMaintance.Location import router as locations
 from routers.RuleMaintance import (rules)
+from routers.RuleMaintance import rule_steps
 
 # Initialize FastAPI
 app = FastAPI()
@@ -103,3 +104,4 @@ app.include_router(sales.router)
 app.include_router(groups.router)
 app.include_router(group_classes.router)
 app.include_router(rules.router)
+app.include_router(rule_steps.router)

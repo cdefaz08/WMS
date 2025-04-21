@@ -30,11 +30,6 @@ async def update_item(
 async def delete_item(item_id: int):
     return await crud_items.delete_item(item_id)
 
-@router.get("/")
-async def read_items(upc: int = Query(None)):
-    if upc is not None:
-        return await crud_items.get_item_by_upc(upc)
-    return await crud_items.read_items()
 
 @router.get("/upc/{upc}", response_model=ItemOut)
 async def get_item_by_upc(upc: int):
