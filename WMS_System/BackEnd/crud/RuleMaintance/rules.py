@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 from sqlalchemy import select, insert, update, delete
 from models import putaway_rules, pick_rules, restock_rules
-from schemas.RuleMaintance.rules_steps import (
+from schemas.RuleMaintance.rules import (
     PutawayRuleCreate, PutawayRuleUpdate,
     PickRuleCreate, PickRuleUpdate,
     RestockRuleCreate, RestockRuleUpdate

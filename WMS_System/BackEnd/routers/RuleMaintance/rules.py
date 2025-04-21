@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import List
 from Security.dependencies import get_current_user
-from schemas.RuleMaintance.rules_steps import *
-from crud.RuleMaintance import rules_steps as crud
+from schemas.RuleMaintance.rules import *
+from crud.RuleMaintance import rules as crud
 
 router = APIRouter(
-    prefix="/rules_steps",
-    tags=["Rules Steps"],
+    prefix="/rules",
+    tags=["Rules"],
     dependencies=[Depends(get_current_user)]
 )
 

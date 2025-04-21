@@ -49,12 +49,9 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self,token = None, username = None):
         super().__init__()
         uic.loadUi("FrontEnd/UI/MainWindow.ui", self)
-        print("TOKEN:", token)
         self.token = token
         self.current_user = username
-        print("CURRENT USER:", self.current_user)
         self.api_client = APIClient(token)
-        print("API Client Main Window:", self.api_client)
 
         self.connect_toolbar()
         self.mdiArea = self.findChild(QtWidgets.QMdiArea, 'mdiArea')
