@@ -32,7 +32,7 @@ from Layout.AdjustmentWindow import AdjustmentWindow
 from Layout.Activities.purchase_order_maint_window import PurchaseOrderMaintWindow
 from Layout.configurations.item_class_window import ItemClassWindow
 from Layout.Activities.Retail_Sale_POS import RetailSaleWindow
-from Layout.configurations.rules.RuleGroups import GroupMaintanceWindow
+from Layout.configurations.rules.GroupClases import GroupMaintanceWindow
 from Layout.configurations.rules.GroupClassTableWindow import GroupClassTableWindow
 from api_client import APIClient
 
@@ -555,7 +555,7 @@ class MainWindow(QtWidgets.QMainWindow):
             if group_name and group_type:
                 try:
                     # Lógica: endpoint depende del tipo de grupo
-                    response = self.api_client.get(f"/group-classes/{group_type}")
+                    response = self.api_client.get(f"/group-classes/{group_type}/")
                     if response.status_code == 200:
                         all_group_class_data = response.json()
 

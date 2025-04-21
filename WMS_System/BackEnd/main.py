@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Depends
+from routers.RuleMaintance import groups
 from Security.dependencies import get_current_user
 from Security.auth import create_access_token
 from datetime import timedelta
@@ -15,7 +16,7 @@ from routers.OrderMaintance import order_line_routes, order_routes, order_type
 from routers.PO_Maintance import purchase_order_line_routes, purchase_order_routes
 from routers.ReceiptMaintance import receipt, receipt_line
 from routers.RetailMaintance import sales
-from routers.RuleMaintance import class_routes, group_classes, rule_groups
+from routers.RuleMaintance import class_routes, group_classes
 from routers.SystemMaintance import document_form, label_form, vendors_routes
 from utils import  verify_password
 from routers.SystemMaintance.users import router as users_router
@@ -96,9 +97,9 @@ app.include_router(label_form.router)
 app.include_router(receipt.router)
 app.include_router(receipt_line.router)
 app.include_router(item_maintance.router)
+app.include_router(item_default_config.router)
 app.include_router(a_contents.router)
 app.include_router(sales.router)
-app.include_router(rule_groups.router)
+app.include_router(groups.router)
 app.include_router(group_classes.router)
-app.include_router(item_default_config.router)
 app.include_router(rules_steps.router)

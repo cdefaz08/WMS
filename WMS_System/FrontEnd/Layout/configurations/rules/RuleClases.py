@@ -3,7 +3,7 @@ from PyQt5 import QtWidgets, uic
 class RuleClases(QtWidgets.QDialog):
     def __init__(self, api_client=None, parent=None):
         super().__init__(parent)
-        uic.loadUi("UI/RuleClases.ui", self)
+        uic.loadUi("FrontEnd/UI/RuleClases.ui", self)
         self.api_client = api_client
 
         self.tableWidget_PutawayClass.horizontalHeader().setStretchLastSection(True)

@@ -8,7 +8,7 @@ from schemas.RuleMaintance.rules_groups import (
     RestockGroupCreate, RestockGroupUpdate
 )
 
-router = APIRouter(prefix="/rules", tags=["Rules"],
+router = APIRouter(prefix="/Groups", tags=["Groups"],
     dependencies=[Depends(get_current_user)])
 
 # -----------------------

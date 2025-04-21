@@ -10,9 +10,9 @@ class GroupMaintanceWindow(GroupMaintanceUI):
         self.load_all_groups()
 
     def load_all_groups(self):
-        self.load_group_data("rules/putaway-groups", self.putaway_tab)
-        self.load_group_data("rules/restock-groups", self.restock_tab)
-        self.load_group_data("rules/pick-groups", self.pick_tab)
+        self.load_group_data("Groups/putaway-groups", self.putaway_tab)
+        self.load_group_data("Groups/restock-groups", self.restock_tab)
+        self.load_group_data("Groups/pick-groups", self.pick_tab)
 
     def load_group_data(self, endpoint, tab):
         try:
@@ -64,7 +64,7 @@ class GroupMaintanceWindow(GroupMaintanceUI):
 
     def delete_selected_group(self):
         tab_index = self.tabs.currentIndex()
-        endpoint_map = {0: "rules/putaway-groups", 1: "rules/restock-groups", 2: "rules/pick-groups"}
+        endpoint_map = {0: "Groups/putaway-groups", 1: "Groups/restock-groups", 2: "Groups/pick-groups"}
         current_tab = self.tabs.currentWidget()
         table = current_tab.table
         row = table.currentRow()
@@ -116,9 +116,9 @@ class GroupMaintanceWindow(GroupMaintanceUI):
         tab_index = self.tabs.currentIndex()
         tab = self.tabs.currentWidget()
         endpoint_map = {
-            0: "rules/putaway-groups",
-            1: "rules/restock-groups",
-            2: "rules/pick-groups"
+            0: "Groups/putaway-groups",
+            1: "Groups/restock-groups",
+            2: "Groups/pick-groups"
         }
         endpoint = endpoint_map.get(tab_index)
 

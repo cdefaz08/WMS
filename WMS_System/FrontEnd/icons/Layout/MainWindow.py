@@ -32,7 +32,7 @@ from Layout.AdjustmentWindow import AdjustmentWindow
 from Layout.Activities.purchase_order_maint_window import PurchaseOrderMaintWindow
 from Layout.configurations.item_class_window import ItemClassWindow
 from Layout.Activities.Retail_Sale_POS import RetailSaleWindow
-from Layout.configurations.rules.RuleGroups import GroupMaintanceWindow
+from FrontEnd.Layout.configurations.rules.GroupClases import GroupMaintanceWindow
 from Layout.configurations.rules.GroupClassTableWindow import GroupClassTableWindow
 from FrontEnd.api_client import APIClient
 
