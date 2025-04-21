@@ -1,6 +1,6 @@
 from logging.config import fileConfig
-from BackEnd.database import engine
-from BackEnd.models import metadata
+from database import engine
+from models import metadata
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 

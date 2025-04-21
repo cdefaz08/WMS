@@ -664,12 +664,15 @@ putaway_rule_steps = Table(
     Column("id", Integer, primary_key=True),
     Column("rule_id", Integer, ForeignKey("putaway_rules.id")),
     Column("seq", Integer),
-    Column("putaway_to", String),
-    Column("putaway_group", String),
-    Column("putaway_class", String),
-    Column("location_type", String),
     Column("min_percent", Float),
-    Column("max_percent", Float)
+    Column("max_percent", Float),
+    Column("UOM", String),    
+    Column("location_type_from", String),
+    Column("putaway_to", String),
+    Column("location_type_to", String),
+    Column("putaway_group", String),
+    Column("sort_expresion", String),
+    Column("max_loc_Check", Integer),
 )
 
 # Pasos de regla para PICK
