@@ -25,7 +25,7 @@ async def create_item_configuration(new_config: ItemMaintanceCreate):
     return {"id": inserted_id, "message": "Item configuration created successfully."}
 
 
-async def get_default_item_config_by_item_id(item_id: str):
+async def get_default_item_config_by_item_id(item_id: int):
     query = (
         select(
             item_maintance.c.item_id,

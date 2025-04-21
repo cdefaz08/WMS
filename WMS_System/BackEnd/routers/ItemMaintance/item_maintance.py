@@ -3,7 +3,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from Security.dependencies import get_current_user
 from schemas.ItemMaintace.ItemMaintance import ItemMaintanceCreate, ItemMaintanceUpdate, ItemMaintance,ItemConfigUOM
-import crud.ItemMaintance as item_maintance_crud
+import crud.ItemMaintance.ItemMaintance as item_maintance_crud
 
 
 router = APIRouter(prefix="/item-config", tags=["Item Configuration"],

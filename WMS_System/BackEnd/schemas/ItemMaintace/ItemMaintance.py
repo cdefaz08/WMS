@@ -50,7 +50,7 @@ class ItemMaintanceUpdate(ItemMaintanceBase):
     pass
 
 class ItemConfigUOM(BaseModel):
-    item_id: str
+    item_id: int
     boxes_per_pallet: Optional[int] = None
     pieces_per_case: Optional[int] = None
     configuration_name: Optional[str] = None
