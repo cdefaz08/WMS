@@ -711,7 +711,6 @@ class MainWindow(QtWidgets.QMainWindow):
             else:
                 QtWidgets.QMessageBox.warning(self, "No Selection", "Please select an item from the table.")               
         elif isinstance(active_window, RuleMaintance):
-            print("boton funciona")
             rule_id, rule_type = active_window.get_selected_rule_info()
             if rule_id:
                 try:
