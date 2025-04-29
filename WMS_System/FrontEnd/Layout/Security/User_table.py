@@ -5,7 +5,7 @@ from Layout.Security.Create_NewUser import NewUserDialog  # Import the new dialo
 class UsersTableWindow(QtWidgets.QDialog):
     def __init__(self,api_client = None,parent=None):
         super().__init__(parent)
-        uic.loadUi("UI/Users.ui", self)
+        uic.loadUi("FrontEnd/UI/Users.ui", self)
         self.api_client = api_client
 
         # Reference UI Elements
