@@ -131,9 +131,9 @@ class PutawayStepsLogic(PutawayStepsMaintWindow):
         self.table.insertRow(row)
 
         # Combos con valores ya cargados
-        combo_from = self._combobox(self.location_types or ["(Ignore)"], 180)
-        combo_to = self._combobox(self.location_types or ["(Ignore)"], 180)
-        combo_group = self._combobox(self.putaway_groups or ["(Ignore)"], 180)
+        combo_from = self._combobox(self.location_types or ["(Ignore)"], 150)
+        combo_to = self._combobox(self.location_types or ["(Ignore)"], 150)
+        combo_group = self._combobox(self.putaway_groups or ["(Ignore)"], 150)
 
         # Agregar widgets a la fila
         self.table.setCellWidget(row, 0, self._spinbox(step.get("seq", 1), 1, 1000))  # SEQ
@@ -143,8 +143,8 @@ class PutawayStepsLogic(PutawayStepsMaintWindow):
             item = QtWidgets.QTableWidgetItem(str(step.get("seq", 1)))
             item.setData(1000, step_id)  # ✅ Guardamos el ID usando user role 1000
             self.table.setItem(row, 0, item)    
-        self.table.setCellWidget(row, 1, self._doublespin(step.get("min_percent", 0), 0, 1000))
-        self.table.setCellWidget(row, 2, self._doublespin(step.get("max_percent", 0), 0, 1000))
+        self.table.setCellWidget(row, 1, self._doublespin(step.get("min_percent", 0), 0, 1000,75))
+        self.table.setCellWidget(row, 2, self._doublespin(step.get("max_percent", 0), 0, 1000,75))
         self.table.setCellWidget(row, 3, self._combobox(["Pallet", "Case", "Piece"]))  # UOM
 
         # Preselección de combos
@@ -155,7 +155,7 @@ class PutawayStepsLogic(PutawayStepsMaintWindow):
         self.table.setCellWidget(row, 7, combo_group)
 
         self.table.setCellWidget(row, 8, self._lineedit(step.get("sort_expresion", ""), 200))
-        self.table.setCellWidget(row, 9, self._spinbox(step.get("max_loc_check", 0), 0, 100, 180))
+        self.table.setCellWidget(row, 9, self._spinbox(step.get("max_loc_check", 0), 0, 100, 145))
 
         # Preseleccionar valores si están en los combos
         def set_combo_if_exists(combo, value):

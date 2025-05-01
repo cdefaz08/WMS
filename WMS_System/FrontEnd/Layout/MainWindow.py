@@ -737,7 +737,7 @@ class MainWindow(QtWidgets.QMainWindow):
                             rule_id=rule_id
                         ),
                         "Putaway Steps",
-                        size=(1405, 348),min_size=(1405, 349), max_size=(1406, 350),
+                        size=(1405, 348),min_size=(1317, 200), max_size=(1317, 500),
                     )
                 elif rule_type == "restock":
                     self.open_mdi_window(
