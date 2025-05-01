@@ -721,3 +721,4 @@ works = Table(
     Column("timestamp_completed", DateTime),
     Column("priority", Integer)
 )
+
