@@ -133,7 +133,9 @@ class PutawayStepsLogic(PutawayStepsMaintWindow):
         # Combos con valores ya cargados
         combo_from = self._combobox(self.location_types or ["(Ignore)"], 150)
         combo_to = self._combobox(self.location_types or ["(Ignore)"], 150)
-        combo_group = self._combobox(self.putaway_groups or ["(Ignore)"], 150)
+        groups = self.putaway_groups or ["(Ignore)"]
+        groups.append("(Item)")
+        combo_group = self._combobox(groups, 150)
         combo_putaway_to = self._combobox(["Empty Locations", "Consolidating Item", "Mixing Items"], 180)
 
         # Agregar widgets a la fila
