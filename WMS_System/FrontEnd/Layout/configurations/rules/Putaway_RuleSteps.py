@@ -23,7 +23,7 @@ class PutawayStepsLogic(PutawayStepsMaintWindow):
         try:
             res = self.api_client.get("/location-types")
             if res.status_code == 200:
-                self.location_types = [lt["location_type"] for lt in res.json()]
+                self.location_types = ["(Ignore)"] + [lt["location_type"] for lt in res.json()]
             else:
                 self.location_types = ["(Ignore)"]
         except:
@@ -33,7 +33,7 @@ class PutawayStepsLogic(PutawayStepsMaintWindow):
         try:
             res = self.api_client.get("/Groups/putaway-groups/")
             if res.status_code == 200:
-                self.putaway_groups = [g["group_name"] for g in res.json()]
+                self.putaway_groups = ["(Ignore)"]  + [g["group_name"] for g in res.json()]
             else:
                 self.putaway_groups = ["(Ignore)"]
         except:
@@ -134,6 +134,7 @@ class PutawayStepsLogic(PutawayStepsMaintWindow):
         combo_from = self._combobox(self.location_types or ["(Ignore)"], 150)
         combo_to = self._combobox(self.location_types or ["(Ignore)"], 150)
         combo_group = self._combobox(self.putaway_groups or ["(Ignore)"], 150)
+        combo_putaway_to = self._combobox(["Empty Locations", "Consolidating Item", "Mixing Items"], 180)
 
         # Agregar widgets a la fila
         self.table.setCellWidget(row, 0, self._spinbox(step.get("seq", 1), 1, 1000))  # SEQ
@@ -149,8 +150,7 @@ class PutawayStepsLogic(PutawayStepsMaintWindow):
 
         # Preselección de combos
         self.table.setCellWidget(row, 4, combo_from)
-        self.table.setCellWidget(row, 5, self._combobox(
-            ["Empty Locations", "Consolidating Item", "Mixing Items"], 180))
+        self.table.setCellWidget(row, 5, combo_putaway_to)
         self.table.setCellWidget(row, 6, combo_to)
         self.table.setCellWidget(row, 7, combo_group)
 
@@ -166,6 +166,7 @@ class PutawayStepsLogic(PutawayStepsMaintWindow):
         set_combo_if_exists(combo_from, step.get("location_type_from", "(Ignore)"))
         set_combo_if_exists(combo_to, step.get("location_type_to", "(Ignore)"))
         set_combo_if_exists(combo_group, step.get("putaway_group", "(Ignore)"))
+        set_combo_if_exists(combo_putaway_to, step.get("putaway_to", "(Ignore)"))  # ✅ Add this line!
 
 
     def delete_selected_row(self):
