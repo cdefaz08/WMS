@@ -91,6 +91,8 @@ locations = Table(
     Column("pnd_location_id1",String),
     Column("pnd_location_id2",String),
     Column("last_touch",DateTime),
+    Column("total_cubic_feet", Float, default=0.0),
+    Column("used_cubic_feet", Float, default=0.0),
 )
     
 

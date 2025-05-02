@@ -133,8 +133,8 @@ class PutawayStepsLogic(PutawayStepsMaintWindow):
         # Combos con valores ya cargados
         combo_from = self._combobox(self.location_types or ["(Ignore)"], 150)
         combo_to = self._combobox(self.location_types or ["(Ignore)"], 150)
-        groups = self.putaway_groups or ["(Ignore)"]
-        groups.append("(Item)")
+        groups = (self.putaway_groups or ["(Ignore)"]).copy()
+        groups.insert(0,"(Item)")
         combo_group = self._combobox(groups, 150)
         combo_putaway_to = self._combobox(["Empty Locations", "Consolidating Item", "Mixing Items"], 180)
 
