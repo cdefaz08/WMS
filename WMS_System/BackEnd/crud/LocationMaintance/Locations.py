@@ -5,6 +5,19 @@ from database import database
 from schemas.LocationMaintance.locations import LocationBase, LocationUpdate  # Asegúrate de importar correctamente
 from typing import Optional
 
+def convert_to_inches(value, uom):
+    if value is None:
+        return 0
+    if not uom:
+        return value  # Assume inches if UOM is missing
+    uom = uom.lower()
+    if uom == "feet":
+        return value * 12
+    elif uom == "cm":
+        return value * 0.393701
+    else:  # Assume inches
+        return value
+
 
 # Create with existence check
 async def create_location(location: LocationBase):
@@ -15,10 +28,20 @@ async def create_location(location: LocationBase):
     if existing:
         raise HTTPException(status_code=400, detail="Location with this ID already exists")
 
-    # Si no existe, crearla
-    query = insert(locations).values(**location.dict())
+    location_data = location.dict()
+
+    # Convert and calculate
+    max_height_in = convert_to_inches(location_data.get("max_height"), location_data.get("uom_max_height"))
+    max_width_in = convert_to_inches(location_data.get("max_width"), location_data.get("uom_max_width"))
+    max_depth_in = convert_to_inches(location_data.get("max_depth"), location_data.get("uom_max_depth"))
+
+    location_data["total_cubic_feet"] = (max_height_in * max_width_in * max_depth_in) / 1728 if (max_height_in and max_width_in and max_depth_in) else 0
+
+    # Crear
+    query = insert(locations).values(**location_data)
     await database.execute(query)
-    return {**location.dict(), "location_id": location.location_id}
+    return {**location_data, "location_id": location.location_id}
+
 
 # Read All
 async def get_all_locations():
@@ -35,12 +58,29 @@ async def get_location_by_id(location_id: str):
     return result
 
 
-# Update by ID
 async def update_location(location_id: str, location_data: LocationUpdate):
     update_data = location_data.dict(exclude_unset=True)
     if not update_data:
         raise HTTPException(status_code=400, detail="No fields provided for update")
-    
+
+    if any(field in update_data for field in ["max_height", "max_width", "max_depth", "uom_max_height", "uom_max_width", "uom_max_depth"]):
+        # Obtener valores actuales
+        existing = await get_location_by_id(location_id)
+
+        max_height = update_data.get("max_height", existing["max_height"])
+        max_width = update_data.get("max_width", existing["max_width"])
+        max_depth = update_data.get("max_depth", existing["max_depth"])
+
+        uom_height = update_data.get("uom_max_height", existing["uom_max_height"])
+        uom_width = update_data.get("uom_max_width", existing["uom_max_width"])
+        uom_depth = update_data.get("uom_max_depth", existing["uom_max_depth"])
+
+        max_height_in = convert_to_inches(max_height, uom_height)
+        max_width_in = convert_to_inches(max_width, uom_width)
+        max_depth_in = convert_to_inches(max_depth, uom_depth)
+
+        update_data["total_cubic_feet"] = (max_height_in * max_width_in * max_depth_in) / 1728 if (max_height_in and max_width_in and max_depth_in) else 0
+
     query = (
         update(locations)
         .where(locations.c.location_id == location_id)
