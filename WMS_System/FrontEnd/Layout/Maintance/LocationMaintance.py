@@ -8,6 +8,7 @@ class LocationMaintance(Ui_LocationMaintance):
         super().__init__(parent)
         self.api_client = api_client
         self.loadLocationClasesDropdown()
+        self.load_uom_dropdowns() 
         self.uppercase_fields = [
             self.lineEdit_Location,
             self.lineEdit_ScanLocation,
@@ -114,6 +115,24 @@ class LocationMaintance(Ui_LocationMaintance):
         self.lineEdit_CartonsQty.setText(str(location.get("carton_qty_act", "")))
 
         self.lineEdit_LastTouched.setText(location.get("last_touch", ""))
+        self.comboBox_HeightUOM.setCurrentText(location.get("uom_max_height", ""))
+        self.comboBox_DepthUOM.setCurrentText(location.get("uom_max_depth", ""))
+        self.comboBox_WidthUOM.setCurrentText(location.get("uom_max_width", ""))
+        self.comboBox_WeightUOM.setCurrentText(location.get("uom_max_weight", ""))
+
+    def load_uom_dropdowns(self):
+        uom_options = ["IN", "FEET", "CM"]
+        uom_weight_options = ["LBS", "KGS"]
+
+        self.comboBox_HeightUOM.clear()
+        self.comboBox_WidthUOM.clear()
+        self.comboBox_DepthUOM.clear()
+        self.comboBox_WeightUOM.clear()
+
+        self.comboBox_HeightUOM.addItems(uom_options)
+        self.comboBox_WidthUOM.addItems(uom_options)
+        self.comboBox_DepthUOM.addItems(uom_options)
+        self.comboBox_WeightUOM.addItems(uom_weight_options)
 
     def get_updated_fields(self):
         updated = {}
@@ -198,12 +217,12 @@ class LocationMaintance(Ui_LocationMaintance):
             response = self.api_client.put(f"/locations/{location_id}", json=updated_fields)
             if response.status_code == 200:
                 QtWidgets.QMessageBox.information(self, "Success", "Location updated successfully.")
-                self.original_data = self.original_data | updated_fields 
-                if hasattr(self, "parent_subwindow") and self.parent_subwindow:
-                    self.parent_subwindow.close()
-                else:
-                    self.close()
+                self.original_data = self.original_data | updated_fields
+                self.loadLocationData(self.original_data)  # <-- Force UI reload here ✅
+            if hasattr(self, "parent_subwindow") and self.parent_subwindow:
+                self.parent_subwindow.close()
             else:
+                self.close() 
                 QtWidgets.QMessageBox.warning(self, "Error", f"Failed to update location: {response.text}")
         except requests.exceptions.RequestException:
             QtWidgets.QMessageBox.critical(self, "Error", "Could not connect to the server.")

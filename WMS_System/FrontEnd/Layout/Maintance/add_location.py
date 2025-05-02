@@ -27,6 +27,7 @@ class AddLocationDialog(Ui_AddLocation):
 
         self.setWindowTitle("Create New Location")
         self.load_location_classes()
+        self.load_uom_dropdowns()
 
 
     def load_location_classes(self):
@@ -52,7 +53,7 @@ class AddLocationDialog(Ui_AddLocation):
                 self.comboBox_PickClass.addItem(c["class_name"])
 
             for lt in location_type:
-                self.comboBox_LocationType.addItem(lt["location_type"])
+                self.comboBox_LocationType.addItem(lt["location_type"]), # add a new location and update the UOM for more clarity
                 
             for p in proximities:
                 self.comboBox_ProxIN.addItem(p["proximity"])
@@ -69,8 +70,24 @@ class AddLocationDialog(Ui_AddLocation):
             field.setCursorPosition(cursor_pos)
 
 
+    def load_uom_dropdowns(self):
+        uom_options = ["IN", "FEET", "CM"]
+        uom_weight_options = ["LBS", "KGS"]
+
+        self.comboBox_HeightUOM.clear()
+        self.comboBox_WidthUOM.clear()
+        self.comboBox_DepthUOM.clear()
+        self.comboBox_WeightUOM.clear()
+
+        self.comboBox_HeightUOM.addItems(uom_options)
+        self.comboBox_WidthUOM.addItems(uom_options)
+        self.comboBox_DepthUOM.addItems(uom_options)
+        self.comboBox_WeightUOM.addItems(uom_weight_options)
+
+
 
     def save_new_location(self):
+
         def set_if_not_empty(field_dict, key, line_edit, cast_type=str):
             value = line_edit.text().strip()
             if value:
@@ -80,6 +97,9 @@ class AddLocationDialog(Ui_AddLocation):
                     QtWidgets.QMessageBox.warning(self, "Invalid Input", f"{key} must be a {cast_type.__name__}")
 
         location_id = self.lineEdit_Location.text().strip()
+        if not location_id:
+            QtWidgets.QMessageBox.warning(self, "Missing Field", "Location ID is required.")
+            return        
 
         data = {
             "location_id": location_id,

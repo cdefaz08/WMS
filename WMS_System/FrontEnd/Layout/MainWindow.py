@@ -379,7 +379,7 @@ class MainWindow(QtWidgets.QMainWindow):
         elif isinstance(active_window, RuleClases):
             active_window.add_new_row()
         elif isinstance(active_window, LocationSearchWindow):
-            self.open_mdi_window(AddLocationDialog, "Add New Location", size=(900, 800),min_size=(800 , 600), max_size=(940, 900))
+            self.open_mdi_window(AddLocationDialog(api_client=self.api_client), "Add New Location", size=(900, 800),min_size=(800 , 600), max_size=(940, 900))
         elif isinstance(active_window, ProximityWindow):
             active_window.add_new_row()
         elif isinstance(active_window, VendorSearchWindow):
