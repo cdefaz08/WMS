@@ -1,8 +1,9 @@
 from PyQt5 import QtWidgets
 
 class InsertIntoLocationWindow(QtWidgets.QWidget):
-    def __init__(self, location_name, location_type_rules, parent=None):
+    def __init__(self,api_client,location_name, location_type_rules, parent=None):
         super().__init__(parent)
+        self.api_client = api_client
         self.location_name = location_name
         self.rules = location_type_rules
         self.setup_ui()
@@ -23,7 +24,7 @@ class InsertIntoLocationWindow(QtWidgets.QWidget):
 
         # Into Options
         self.into_group = QtWidgets.QGroupBox("Into")
-        self.radio_location = QtWidgets.QRadioButton(self.location_name)
+        self.radio_location = QtWidgets.QRadioButton(f"Location{self.location_name}")
         self.radio_into_pallet = QtWidgets.QRadioButton("Pallet")
         self.radio_into_carton = QtWidgets.QRadioButton("Carton")
         into_layout = QtWidgets.QVBoxLayout()
@@ -109,5 +110,72 @@ class InsertIntoLocationWindow(QtWidgets.QWidget):
             self.radio_carton.setEnabled(False)
 
     def submit(self):
-        # Gather data and validate
-        pass
+        try:
+            payload = {}
+
+            if self.radio_pallet.isChecked():
+                # 👉 Creating a new Pallet
+                pallet_id = self.input_pallet_id.text().strip()
+                if not pallet_id:
+                    QtWidgets.QMessageBox.warning(self, "Error", "Pallet ID is required.")
+                    return
+
+                payload = {
+                    "pallet_id": pallet_id,
+                    "pallet_type": self.input_pallet_type.text().strip(),
+                    "condition": self.input_condition.text().strip(),
+                    "adjust_reason": self.input_adjust_reason.text().strip(),
+                    "requester": self.input_requester.text().strip(),
+                    "location_id": self.location_name,
+                    "pieces_on_hand": 0  # New pallets start empty
+                }
+
+            elif self.radio_content.isChecked():
+                # 👉 Inserting Content
+                item_id = self.input_item_code.text().strip()
+                if not item_id:
+                    QtWidgets.QMessageBox.warning(self, "Error", "Item Code is required.")
+                    return
+
+                payload = {
+                    "owner": self.input_owner.text().strip(),
+                    "item_id": item_id,
+                    "description": self.input_description.text().strip(),
+                    "serial_number": self.input_serial_number.text().strip(),
+                    "lot": self.input_lot.text().strip(),
+                    "tracking_date": self.input_tracking_date.date().toString("yyyy-MM-dd"),
+                    "received_date": self.input_received_date.date().toString("yyyy-MM-dd"),
+                    "pieces_on_hand": self.input_onhand.value(),
+                }
+
+                # Now check WHERE to insert the content
+                if self.radio_location.isChecked():
+                    payload["location_name"] = self.location_name
+                elif self.radio_into_pallet.isChecked():
+                    # We would need to ask for pallet_id from user
+                    pallet_id, ok = QtWidgets.QInputDialog.getText(self, "Pallet ID", "Enter Pallet ID:")
+                    if ok and pallet_id.strip():
+                        payload["pallet_id"] = pallet_id.strip()
+                    else:
+                        QtWidgets.QMessageBox.warning(self, "Error", "Pallet ID is required to insert into pallet.")
+                        return
+                else:
+                    QtWidgets.QMessageBox.warning(self, "Error", "Please select where to insert the content.")
+                    return
+
+            else:
+                QtWidgets.QMessageBox.warning(self, "Error", "Please select what to insert (Pallet or Content).")
+                return
+
+            # ✅ Now send the API request
+            response = self.api_client.post("/a-contents/", json=payload)
+
+            if response.status_code == 200:
+                QtWidgets.QMessageBox.information(self, "Success", "Inserted successfully!")
+                self.close()
+            else:
+                QtWidgets.QMessageBox.warning(self, "Error", f"Failed to insert.\n{response.text}")
+
+        except Exception as e:
+            QtWidgets.QMessageBox.critical(self, "Error", str(e))
+
