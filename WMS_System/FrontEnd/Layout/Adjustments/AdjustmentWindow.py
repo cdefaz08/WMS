@@ -39,27 +39,41 @@ class AdjustmentWindow(QtWidgets.QWidget):
         self.ui.tree_widget.clear()
         pallets = {}
 
+        # --- Fetch pallets at the location ---
+        try:
+            pallets_response = self.api_client.get(f"/pallets/by-location/{self.location_name}")
+            pallets_data = pallets_response.json() if pallets_response.status_code == 200 else []
+        except Exception as e:
+            QtWidgets.QMessageBox.critical(self, "Error", f"Failed to fetch pallets:\n{str(e)}")
+            pallets_data = []
+
+        # --- Create Pallet parent items ---
+        for pallet in pallets_data:
+            pallet_id = pallet.get("pallet_id")
+            parent_item = QtWidgets.QTreeWidgetItem(self.ui.tree_widget)
+            parent_item.setText(0, pallet_id)
+            parent_item.setText(1, "")  # No item code at pallet level
+            parent_item.setText(2, "")  # No qty at pallet level
+            parent_item.setData(0, QtCore.Qt.UserRole, {"pallet_id": pallet_id})
+            pallets[pallet_id] = parent_item
+
+        # --- Add Contents ---
         for entry in self.adjustments_data:
             pallet_id = entry.get("pallet_id")
-
-            if not pallet_id:
+            if pallet_id and pallet_id in pallets:
+                # This pallet already created, add as child
+                child_item = QtWidgets.QTreeWidgetItem()
+                child_item.setText(1, entry.get("item_id", ""))
+                child_item.setText(2, str(entry.get("pieces_on_hand", 0)))
+                child_item.setData(0, QtCore.Qt.UserRole, entry)
+                pallets[pallet_id].addChild(child_item)
+            else:
+                # No pallet_id (loose content directly in location)
                 row = QtWidgets.QTreeWidgetItem(self.ui.tree_widget)
                 row.setText(0, "")
-                row.setText(1, entry["item_id"])
-                row.setText(2, str(entry["pieces_on_hand"]))
+                row.setText(1, entry.get("item_id", ""))
+                row.setText(2, str(entry.get("pieces_on_hand", 0)))
                 row.setData(0, QtCore.Qt.UserRole, entry)
-            else:
-                if pallet_id not in pallets:
-                    parent_item = QtWidgets.QTreeWidgetItem(self.ui.tree_widget)
-                    parent_item.setText(0, pallet_id)
-                    pallets[pallet_id] = parent_item
-
-                child_item = QtWidgets.QTreeWidgetItem()
-                child_item.setText(1, entry["item_id"])
-                child_item.setText(2, str(entry["pieces_on_hand"]))
-                child_item.setData(0, QtCore.Qt.UserRole, entry)
-
-                pallets[pallet_id].addChild(child_item)
 
     def on_item_selected(self, item, column):
         self.input_item_code.setText(item.text(1))  # ITEM CODE column

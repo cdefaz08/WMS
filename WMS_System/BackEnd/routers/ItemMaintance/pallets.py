@@ -1,5 +1,8 @@
 from fastapi import APIRouter, HTTPException, Depends
 from Security.dependencies import get_current_user
+from sqlalchemy import select
+from models import pallets
+from database import database
 from schemas.ItemMaintace.Pallets import PalletCreate, PalletRead
 from datetime import datetime
 from crud.ItemMaintance.pallets import (
@@ -32,6 +35,16 @@ async def create_pallet_route(
 @router.get("/", response_model=list[PalletRead])
 async def list_all_pallets():
     return await get_all_pallets()
+
+@router.get("/by-location/{location_id}")
+async def get_pallets_by_location(location_id: str):
+    query = select(pallets).where(pallets.c.location_id == location_id)
+    pallets_at_location = await database.fetch_all(query)
+
+    if not pallets_at_location:
+        return []  # No pallets found
+
+    return pallets_at_location
 
 # GET BY ID
 @router.get("/{pallet_id}", response_model=PalletRead)
