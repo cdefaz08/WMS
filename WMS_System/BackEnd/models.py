@@ -527,6 +527,20 @@ a_contents = Table(
     Column("user_last_touched", String(50), nullable=False),
 )
 
+pallets = Table(
+    "pallets",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("pallet_id", String(50), unique=True, nullable=False),
+    Column("location_id", String, ForeignKey("locations.location_id"), nullable=False),
+    Column("pallet_type", String(50), nullable=True),
+    Column("condition", String(50), nullable=True),
+    Column("adjust_reason", String(100), nullable=True),
+    Column("requester", String(100), nullable=True),
+    Column("created_date", DateTime, nullable=False),
+    Column("created_by", String(50), nullable=False),
+)
+
 sales = Table(
     "sales",
     metadata,

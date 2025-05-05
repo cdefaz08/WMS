@@ -428,6 +428,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.open_mdi_window(
                 lambda: InsertIntoLocationWindow(
                     api_client=self.api_client,
+                    user = self.current_user,
                     location_name=active_window.location_name,
                     location_type_rules=active_window.location_type_rules,
                     parent=self,

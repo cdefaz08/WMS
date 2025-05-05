@@ -27,6 +27,7 @@ from routers.LocationMaintance.Location import router as locations
 from routers.RuleMaintance import (rules)
 from routers.RuleMaintance import rule_steps
 from routers.Engines import putaway_engine
+from routers.ItemMaintance import pallets
 
 # Initialize FastAPI
 app = FastAPI()
@@ -107,3 +108,4 @@ app.include_router(group_classes.router)
 app.include_router(rules.router)
 app.include_router(rule_steps.router)
 app.include_router(putaway_engine.router)
+app.include_router(pallets.router)
