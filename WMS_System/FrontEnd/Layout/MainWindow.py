@@ -423,15 +423,17 @@ class MainWindow(QtWidgets.QMainWindow):
         elif isinstance(active_window,PutawayStepsLogic):
             active_window.add_empty_row()
         elif isinstance(active_window, AdjustmentWindow):
-            
-
+            def setup(widget, sub_window):
+                self.mdiArea.subWindowActivated.connect(self.handle_subwindow_focus_change)
+                self.actionItemMaintance.setVisible(True)
+                widget.destroyed.connect(self.hide_item_toolbar_action)
             self.open_mdi_window(
                 lambda: InsertIntoLocationWindow(
                     api_client=self.api_client,
                     user = self.current_user,
                     location_name=active_window.location_name,
                     location_type_rules=active_window.location_type_rules,
-                    parent=self,
+                    parent=self,extra_setup=setup
                 ),
                 window_title="Insert Into Location",
                 size=(600, 500),       # <- suggest a good size for the Insert window
@@ -878,6 +880,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.actionOrderLines.setVisible(True)
         elif isinstance(widget, (LocationSearchWindow,InventorySearchWindow)):
             self.actionItemMaintance.setVisible(True)
+            self.actionAdjustment.setVisible(True)
+        elif isinstance(widget, AdjustmentWindow):
             self.actionAdjustment.setVisible(True)
 
 
