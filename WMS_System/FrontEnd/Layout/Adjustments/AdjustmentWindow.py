@@ -78,3 +78,10 @@ class AdjustmentWindow(QtWidgets.QWidget):
     def on_item_selected(self, item, column):
         self.input_item_code.setText(item.text(1))  # ITEM CODE column
         self.input_qty.setText(item.text(2))         # QTY column
+
+
+    def get_selected_pallet_id(self):
+        selected_item = self.ui.tree_widget.currentItem()
+        if selected_item:
+            return selected_item.text(0)  # Assuming first column is PALLET ID
+        return None

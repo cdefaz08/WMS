@@ -368,6 +368,28 @@ class MainWindow(QtWidgets.QMainWindow):
                 QtWidgets.QMessageBox.warning(
                     self, "No Selection", "Please select a location from the table."
                 )
+        elif isinstance(active_window, AdjustmentWindow):
+            pallet_id = active_window.get_selected_pallet_id()
+
+            if pallet_id:
+                # 1. Open InsertIntoLocationWindow through open_mdi_window, using a lambda
+                self.open_mdi_window(
+                    lambda: InsertIntoLocationWindow(
+                        api_client=self.api_client,
+                        pallet_id=pallet_id,
+                        location_name=None,  # You can pass None or fetch it if you want
+                        user=self.current_user,
+                        location_type_rules={},  # No rules for now or set defaults
+                        parent=self,
+                    ),
+                    "Insert into Pallet",
+                    size=(600, 400),
+                    min_size=(400, 300),
+                    max_size=(700, 500),
+                    extra_setup=lambda w, s: setattr(w, "parent_subwindow", s),
+                )
+            else:
+                QtWidgets.QMessageBox.warning(self, "Warning", "Please select a Pallet first.")
 
 
     def toolbar_new(self):

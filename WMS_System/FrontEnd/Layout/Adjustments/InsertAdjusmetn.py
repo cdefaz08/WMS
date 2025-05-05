@@ -2,12 +2,13 @@ from PyQt5 import QtWidgets
 from datetime import datetime
 
 class InsertIntoLocationWindow(QtWidgets.QWidget):
-    def __init__(self,api_client,location_name,user, location_type_rules, parent=None):
+    def __init__(self,api_client,location_name= None,pallet_id= None,user= None, location_type_rules= None, parent=None):
         super().__init__(parent)
         self.api_client = api_client
         self.user = user
+        self.pallet_id = pallet_id
         self.location_name = location_name
-        self.rules = location_type_rules
+        self.rules = location_type_rules or {}
         self.setup_ui()
     
     def setup_ui(self):
@@ -162,3 +163,10 @@ class InsertIntoLocationWindow(QtWidgets.QWidget):
 
         else:
             QtWidgets.QMessageBox.warning(self, "Error", "Please select Insert Pallet or Content.")
+
+
+    def get_selected_pallet_id(self):
+        selected_item = self.ui.tree_widget.currentItem()
+        if selected_item:
+            return selected_item.text(0)  # Column 0 = PALLET ID
+        return None
