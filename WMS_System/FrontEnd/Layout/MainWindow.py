@@ -28,7 +28,7 @@ from Layout.Activities.ReceiptLinesWindow import ReceiptLinesWindow
 from Layout.Maintance.ItemConfiguration import ItemConfigurationWindow
 from Layout.Inquiry.InventorySearchWindow import InventorySearchWindow
 from Layout.Activities.PO_Search import PurchaseOrderSearchWindow
-from Layout.AdjustmentWindow import AdjustmentWindow
+from FrontEnd.Layout.Adjustments.AdjustmentWindow import AdjustmentWindow
 from Layout.Activities.purchase_order_maint_window import PurchaseOrderMaintWindow
 from Layout.configurations.item_class_window import ItemClassWindow
 from Layout.Activities.Retail_Sale_POS import RetailSaleWindow
@@ -313,7 +313,7 @@ class MainWindow(QtWidgets.QMainWindow):
                                 api_client=self.api_client,
                                 parent=self,
                             ),
-                            "Inventory Adjustments",
+                            f"Inventory Adjustments for location: {location_id}",
                             size=(800, 600),
                             min_size=(697, 459),
                             max_size=(799, 569),
@@ -349,7 +349,7 @@ class MainWindow(QtWidgets.QMainWindow):
                                 api_client=self.api_client,
                                 parent=self,
                             ),
-                            "Inventory Adjustments",
+                            f"Inventory Adjustments for Location: {location_id}",
                             size=(800, 600),
                             min_size=(697, 459),
                             max_size=(799, 569),

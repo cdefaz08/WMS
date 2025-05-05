@@ -28,12 +28,13 @@ from Layout.Activities.ReceiptLinesWindow import ReceiptLinesWindow
 from Layout.Maintance.ItemConfiguration import ItemConfigurationWindow
 from Layout.Inquiry.InventorySearchWindow import InventorySearchWindow
 from Layout.Activities.PO_Search import PurchaseOrderSearchWindow
-from Layout.AdjustmentWindow import AdjustmentWindow
+from Layout.Adjustments.AdjustmentWindow import AdjustmentWindow
 from Layout.Activities.purchase_order_maint_window import PurchaseOrderMaintWindow
 from Layout.configurations.item_class_window import ItemClassWindow
 from Layout.Activities.Retail_Sale_POS import RetailSaleWindow
-from FrontEnd.Layout.configurations.rules.GroupClases import GroupMaintanceWindow
+from Layout.configurations.rules.GroupClases import GroupMaintanceWindow
 from Layout.configurations.rules.GroupClassTableWindow import GroupClassTableWindow
+from Layout.Adjustments.InsertAdjusmetn import InsertIntoLocationWindow  # <-- Adjust this import if needed
 from FrontEnd.api_client import APIClient
 
 class TrackingSubWindow(QMdiSubWindow):
@@ -287,78 +288,79 @@ class MainWindow(QtWidgets.QMainWindow):
     def toolbar_adjustment(self):
         active_window = self.get_active_window()
 
-        if isinstance(active_window, LocationSearchWindow):
+        if isinstance(active_window, (LocationSearchWindow, InventorySearchWindow)):
             location_id = active_window.get_selected_location_id()
+
             if location_id:
                 try:
-                    # ✅ Consumimos el endpoint de filtro con location_id como parámetro
-                    response = self.api_client.get(
-                        f"/a-contents/by-location/?location_id={location_id}"
-                    )
+                    # 1. Get the adjustments data (contents of that location)
+                    response = self.api_client.get(f"/a-contents/by-location/?location_id={location_id}")
 
-                    if response.status_code == 200:
+                    # 2. Get location details (to get location name + location type rules)
+                    response_location = self.api_client.get(f"/locations/{location_id}")
+
+                    if response.status_code == 200 and response_location.status_code == 200:
                         adjustments_data = response.json()
+                        location_info = response_location.json()
 
-                        self.open_mdi_window(
-                            lambda: AdjustmentWindow(
-                                adjustments_data=adjustments_data,
-                                api_client=self.api_client,
-                                parent=self,
-                            ),
-                            "Inventory Adjustments",
-                            size=(800, 600),
-                            min_size=(697, 459),
-                            max_size=(799, 569),
-                            extra_setup=lambda w, s: setattr(w, "parent_subwindow", s),
-                        )
+                        location_name = location_info.get("location_name", "Unknown Location")
+                        location_type_id = location_info.get("location_type")
+
+                        # 3. Now get the location type rules
+                        response_location_type = self.api_client.get(f"/location-types/{location_type_id}")
+
+                        if response_location_type.status_code == 200:
+                            location_type_info = response_location_type.json()
+
+                            # Extract rules
+                            location_type_rules = {
+                                "mix_items": location_type_info.get("mix_items", True),
+                                "mix_configurations": location_type_info.get("mix_configurations", True),
+                                "mix_track_date": location_type_info.get("mix_track_date", True),
+                                "mix_receiving_date": location_type_info.get("mix_receiving_date", True),
+                                "allow_picking_pallet": location_type_info.get("allow_picking_pallet", True),
+                                "allow_picking_carton": location_type_info.get("allow_picking_carton", True),
+                                "allow_picking_pieces": location_type_info.get("allow_picking_pieces", True),
+                                "storage_pallet": location_type_info.get("storage_pallet", True),
+                                "storage_carton": location_type_info.get("storage_carton", False),
+                                "storage_content": location_type_info.get("storage_content", False),
+                                "merge": location_type_info.get("merge", True),
+                            }
+
+                            # 4. Finally open Adjustment Window with everything
+                            self.open_mdi_window(
+                                lambda: AdjustmentWindow(
+                                    adjustments_data=adjustments_data,
+                                    api_client=self.api_client,
+                                    location_name=location_name,
+                                    location_type_rules=location_type_rules,
+                                    parent=self,
+                                ),
+                                "Inventory Adjustments",
+                                size=(800, 600),
+                                min_size=(697, 459),
+                                max_size=(799, 569),
+                                extra_setup=lambda w, s: setattr(w, "parent_subwindow", s),
+                            )
+                        else:
+                            QtWidgets.QMessageBox.warning(
+                                self, "Error", "Could not load location type details from server."
+                            )
                     else:
                         QtWidgets.QMessageBox.warning(
-                            self, "Error", "Could not load adjustments from server."
+                            self, "Error", "Could not load adjustments or location details."
                         )
+
                 except requests.exceptions.RequestException:
                     QtWidgets.QMessageBox.critical(
                         self, "Error", "Could not connect to the server."
                     )
+
             else:
                 QtWidgets.QMessageBox.warning(
                     self, "No Selection", "Please select a location from the table."
                 )
-        elif isinstance(active_window, InventorySearchWindow):
-            location_id = active_window.get_selected_location_id()
-            if location_id:
-                try:
-                    # ✅ Consumimos el endpoint de filtro con location_id como parámetro
-                    response = self.api_client.get(
-                        f"/a-contents/by-location/?location_id={location_id}"
-                    )
 
-                    if response.status_code == 200:
-                        adjustments_data = response.json()
-
-                        self.open_mdi_window(
-                            lambda: AdjustmentWindow(
-                                adjustments_data=adjustments_data,
-                                api_client=self.api_client,
-                                parent=self,
-                            ),
-                            "Inventory Adjustments",
-                            size=(800, 600),
-                            min_size=(697, 459),
-                            max_size=(799, 569),
-                            extra_setup=lambda w, s: setattr(w, "parent_subwindow", s),
-                        )
-                    else:
-                        QtWidgets.QMessageBox.warning(
-                            self, "Error", "Could not load adjustments from server."
-                        )
-                except requests.exceptions.RequestException:
-                    QtWidgets.QMessageBox.critical(
-                        self, "Error", "Could not connect to the server."
-                    )
-            else:
-                QtWidgets.QMessageBox.warning(
-                    self, "No Selection", "Please select a location from the table."
-                )
 
     def toolbar_new(self):
         active_window = self.get_active_window()
@@ -408,6 +410,20 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.add_new_row_to_current_tab()
         elif isinstance(active_window , GroupClassTableWindow):
             active_window.add_empty_row()
+        elif isinstance(active_window, AdjustmentWindow):
+            
+
+            self.open_mdi_window(
+                lambda: InsertIntoLocationWindow(
+                    location_name=active_window.location_name,
+                    location_type_rules=active_window.location_type_rules,
+                    parent=self,
+                ),
+                title="Insert Into Location",
+                size=(600, 500),       # <- suggest a good size for the Insert window
+                min_size=(400, 300),    # <- minimum size allowed
+                max_size=(800, 600),    # <- optional max size
+            )
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
 
