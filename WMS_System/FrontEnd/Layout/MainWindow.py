@@ -377,15 +377,15 @@ class MainWindow(QtWidgets.QMainWindow):
                     lambda: InsertIntoLocationWindow(
                         api_client=self.api_client,
                         pallet_id=pallet_id,
-                        location_name=None,  # You can pass None or fetch it if you want
+                        location_name=active_window.location_name,
                         user=self.current_user,
                         location_type_rules={},  # No rules for now or set defaults
                         parent=self,
                     ),
                     "Insert into Pallet",
-                    size=(600, 400),
-                    min_size=(400, 300),
-                    max_size=(700, 500),
+                    size=(600, 620),
+                    min_size=(595, 600),
+                    max_size=(610, 710),
                     extra_setup=lambda w, s: setattr(w, "parent_subwindow", s),
                 )
             else:
@@ -455,12 +455,12 @@ class MainWindow(QtWidgets.QMainWindow):
                     user = self.current_user,
                     location_name=active_window.location_name,
                     location_type_rules=active_window.location_type_rules,
-                    parent=self,extra_setup=setup
+                    parent=self
                 ),
                 window_title="Insert Into Location",
-                size=(600, 500),       # <- suggest a good size for the Insert window
-                min_size=(400, 300),    # <- minimum size allowed
-                max_size=(800, 600),    # <- optional max size
+                    size=(600, 700),
+                    min_size=(595, 600),
+                    max_size=(610, 710),   # <- optional max size
             )
         else:
             QtWidgets.QMessageBox.warning(self, "No Active Window", "Please select a window first.")
