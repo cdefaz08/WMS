@@ -584,6 +584,9 @@ class MainWindow(QtWidgets.QMainWindow):
             active_window.load_data()
         elif isinstance(active_window,GroupClassTableWindow):
             active_window.refresh_data()
+        elif isinstance(active_window,AdjustmentWindow):
+            active_window.populate_tree()
+            active_window.refresh_data()
         
         else:
             QtWidgets.QMessageBox.warning(self,"No Active Window", "Please select a window First")

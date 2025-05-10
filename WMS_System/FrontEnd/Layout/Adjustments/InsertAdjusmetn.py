@@ -161,7 +161,7 @@ class InsertIntoLocationWindow(QtWidgets.QWidget):
     def submit(self):
         now = datetime.now()
 
-        if self.radio_pallet.isChecked() and not self.pallet_id:
+        if self.insert_radio_pallet.isChecked() and not self.pallet_id:
             # ➡ Crear un nuevo pallet
             data = {
                 "pallet_id": self.input_pallet_id.text().strip(),

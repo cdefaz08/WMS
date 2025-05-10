@@ -85,3 +85,15 @@ class AdjustmentWindow(QtWidgets.QWidget):
         if selected_item:
             return selected_item.text(0)  # Assuming first column is PALLET ID
         return None
+    
+    def refresh_data(self):
+        try:
+            response = self.api_client.get(f"/a-contents/by-location/?location_id={self.location_name}")
+            if response.status_code == 200:
+                self.adjustments_data = response.json()
+            else:
+                QtWidgets.QMessageBox.warning(self, "Error", f"Failed to load contents:\n{response.text}")
+                self.adjustments_data = []
+        except Exception as e:
+            QtWidgets.QMessageBox.critical(self, "Error", f"API error:\n{str(e)}")
+            self.adjustments_data = []
