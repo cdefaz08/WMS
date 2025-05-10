@@ -194,7 +194,7 @@ class InsertIntoLocationWindow(QtWidgets.QWidget):
                 "pieces_on_hand": self.input_onhand.value(),
                 "receipt_info": "",
                 "receipt_release_num": "",
-                "date_time_last_touched": self.input_tracking_date.date().toString("yyyy-MM-ddTHH:mm:ss"),
+                "date_time_last_touched": self.input_tracking_date.dateTime().toString("yyyy-MM-ddTHH:mm:ss"),
                 "user_last_touched": self.user
             }
             try:
